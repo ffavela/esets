@@ -1,0 +1,265 @@
+Testing ```esets``` (enumerated sets).
+
+Particularly the ```Pairs``` Class.
+
+>>> from pairs import Pairs
+
+Now use it:
+
+>>> p = Pairs()
+>>> p
+<esets.Pairs (0, 2, 4, 6, ...)>
+
+This should be the set of all positive even numbers.
+
+This means that values such as 2, 20, or 1234343243242342340 are
+contained by `p`.
+
+>>> 2 in p
+True
+>>> 20 in p
+True
+>>> 1234343243242342340 in p
+True
+
+As expected, odd numbers or negative integers are not in the eset:
+
+>>> 5 in p
+False
+>>> 11 in p
+False
+>>> 434325345234324324329 in p
+False
+>>> -2 in p
+False
+
+
+```p``` is an inmutable sequence this means that ```index``` is
+supported. Trying to get the index from odd values or negative
+integers will raise an ValueError.
+
+>>> p.index(5)
+Traceback (most recent call last):
+...
+ValueError: 5 not in 'Pairs'
+>>> p.index(-6)
+Traceback (most recent call last):
+...
+ValueError: -6 not in 'Pairs'
+
+But for any positive even number:
+
+>>> p.index(2)
+1
+>>> p.index(20)
+10
+>>> p.index(1234343243242342340)
+617171621621171170
+
+We can address those values from within the ```eset``` like:
+
+>>> p[1]
+2
+>>> p[10]
+20
+>>> p[617171621621171170]
+1234343243242342340
+
+Note that this is an infinite set so extracting the length will raise
+an exception.
+
+>>> len(p)
+Traceback (most recent call last):
+...
+ValueError: Aleph_0 infinite
+
+We cannot get the last element from this infinite set we'll get an
+IndexError:
+
+>>> p[-1]
+Traceback (most recent call last):
+...
+IndexError: Cannot count backward from an Aleph_0 infinite set
+
+For this same reason the `eset` with it's current form is not
+reversible like a list or a tuple.
+
+>>> p[::-1]
+Traceback (most recent call last):
+...
+ValueError: Cannot reverse an Aleph_0 infinite
+
+This doesn't impede us from using positive integer steps. The
+following slice will create an ```eset``` jumps futher every of two in
+the pairs eset, that is it'll contain every positive multiple of four:
+
+>>> p[::2]
+<esets.Pairs (0, 4, 8, 12, ...)>
+
+In general, slicing is accepted by ```esets```:
+
+>>> pp = p[:10]
+
+This creates a finite version were we can get its len:
+
+>>> len(pp)
+10
+
+We can loop through the values (it supports __iter__):
+
+>>> for v in pp:
+...     print(v)
+... 
+0
+2
+4
+6
+8
+10
+12
+14
+16
+18
+
+This is of course similar to what one would obtain from the following
+list compehension:
+
+>>> lpp = [2*v for v in range(10)]
+>>> lpp
+[0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+
+We can perform a quick comparison check:
+
+>>> list(pp)
+[0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+>>> list(pp) == lpp
+True
+
+For this finite `eset` negative index values can be used:
+
+>>> pp[-1]
+18
+>>> pp[-5]
+10
+
+Which clearly matches the list behavior:
+
+>>> lpp[-1]
+18
+>>> lpp[-5]
+10
+
+With this version, we see that while some even numbers are contained:
+
+>>> 6 in pp
+True
+>>> 18 in pp
+True
+
+It clearly no longer contains all the positive even numbers:
+
+>>> 20 in pp
+False
+>>> 1234343243242342340 in pp
+False
+
+This finite version still does not include negative and odd numbers:
+
+>>> -1 in pp
+False
+>>> 5 in pp
+False
+
+Obvious I know but just for peace of mind I've included these stupid
+tests on this doctest.
+
+It can also be inverted:
+
+>>> pp[::-1]
+<esets.Pairs (18, 16, 14, 12, ...)>
+
+And we can confirm directly with the list version behavior that it
+inverted the elements:
+
+>>> list(pp[::-1]) == lpp[::-1]
+True
+
+Of course lower bounds can also be defined on the `eset`:
+
+>>> e = p[3:]
+>>> e
+<esets.Pairs (6, 8, 10, 12, ...)>
+
+As expected, the previous `eset` contains all even numbers starting
+from the third one (6).
+
+A lower an upper bound can be simultaneusly defined:
+
+>>> w = p[3:10]
+>>> w
+<esets.Pairs (6, 8, 10, 12, ...)>
+
+Which is of course equivalent to the list counterpart:
+
+>>> list(w) == lpp[3:10]
+True
+
+Once bounded, not only can negative integer indices can be used but
+also slicing with negative integer values:
+
+>>> w[:-5]
+<esets.Pairs (6, 8)>
+
+A quick check with the list counterpart shows:
+
+>>> lpp[3:10][:-5]
+[6, 8]
+
+Both the start and stop values for the slice can be negative:
+
+>>> w[-7:-5]
+<esets.Pairs (6, 8)>
+
+
+Which just so happens to be the same behavior as in the list case:
+
+>>> lpp[3:10][-7:-5] == list(w[-7:-5])
+True
+
+Let's try another larger slice
+
+>>> s = p[:25]
+>>> s
+<esets.Pairs (0, 2, 4, 6, ...)>
+
+Which of course gives the following list:
+
+>>> list(s)
+[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48]
+
+Which is identical to:
+
+>>> ls = [2*v for v in range(25)]
+>>> ls
+[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48]
+
+Reversing that list with a different upper bound gives (not currently
+working as expected):
+
+>>> s[:14:-1]
+<esets.Pairs (48, 46, 44, 42, ...)>
+
+Making it a list:
+
+>>> list(s[:14:-1])
+[48, 46, 44, 42, 40, 38, 36, 34, 32, 30]
+
+The list version is:
+
+>>> ls[:14:-1]
+[48, 46, 44, 42, 40, 38, 36, 34, 32, 30]
+
+The equality test gives:
+
+>>> list(s[:14:-1]) == ls[:14:-1]
+True

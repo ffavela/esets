@@ -1,0 +1,52 @@
+>>> from pairs import Pairs
+
+Now use it:
+
+>>> p = Pairs()
+>>> p
+<esets.Pairs (0, 2, 4, 6, ...)>
+
+>>> pp = p[:10]
+
+This creates a finite version were we can get its len:
+
+>>> len(pp)
+10
+
+Here is the list:
+
+>>> list(pp)
+[0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+
+# >>> pp[::-1]
+# <esets.Pairs (18, 16, 14, 12, ...)>
+
+This is of course similar to what one would obtain from the following
+list compehension:
+
+>>> lpp = [2*v for v in range(10)]
+>>> lpp
+[0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+
+And we can confirm directly with the list version behavior that it
+inverted the elements:
+
+>>> list(pp[::-1]) == lpp[::-1]
+True
+
+>>> len(pp[:5:-1])
+4
+
+>>> list(pp[::-1])
+[18, 16, 14, 12, 10, 8, 6, 4, 2, 0]
+
+The list behavior when doing a slice with an inversion is:
+
+>>> lpp[:5:-1]
+[18, 16, 14, 12]
+
+And for the eset:
+
+>>> list(pp[:5:-1])
+[18, 16, 14, 12]
+
