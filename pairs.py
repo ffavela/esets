@@ -60,8 +60,7 @@ class Pairs:
             if y < 0:
                 y = 0
         return y
-                     
-    
+
     def __getitem__(self, key):
         if isinstance(key, slice):
             start = key.start
@@ -100,7 +99,7 @@ class Pairs:
                         raise IndexError('eset slice out of range')
                     stop = self.__len__() + stop
                 # else:
-                #     stop = self.stop 
+                #     stop = self.stop
                 if step > 0:
                     stop = min(self.start + stop * abs(step),
                                self.stop)
@@ -110,7 +109,7 @@ class Pairs:
                         if key.stop is None and key.start is not None:
                             start, stop = self.start, start+1
                         elif key.stop is not None and key.start is None:
-                            start, stop = stop+1, self.__len__()
+                            start, stop = self.__len__(), stop+1
                         elif key.stop is None and key.start is None:
                             start, stop = self.__len__(), self.start #invert?
                         else:  # Both are not None
@@ -118,7 +117,10 @@ class Pairs:
             #     stop = self.start + key.stop * abs(step)
             else:  # self.stop is None
                 if step > 0:
-                    stop = self.start + stop * abs(step)
+                    if stop is not None:
+                        stop = self.start + stop * abs(step)
+                    else:
+                        stop = self.stop
                 # if start <= stop:
                     # Only flip on this case, this avoids double
                     # flipping like when using repr. But it still
