@@ -13,13 +13,15 @@ This creates a finite version were we can get its len:
 >>> len(pp)
 10
 
+And here is the repr:
+
+>>> pp
+<esets.Pairs (0, 2, 4, 6, ...)>
+
 Here is the list:
 
 >>> list(pp)
 [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
-
-# >>> pp[::-1]
-# <esets.Pairs (18, 16, 14, 12, ...)>
 
 This is of course similar to what one would obtain from the following
 list compehension:
@@ -33,6 +35,11 @@ inverted the elements:
 
 >>> list(pp[::-1]) == lpp[::-1]
 True
+
+Here is the repr:
+
+>>> pp[::-1]
+<esets.Pairs (18, 16, 14, 12, ...)>
 
 >>> len(pp[:5:-1])
 4
@@ -50,3 +57,8 @@ And for the eset:
 >>> list(pp[:5:-1])
 [18, 16, 14, 12]
 
+Of course lower bounds can also be defined on the `eset`:
+
+>>> e = p[3:]
+>>> e
+<esets.Pairs (6, 8, 10, 12, ...)>
