@@ -112,17 +112,26 @@ class Pairs:
                     if self.stop is None:
                         raise ValueError('Cannot reverse an Aleph_0 infinite')
                     abstep = -step
-                    try:
-                        start = self.__len__() +\
-                            self.negSlice('start', key.start, abstep)
-                    except TypeError:
-                        start = self.stop
-                    try:
-                        stop = self.__len__() +\
-                            self.negSlice('stop', key.stop, abstep)
-                    except TypeError:
-                        stop = self.start
-            self.flip = False
+                    # try:
+                    #     start = self.__len__() +\
+                    #         self.negSlice('start', key.start, abstep)
+                    # except TypeError:
+                    #     start = self.start
+                    # try:
+                    #     stop = self.__len__() +\
+                    #         self.negSlice('stop', key.stop, abstep)
+                    # except TypeError:
+                    #     stop = self.stop
+                    if key.start is not None:
+                        start = max(self.start+key.start*abstep,
+                                    self.start)
+                    else:
+                        start = self.start
+                    stop = max(self.start+stop*abstep,
+                               self.stop)
+            self.flip = False  # Unnecessary?
+            # if step < 0:
+            #     breakpoint()
             return Pairs(start, stop, step)
         if isinstance(key, int):
             i = int(key)
