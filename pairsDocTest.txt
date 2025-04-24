@@ -243,7 +243,7 @@ Which is identical to:
 >>> ls
 [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48]
 
-Reversing that list with a different upper bound gives (not currently
+Reversing that list with a different upper bound gives:
 working as expected):
 
 >>> s[:14:-1]
@@ -263,3 +263,23 @@ The equality test gives:
 
 >>> list(s[:14:-1]) == ls[:14:-1]
 True
+
+The following slice works on the list:
+
+>>> ls[2:12:3]
+[4, 10, 16, 22]
+
+Which is equivalent to:
+
+>>> list(s[2:12:3])
+[4, 10, 16, 22]
+
+A simple comparison should hold True:
+
+>>> list(s[2:12:3]) == ls[2:12:3]
+True
+
+The corresponding len is:
+
+>>> len(s[2:12:3])
+4
