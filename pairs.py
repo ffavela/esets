@@ -38,25 +38,6 @@ class Pairs:
                 delta // abs(self.step)
         raise ValueError('Aleph_0 infinite')
 
-    def negSlice(self, location, x, step):
-        try:
-            return -(x + self.yTerm(location, x, step))
-        except TypeError:
-            return None
-
-    def yTerm(self, location, x, step):
-        clen = self.__len__()
-        x_max = (clen - 1) // step
-        y_max = x_max * (step - 1)
-        y = None
-        if 0 <= x <= x_max:
-            y = x * (step - 1) + 1
-        elif x_max < x <= clen:
-            y = clen - x + 1 if location == 'start' else y_max - (x - x_max)
-            if y < 0:
-                y = 0
-        return y
-
     def __getitem__(self, key):
         if isinstance(key, slice):
             start = key.start
@@ -122,16 +103,6 @@ class Pairs:
                     if self.stop is None:
                         raise ValueError('Cannot reverse an Aleph_0 infinite')
                     abstep = -step
-                    # try:
-                    #     start = self.__len__() +\
-                    #         self.negSlice('start', key.start, abstep)
-                    # except TypeError:
-                    #     start = self.start
-                    # try:
-                    #     stop = self.__len__() +\
-                    #         self.negSlice('stop', key.stop, abstep)
-                    # except TypeError:
-                    #     stop = self.stop
                     if key.start is not None:
                         start = max(self.start+key.start*abstep,
                                     self.start)
