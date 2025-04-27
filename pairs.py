@@ -63,7 +63,7 @@ class Pairs:
             kstart = key.start  # this can be modified if negative
             stop = key.stop
             step = key.step
-            # if start == 3 and stop == 10:
+            # if start is None and stop == 25:
             #     breakpoint()
             if key.step is None:
                 step = self.step
@@ -83,18 +83,24 @@ class Pairs:
                 start = self.start + kstart * abs(step)
             if key.stop is None:
                 stop = self.stop
-            if stop is not None:
+            # if self.stop is None and key.stop is not None:  # Also astep cond?!
+            #     self.stop = self.start + stop * abs(step)
+
+            if self.stop is not None:
                 if key.stop is not None and key.stop < 0:
                     if key.stop + self.__len__() < 0:
                         # Correct later for outbound slice behavior
                         raise IndexError('eset slice out of range')
                     stop = self.__len__() + stop
                 if step > 0:
-                    if self.stop is not None:
-                        stop = min(self.start + stop * abs(step),
-                                   self.stop)
+                    # if stop is None:
+                    #     breakpoint()
+                    # if stop is not None:
+                    stop = min(self.start + stop * abs(step),
+                               self.stop)
                     # if self.stop is not None:
-                    #     stop = min(stop, self.stop)
+                    # else:
+                    # stop = min(stop, self.stop)
                 else:  # that is step < 0
                     if self.flip:
                         if key.stop is None and key.start is not None:
@@ -105,12 +111,12 @@ class Pairs:
                             start, stop = self.__len__(), self.start
                         else:  # Both are not None
                             start, stop = stop+1, start+1
-            # else:  # self.stop is None
-            #     if step > 0:
-            #         if stop is not None:
-            #             stop = self.start + stop * abs(step)
-            #         else:
-            #             stop = self.stop
+            else:  # self.stop is None
+                if step > 0:
+                    if stop is not None:
+                        stop = self.start + stop * abs(step)
+                    else:
+                        stop = self.stop
             if not self.flip:  # This needs to be tested.
                 if self.step < 0:
                     if self.stop is None:

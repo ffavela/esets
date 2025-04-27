@@ -220,7 +220,6 @@ Both the start and stop values for the slice can be negative:
 >>> w[-7:-5]
 <esets.Pairs (6, 8)>
 
-
 Which just so happens to be the same behavior as in the list case:
 
 >>> lpp[3:10][-7:-5] == list(w[-7:-5])
