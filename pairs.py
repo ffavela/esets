@@ -94,18 +94,17 @@ class Pairs:
                         else:  # Both are not None
                             start, stop = stop+1, start+1
 
-            if not flip:
-                if self.step < 0:
-                    if self.stop is None:
-                        raise ValueError('Cannot reverse an Aleph_0 infinite')
-                    abstep = -step
-                    if key.start is not None:
-                        start = max(self.start+key.start*abstep,
-                                    self.start)
-                    else:
-                        start = self.start
-                    stop = max(self.start+key.stop*abstep,
-                               self.stop)
+            if not flip and self.step < 0:
+                if self.stop is None:
+                    raise ValueError('Cannot reverse an Aleph_0 infinite')
+                abstep = -step
+                if key.start is not None:
+                    start = max(self.start+key.start*abstep,
+                                self.start)
+                else:
+                    start = self.start
+                stop = max(self.start+key.stop*abstep,
+                           self.stop)
             return Pairs(start, stop, step)
 
         if isinstance(key, int):
