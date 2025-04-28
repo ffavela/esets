@@ -42,8 +42,8 @@ class Pairs:
         if isinstance(key, slice):
             start = key.start
             kstart = key.start  # this can be modified if negative
-            kstop = key.stop  # this can be modified if negative
             stop = key.stop
+            kstop = key.stop  # this can be modified if negative
             step = key.step
             if key.step is None:
                 step = self.step
@@ -62,10 +62,6 @@ class Pairs:
                 kstart = self.__len__() + key.start
                 start = self.start + kstart * abs(step)
 
-            # The following may be redundant, cmmenting for now.
-            # if key.stop is None:
-            #     stop = self.stop
-
             if self.stop is not None:
                 if key.stop is not None and key.stop < 0:
                     if key.stop + self.__len__() < 0:
@@ -83,7 +79,11 @@ class Pairs:
             if self.stop is not None:
                 if step > 0:
                     if key.stop is not None:
-                        stop = min(self.start + kstop * abs(step),
+                        # for the start == 2 and stop == 12 and step
+                        # == 3 case. This turns stop into 25, as
+                        # opposed to the desired 12....
+
+                        stop = min(self.start + kstop * abs(self.step),
                                    self.stop)
                     else:
                         stop = self.stop
@@ -169,9 +169,6 @@ class Pairs:
 
 
 def get_repr_str(obj: Pairs, max_val: int = 4) -> str:
-    # if obj.start == 3 and obj.stop == 10:
-    #     breakpoint()
-
     ellipsis = ', ...'
     try:
         last = min(max_val, len(obj))
