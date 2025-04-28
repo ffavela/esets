@@ -3,13 +3,6 @@ import pdb
 VALUE = 2
 
 
-def step_function(i: int) -> int:
-    """A simple step function"""
-    if i == 0:
-        return 0
-    return 1
-
-
 class Pairs:
     """Something that contains all positive integer pairs"""
     def __init__(self, start=0, stop=None, step=1):
@@ -30,10 +23,16 @@ class Pairs:
     # def __len__(self): # Welp I tried
     #     return int(float('Inf'))
 
+    def step_function(self, i: int) -> int:
+        """A simple step function"""
+        if i == 0:
+            return 0
+        return 1
+
     def __len__(self):
         if self.stop is not None:
             delta = abs(self.stop - self.start)
-            return step_function(delta % abs(self.step)) +\
+            return self.step_function(delta % self.step) +\
                 delta // abs(self.step)
         raise ValueError('Aleph_0 infinite')
 
