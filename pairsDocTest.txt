@@ -300,3 +300,13 @@ The corresponding len is:
 
 >>> len(sh)
 4
+
+Trying out the list with a negative start index and another:
+
+>>> ls[-18:12:4]
+[14, 22]
+
+Doing the equivalent eset operation:
+
+>>> list(s[-18:12:4])
+[14, 22]

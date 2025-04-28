@@ -60,7 +60,7 @@ class Pairs:
                     # Correct later for outbound slice behavior
                     raise IndexError('eset slice out of range')
                 kstart = self.__len__() + key.start
-                start = self.start + kstart * abs(step)
+                start = self.start + kstart * abs(self.step)
 
             if self.stop is not None:
                 if key.stop is not None and key.stop < 0:
