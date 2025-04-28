@@ -26,7 +26,6 @@ class Pairs:
         self.start = start
         self.step = step
         self.stop = stop
-        self.flip = False  # A sign flip tracker for the step
 
     # def __len__(self): # Welp I tried
     #     return int(float('Inf'))
@@ -45,11 +44,12 @@ class Pairs:
             stop = key.stop
             kstop = key.stop  # this can be modified if negative
             step = key.step
+            flip = False  # A sign flip tracker for the step
             if key.step is None:
                 step = self.step
             elif self.step is not None:
                 step = self.step * key.step
-                self.flip = True if step * self.step < 0 else False
+                flip = True if step * self.step < 0 else False
             else:
                 step = 1
             if key.start is None:
@@ -72,23 +72,19 @@ class Pairs:
             if self.stop is None:
                 if step > 0:
                     if key.stop is not None:
-                        stop = self.start + kstop * abs(step)
+                        stop = self.start + kstop * step
                     else:
                         stop = self.stop
 
             if self.stop is not None:
                 if step > 0:
                     if key.stop is not None:
-                        # for the start == 2 and stop == 12 and step
-                        # == 3 case. This turns stop into 25, as
-                        # opposed to the desired 12....
-
-                        stop = min(self.start + kstop * abs(self.step),
+                        stop = min(self.start + kstop * self.step,
                                    self.stop)
                     else:
                         stop = self.stop
                 else:  # that is step < 0
-                    if self.flip:
+                    if flip:
                         if key.stop is None and key.start is not None:
                             start, stop = self.start, start+1
                         elif key.stop is not None and key.start is None:
@@ -98,7 +94,7 @@ class Pairs:
                         else:  # Both are not None
                             start, stop = stop+1, start+1
 
-            if not self.flip:  # This needs to be tested.
+            if not flip:
                 if self.step < 0:
                     if self.stop is None:
                         raise ValueError('Cannot reverse an Aleph_0 infinite')
@@ -108,15 +104,10 @@ class Pairs:
                                     self.start)
                     else:
                         start = self.start
-                    # Using key.stop instead of stop. Nothing broken
-                    # so far.
                     stop = max(self.start+key.stop*abstep,
                                self.stop)
-            self.flip = False  # Unnecessary?
-            # if step < 0:
-            #     breakpoint()
-
             return Pairs(start, stop, step)
+
         if isinstance(key, int):
             i = int(key)
             if i < 0:
@@ -147,7 +138,7 @@ class Pairs:
             raise ValueError(msg)
         return (val - self.start * VALUE)//(VALUE * self.step)
 
-    #There are better ways, but this is good enough
+    # There are better ways, but this is good enough
     def __iter__(self, i=0):
         if self.stop is None:
             while True:
