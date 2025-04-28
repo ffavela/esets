@@ -282,3 +282,21 @@ The corresponding len is:
 
 >>> len(s[2:12:3])
 4
+
+# Let's do the same by using a helper variable for storing the results
+# first:
+
+# >>> sh = s[2:12:3]
+
+# >>> list(sh)
+# [4, 10, 16, 22]
+
+# A simple comparison should hold True:
+
+# >>> list(sh) == ls[2:12:3]
+# True
+
+# The corresponding len is:
+
+# >>> len(sh)
+# 4

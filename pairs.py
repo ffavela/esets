@@ -42,10 +42,9 @@ class Pairs:
         if isinstance(key, slice):
             start = key.start
             kstart = key.start  # this can be modified if negative
+            kstop = key.stop  # this can be modified if negative
             stop = key.stop
             step = key.step
-            # if start is None and stop == 25:
-            #     breakpoint()
             if key.step is None:
                 step = self.step
             elif self.step is not None:
@@ -62,26 +61,32 @@ class Pairs:
                     raise IndexError('eset slice out of range')
                 kstart = self.__len__() + key.start
                 start = self.start + kstart * abs(step)
-            if key.stop is None:
-                stop = self.stop
-            # if self.stop is None and key.stop is not None:  # Also astep cond?!
-            #     self.stop = self.start + stop * abs(step)
+
+            # The following may be redundant, cmmenting for now.
+            # if key.stop is None:
+            #     stop = self.stop
 
             if self.stop is not None:
                 if key.stop is not None and key.stop < 0:
                     if key.stop + self.__len__() < 0:
                         # Correct later for outbound slice behavior
                         raise IndexError('eset slice out of range')
-                    stop = self.__len__() + stop
+                    kstop = self.__len__() + stop
+
+            if self.stop is None:
                 if step > 0:
-                    # if stop is None:
-                    #     breakpoint()
-                    # if stop is not None:
-                    stop = min(self.start + stop * abs(step),
-                               self.stop)
-                    # if self.stop is not None:
-                    # else:
-                    # stop = min(stop, self.stop)
+                    if key.stop is not None:
+                        stop = self.start + kstop * abs(step)
+                    else:
+                        stop = self.stop
+
+            if self.stop is not None:
+                if step > 0:
+                    if key.stop is not None:
+                        stop = min(self.start + kstop * abs(step),
+                                   self.stop)
+                    else:
+                        stop = self.stop
                 else:  # that is step < 0
                     if self.flip:
                         if key.stop is None and key.start is not None:
@@ -92,12 +97,7 @@ class Pairs:
                             start, stop = self.__len__(), self.start
                         else:  # Both are not None
                             start, stop = stop+1, start+1
-            else:  # self.stop is None
-                if step > 0:
-                    if stop is not None:
-                        stop = self.start + stop * abs(step)
-                    else:
-                        stop = self.stop
+
             if not self.flip:  # This needs to be tested.
                 if self.step < 0:
                     if self.stop is None:
@@ -108,11 +108,14 @@ class Pairs:
                                     self.start)
                     else:
                         start = self.start
-                    stop = max(self.start+stop*abstep,
+                    # Using key.stop instead of stop. Nothing broken
+                    # so far.
+                    stop = max(self.start+key.stop*abstep,
                                self.stop)
             self.flip = False  # Unnecessary?
             # if step < 0:
             #     breakpoint()
+
             return Pairs(start, stop, step)
         if isinstance(key, int):
             i = int(key)
@@ -166,6 +169,9 @@ class Pairs:
 
 
 def get_repr_str(obj: Pairs, max_val: int = 4) -> str:
+    # if obj.start == 3 and obj.stop == 10:
+    #     breakpoint()
+
     ellipsis = ', ...'
     try:
         last = min(max_val, len(obj))
