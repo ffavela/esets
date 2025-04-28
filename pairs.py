@@ -55,19 +55,19 @@ class Pairs:
                 start = self.start
                 kstart = start
             if key.start is not None and key.start < 0:
-                if key.start + self.__len__() < 0:
+                kstart = self.__len__() + key.start
+                if kstart < 0:
                     # Correct later for outbound slice behavior
                     raise IndexError('eset slice out of range')
-                kstart = self.__len__() + key.start
                 # Need to the check self.step < 0 cases
                 start = self.start + kstart * abs(self.step)
 
             if self.stop is not None:
                 if key.stop is not None and key.stop < 0:
-                    if key.stop + self.__len__() < 0:
+                    kstop = self.__len__() + key.stop
+                    if kstop < 0:
                         # Correct later for outbound slice behavior
                         raise IndexError('eset slice out of range')
-                    kstop = self.__len__() + stop
 
             if self.stop is None:
                 if step > 0:
