@@ -77,8 +77,9 @@ class Pairs:
                         stop = self.stop
 
             if self.stop is not None:
-                if step > 0:
+                if step > 0:  #  self.step?
                     if key.stop is not None:
+                        # Need to the check self.step < 0 cases
                         stop = min(self.start + kstop * self.step,
                                    self.stop)
                     else:
@@ -123,7 +124,9 @@ class Pairs:
         raise ValueError('Need a slice or a positive integer')
 
     def __contains__(self, val):
-        if val >= self.start*VALUE and val % (VALUE*self.step) == 0:
+        if val % (VALUE*self.step) != 0:
+            return False
+        if val >= self.start*VALUE:
             if self.stop is None or\
                val < (self.start+(self.__len__())*self.step)*VALUE:
                 return True
