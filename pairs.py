@@ -44,6 +44,7 @@ class Pairs:
             kstop = key.stop  # this can be modified if negative
             step = key.step
             flip = False  # A sign flip tracker for the step
+
             if key.step is None:
                 step = self.step
             elif self.step is not None:
@@ -77,21 +78,21 @@ class Pairs:
                         stop = self.stop
 
             if self.stop is not None:
-                if step > 0:  #  self.step?
+                if step > 0:
                     if key.stop is not None:
-                        # Need to the check self.step < 0 cases
                         stop = min(self.start + kstop * self.step,
                                    self.stop)
                     else:
                         stop = self.stop
                 else:  # that is step < 0
+                    abstep = -step
                     if flip:
                         if key.stop is None and key.start is not None:
                             start, stop = self.start, start+1
                         elif key.stop is not None and key.start is None:
-                            start, stop = self.__len__(), stop+1
+                            start, stop = self.__len__() * abstep, stop+1
                         elif key.stop is None and key.start is None:
-                            start, stop = self.__len__(), self.start
+                            start, stop = self.__len__() * abstep, self.start
                         else:  # Both are not None
                             start, stop = stop+1, start+1
 

@@ -310,3 +310,40 @@ Doing the equivalent eset operation:
 
 >>> list(s[-18:12:4])
 [14, 22]
+
+Let's do a new test, say we have the following list:
+
+>>> ls = [8*v for v in range(10)]
+>>> ls
+[0, 8, 16, 24, 32, 40, 48, 56, 64, 72]
+
+We can create the new corresponding eset as:
+
+>>> s = p[:10:4]
+>>> s
+<esets.Pairs (0, 8, 16, 24, ...)>
+
+The respective list is:
+
+>>> list(s)
+[0, 8, 16, 24, 32, 40, 48, 56, 64, 72]
+
+Evidently the equality holds:
+
+>>> list(s) == ls
+True
+
+Reversing the list:
+
+>>> ls[::-1]
+[72, 64, 56, 48, 40, 32, 24, 16, 8, 0]
+
+The same reversal on the eset gives:
+
+>>> list(s[::-1])
+[72, 64, 56, 48, 40, 32, 24, 16, 8, 0]
+
+And here is the corresponding repr is:
+
+>>> s[::-1]
+<esets.Pairs (72, 64, 56, 48, ...)>
