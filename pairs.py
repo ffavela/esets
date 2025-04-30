@@ -86,11 +86,15 @@ class Pairs:
                         stop = self.stop
                 else:  # that is step < 0
                     abstep = abs(self.step)
+                    # if key.stop == 5 and key.step == -1:
+                    #     breakpoint()
                     if flip:
                         if key.stop is None and key.start is not None:
-                            start, stop = self.start, start+1
+                            start, stop = (self.__len__()-2) * abstep, \
+                                kstart
                         elif key.stop is not None and key.start is None:
-                            start, stop = (self.__len__()-1) * abstep, stop
+                            start, stop = (self.__len__()-1) * abstep, \
+                                kstop * abstep
                         elif key.stop is None and key.start is None:
                             start, stop = (self.__len__()-1) * abstep, \
                                 self.start-1

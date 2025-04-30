@@ -357,3 +357,51 @@ Which it the same as doing it with the eset after making it a list:
 
 >>> list(s[::-2])
 [72, 56, 40, 24, 8]
+
+Reversing the list with a stop value:
+
+>>> ls[:5:-1]
+[72, 64, 56, 48]
+
+The corresponding list using the eset:
+
+>>> list(s[:5:-1])
+[72, 64, 56, 48]
+
+Using a different step:
+
+>>> ls[:5:-2]
+[72, 56]
+
+Wich is clearly the same with the eset version:
+
+>>> list(s[:5:-2])
+[72, 56]
+
+Start values can be used:
+
+>>> ls[8::-1]
+[64, 56, 48, 40, 32, 24, 16, 8, 0]
+
+The eset behaves correspondingly:
+
+>>> list(s[8::-1])
+[64, 56, 48, 40, 32, 24, 16, 8, 0]
+
+Both start and stop too:
+
+>>> ls[8:2:-1]
+[64, 56, 48, 40, 32, 24]
+
+>>> list(s[8:2:-1])
+[64, 56, 48, 40, 32, 24]
+
+With a different step:
+
+>>> ls[8:2:-3]
+[64, 40]
+
+The eset part:
+
+>>> list(s[8:2:-3])
+[64, 40]
