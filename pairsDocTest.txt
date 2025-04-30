@@ -347,3 +347,13 @@ And here is the corresponding repr is:
 
 >>> s[::-1]
 <esets.Pairs (72, 64, 56, 48, ...)>
+
+The list after a -2 step reversal:
+
+>>> ls[::-2]
+[72, 56, 40, 24, 8]
+
+Which it the same as doing it with the eset after making it a list:
+
+>>> list(s[::-2])
+[72, 56, 40, 24, 8]

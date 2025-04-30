@@ -85,7 +85,9 @@ class Pairs:
                     else:
                         stop = self.stop
                 else:  # that is step < 0
-                    abstep = -step
+                    # if step == -8:
+                    #     breakpoint()
+                    abstep = abs(self.step)
                     if flip:
                         if key.stop is None and key.start is not None:
                             start, stop = self.start, start+1
@@ -99,7 +101,7 @@ class Pairs:
             if not flip and self.step < 0:
                 if self.stop is None:
                     raise ValueError('Cannot reverse an Aleph_0 infinite')
-                abstep = -step
+                abstep = -self.step
                 if key.start is not None:
                     start = max(self.start+key.start*abstep,
                                 self.start)
@@ -129,7 +131,7 @@ class Pairs:
             return False
         if val >= self.start*VALUE:
             if self.stop is None or\
-               val < (self.start+(self.__len__())*self.step)*VALUE:
+               val < (self.start+self.__len__()*self.step)*VALUE:
                 return True
         # Need to set the step < 0 case
         return False
