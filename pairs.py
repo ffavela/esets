@@ -44,7 +44,9 @@ class Pairs:
             kstop = key.stop  # this can be modified if negative
             step = key.step
             flip = False  # A sign flip tracker for the step
-
+            # if key.start is None and key.stop is None and key.step == -1\
+            #    and self.step == -12:
+            #     breakpoint()
             if key.step is None:
                 step = self.step
             elif self.step is not None:
@@ -54,7 +56,10 @@ class Pairs:
                 step = 1
             if key.start is None:
                 start = self.start
-                kstart = start
+                if self.stop is not None:
+                    kstart = self.__len__()-1 if flip else 0
+                else:
+                    kstart = 0
             if key.start is not None and key.start < 0:
                 kstart = self.__len__() + key.start
                 if kstart < 0:
@@ -80,26 +85,22 @@ class Pairs:
             if self.stop is not None:
                 if step > 0:
                     if key.stop is not None:
-                        stop = min(self.start + kstop * self.step,
+                        stop = min(self.start + kstop * abs(self.step),
                                    self.stop)
                     else:
                         stop = self.stop
-                else:  # that is step < 0
-                    abstep = abs(self.step)
-                    # if key.stop == 5 and key.step == -1:
-                    #     breakpoint()
-                    if flip:
-                        if key.start is not None and key.stop is None:
-                            start, stop = (self.__len__()-2) * abstep, \
-                                kstart
-                        elif key.start is None and key.stop is not None:
-                            start, stop = (self.__len__()-1) * abstep, \
-                                kstop * abstep
-                        elif key.start is None and key.stop is None:
-                            start, stop = (self.__len__()-1) * abstep, \
-                                self.start-1
-                        else:  # Both are not None
-                            start, stop = stop+1, start+1
+                # else:  # that is step < 0
+
+                abstep = abs(self.step)
+                if flip and self.stop is not None:
+                    start = self.stop + (kstart - self.__len__()) * \
+                        self.step
+                    extremum = min if step > 0 else max
+                    if key.stop is not None:
+                        stop = extremum(start-kstop*self.step,
+                                        self.start-self.step)
+                    else:
+                        stop = self.start - self.step
 
             if not flip and self.step < 0:
                 if self.stop is None:
@@ -172,6 +173,8 @@ def get_repr_str(obj: Pairs, max_val: int = 4) -> str:
 
     rstr = ', '.join([str(v) for v in obj[:last]])
     rstr += ellipsis
+    # return f'<esets.Pairs ({rstr})>\nobj.start={str(obj.start)}\
+    # obj.stop={str(obj.stop)}\tobj.step={str(obj.step)}'
     return f'<esets.Pairs ({rstr})>'
 
 
