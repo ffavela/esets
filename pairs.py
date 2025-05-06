@@ -44,8 +44,7 @@ class Pairs:
             kstop = key.stop  # this can be modified if negative
             step = key.step
             flip = False  # A sign flip tracker for the step
-            # if key.start is None and key.stop is None and key.step == -1\
-            #    and self.step == -12:
+            # if key.start is None and key.stop == 14 and key.step == -1:
             #     breakpoint()
             if key.step is None:
                 step = self.step
@@ -97,8 +96,8 @@ class Pairs:
                         self.step
                     extremum = min if step > 0 else max
                     if key.stop is not None:
-                        stop = extremum(start-kstop*self.step,
-                                        self.start-self.step)
+                        stop = extremum(self.start+kstop*self.step,
+                                        self.start+self.step)
                     else:
                         stop = self.start - self.step
 
