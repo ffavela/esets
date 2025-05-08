@@ -5,7 +5,8 @@ VALUE = 2
 
 class Pairs:
     """Something that contains all positive integer pairs"""
-    def __init__(self, start=0, stop=None, step=1):
+    def __init__(self, start=0, stop=None, step=1,
+                 flip_step=None):
         if start is None:
             start = 0
         if not isinstance(step, int):
@@ -19,6 +20,8 @@ class Pairs:
         self.start = start
         self.step = step
         self.stop = stop
+        # Keeping track of the step when a flip happens
+        self.flip_step = flip_step
 
     # def __len__(self): # Welp I tried
     #     return int(float('Inf'))
@@ -44,7 +47,9 @@ class Pairs:
             kstop = key.stop  # this can be modified if negative
             step = key.step
             flip = False  # A sign flip tracker for the step
-            # if key.start is None and key.stop == 14 and key.step == -1:
+            flip_step = self.flip_step
+            # if key.start is None and key.stop is None and key.step == -1\
+            #    and self.step == -12:
             #     breakpoint()
             if key.step is None:
                 step = self.step
@@ -80,6 +85,11 @@ class Pairs:
                         stop = self.start + kstop * step
                     else:
                         stop = self.stop
+            # if key.start is None and key.stop is None and key.step == -3:
+            #     breakpoint()
+            # if self.start == 36 and self.stop == -4 and self.step == -12\
+            #    and key.step == -1:
+            #     breakpoint()
 
             if self.stop is not None:
                 if step > 0:
@@ -90,16 +100,25 @@ class Pairs:
                         stop = self.stop
                 # else:  # that is step < 0
 
-                abstep = abs(self.step)
                 if flip and self.stop is not None:
+                    if flip_step is None:
+                        flip_step = self.step
+                    if step > 0:
+                        flip_step = -flip_step
                     start = self.stop + (kstart - self.__len__()) * \
-                        self.step
+                        flip_step
                     extremum = min if step > 0 else max
                     if key.stop is not None:
-                        stop = extremum(self.start+kstop*self.step,
-                                        self.start+self.step)
+                        stop = extremum(self.start+kstop*flip_step,
+                                        self.start+flip_step)
                     else:
-                        stop = self.start - self.step
+                        stop = self.start - flip_step
+                    self.flip_step = self.step
+
+
+
+                    # if stop < 0:
+                    #     stop = 0
 
             if not flip and self.step < 0:
                 if self.stop is None:
@@ -112,7 +131,7 @@ class Pairs:
                     start = self.start
                 stop = max(self.start+key.stop*abstep,
                            self.stop)
-            return Pairs(start, stop, step)
+            return Pairs(start, stop, step, flip_step)
 
         if isinstance(key, int):
             i = int(key)
