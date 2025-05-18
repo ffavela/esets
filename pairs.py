@@ -26,16 +26,16 @@ class Pairs:
     # def __len__(self): # Welp I tried
     #     return int(float('Inf'))
 
-    def step_function(self, i: int) -> int:
-        """A simple step function"""
-        if i == 0:
-            return 0
-        return 1
-
     def __len__(self):
+        def step_function(i: int) -> int:
+            """A simple step function"""
+            if i == 0:
+                return 0
+            return 1
+
         if self.stop is not None:
             delta = abs(self.stop - self.start)
-            return self.step_function(delta % self.step) +\
+            return step_function(delta % self.step) +\
                 delta // abs(self.step)
         raise ValueError('Aleph_0 infinite')
 
