@@ -70,7 +70,10 @@ class Pairs:
                     # Correct later for outbound slice behavior
                     raise IndexError('eset slice out of range')
                 # Need to the check self.step < 0 cases
-                start = self.start + kstart * abs(self.step)
+                start = self.start + kstart * self.step
+
+            # if key.step == -1 and self.step == -12 and key.stop == 1:
+            #     breakpoint()
 
             if self.stop is not None:
                 if key.stop is not None and key.stop < 0:
@@ -79,28 +82,32 @@ class Pairs:
                         # Correct later for outbound slice behavior
                         raise IndexError('eset slice out of range')
 
+            # # This is testing code. Not sure how to proceed.
+            # if key.stop is not None and key.step is not None\
+            #    and key.step < 0 and step > 0:
+            #     kstop = self.__len__() - 1 - key.stop
+
             if self.stop is None:
                 if step > 0:
                     if key.stop is not None:
                         stop = self.start + kstop * step
                     else:
                         stop = self.stop
-            # if key.start is None and key.stop is None and key.step == -3:
-            #     breakpoint()
-            # if self.start == 36 and self.stop == -4 and self.step == -12\
-            #    and key.step == -1:
-            #     breakpoint()
 
             if self.stop is not None:
                 if step > 0:
                     if key.stop is not None:
-                        stop = min(self.start + kstop * abs(self.step),
+                        if self.step < 0:
+                            kstop = self.__len__() - 1 - kstop
+                        stop = min(self.start + kstop * self.step,
                                    self.stop)
                     else:
                         stop = self.stop
                 # else:  # that is step < 0
 
                 if flip and self.stop is not None:
+                    # if self.step == -12:
+                    #     breakpoint()
                     if flip_step is None:
                         flip_step = self.step
                     if step > 0:
@@ -110,15 +117,10 @@ class Pairs:
                     extremum = min if step > 0 else max
                     if key.stop is not None:
                         stop = extremum(self.start+kstop*flip_step,
-                                        self.start+flip_step)
+                                        self.start-flip_step)
                     else:
                         stop = self.start - flip_step
-                    self.flip_step = self.step
-
-
-
-                    # if stop < 0:
-                    #     stop = 0
+                    flip_step = self.step
 
             if not flip and self.step < 0:
                 if self.stop is None:
