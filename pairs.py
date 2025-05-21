@@ -27,16 +27,32 @@ class Pairs:
     #     return int(float('Inf'))
 
     def __len__(self):
+        return self.len()
+
+    def len(self, start=None, stop=None, step=None):
+        if start is None:
+            start = self.start
+        if stop is None:
+            stop = self.stop
+        if step is None:
+            step = self.step
+
         def step_function(i: int) -> int:
             """A simple step function"""
             if i == 0:
                 return 0
             return 1
 
-        if self.stop is not None:
-            delta = abs(self.stop - self.start)
-            return step_function(delta % self.step) +\
-                delta // abs(self.step)
+        if stop is not None:
+            delta = stop - start
+            # The following makes repr tests to fail we might neet to
+            # involve a flip variable.
+            # if delta >= 0 and step < 0 or\
+            #    delta <= 0 and step > 0:
+            #     return 0
+            delta = abs(delta)
+            return step_function(delta % step) +\
+                delta // abs(step)
         raise ValueError('Aleph_0 infinite')
 
     def __getitem__(self, key):
