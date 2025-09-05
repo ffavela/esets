@@ -47,9 +47,9 @@ class Pairs:
             delta = stop - start
             # The following makes repr tests to fail we might neet to
             # involve a flip variable.
-            # if delta >= 0 and step < 0 or\
-            #    delta <= 0 and step > 0:
-            #     return 0
+            if delta >= 0 and step < 0 or\
+               delta <= 0 and step > 0:
+                return 0
             delta = abs(delta)
             return step_function(delta % step) +\
                 delta // abs(step)
