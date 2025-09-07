@@ -23,35 +23,33 @@ class Pairs:
         # Keeping track of the step when a flip happens
         self.flip_step = flip_step
 
+    def step_function(self, i: int) -> int:
+        """A simple step function"""
+        if i == 0:
+            return 0
+        return 1
+
     # def __len__(self): # Welp I tried
     #     return int(float('Inf'))
 
     def __len__(self):
-        return self.len()
+        return self.abs_len()//abs(self.step) +\
+            self.step_function(self.abs_len() % self.step)
 
-    def len(self, start=None, stop=None, step=None):
-        if start is None:
-            start = self.start
-        if stop is None:
-            stop = self.stop
-        if step is None:
-            step = self.step
-
-        def step_function(i: int) -> int:
-            """A simple step function"""
-            if i == 0:
-                return 0
-            return 1
+    def abs_len(self):
+        start = self.start
+        stop = self.stop
+        step = self.step
 
         if stop is not None:
             delta = stop - start
             # The following makes repr tests to fail we might neet to
             # involve a flip variable.
-            if delta >= 0 and step < 0 or\
-               delta <= 0 and step > 0:
-                return 0
+            # if delta >= 0 and step < 0 or\
+            #    delta <= 0 and step > 0:
+            #     return 0
             delta = abs(delta)
-            return step_function(delta % step) +\
+            return self.step_function(delta % step) +\
                 delta // abs(step)
         raise ValueError('Aleph_0 infinite')
 
