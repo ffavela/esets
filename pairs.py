@@ -5,7 +5,8 @@ VALUE = 2
 
 class Pairs:
     """Something that contains all positive integer pairs"""
-    def __init__(self, start=0, stop=None, step=1):
+    def __init__(self, start=0, stop=None, step=1,
+                 raw_repr=False):
         if start is None:
             start = 0
         if not isinstance(step, int):
@@ -19,6 +20,7 @@ class Pairs:
         self.start = start
         self.step = step
         self.stop = stop
+        self.raw_repr = raw_repr
 
     # def __len__(self): # Welp I tried
     #     return int(float('Inf'))
@@ -112,7 +114,7 @@ class Pairs:
                     start = self.start
                 stop = max(self.start+key.stop*abstep,
                            self.stop)
-            return Pairs(start, stop, step)
+            return Pairs(start, stop, step, self.raw_repr)
 
         if isinstance(key, int):
             i = int(key)
@@ -162,17 +164,22 @@ class Pairs:
 
 
 def get_repr_str(obj: Pairs, max_val: int = 4) -> str:
-    ellipsis = ', ...'
-    try:
-        last = min(max_val, len(obj))
-        if max_val >= len(obj):
-            ellipsis = ''
-    except ValueError:
-        last = max_val
+    if not obj.raw_repr:
+        ellipsis = ', ...'
+        try:
+            last = min(max_val, len(obj))
+            if max_val >= len(obj):
+                ellipsis = ''
+        except ValueError:
+            last = max_val
 
-    rstr = ', '.join([str(v) for v in obj[:last]])
-    rstr += ellipsis
-    return f'<esets.Pairs ({rstr})>'
+        rstr = ', '.join([str(v) for v in obj[:last]])
+        rstr += ellipsis
+        return f'<esets.Pairs ({rstr})>'
+    else:
+        return f'obj.start = {obj.start},\n' +\
+            f'obj.stop = {obj.stop},\n' +\
+            f'obj.step = {obj.step}'
 
 
 if __name__ == '__main__':
