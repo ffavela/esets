@@ -7,7 +7,6 @@ class Pairs:
     """Something that contains all positive integer pairs"""
     def __init__(self, start=0, stop=None, step=1,
                  flip_step=None, raw_repr=False):
-
         if start is None:
             start = 0
         if not isinstance(step, int):
@@ -35,8 +34,7 @@ class Pairs:
     #     return int(float('Inf'))
 
     def __len__(self):
-        return self.abs_len()//abs(self.step) +\
-            self.step_function(self.abs_len() % self.step)
+        return self.abs_len()
 
     def abs_len(self):
         start = self.start
@@ -45,7 +43,7 @@ class Pairs:
 
         if stop is not None:
             delta = stop - start
-            # The following makes repr tests to fail we might neet to
+            # The following makes repr tests to fail we might need to
             # involve a flip variable.
             # if delta >= 0 and step < 0 or\
             #    delta <= 0 and step > 0:
@@ -214,8 +212,8 @@ def get_repr_str(obj: Pairs, max_val: int = 4) -> str:
     else:
         return f'obj.start = {obj.start},\n' +\
             f'obj.stop = {obj.stop},\n' +\
-            f'obj.step = {obj.step}'
-
+            f'obj.step = {obj.step},\n' +\
+            f'obj.flip_step = {obj.flip_step}'
 
 if __name__ == '__main__':
     import doctest
