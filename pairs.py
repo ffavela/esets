@@ -53,6 +53,12 @@ class Pairs:
                 delta // abs(step)
         raise ValueError('Aleph_0 infinite')
 
+    def new_len(self, key):
+        """Should only be called when there are key slices"""
+        a = key.start
+        b = key.stop
+        # return abs_len()
+
     def __getitem__(self, key):
         if isinstance(key, slice):
             start = key.start
