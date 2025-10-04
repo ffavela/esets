@@ -48,22 +48,31 @@ class Pairs:
 
     def __getitem__(self, key):
         if isinstance(key, slice):
+            kstep = key.step
             if key.step is None:
                 step = self.step
-            elif self.step is not None:
-                step = self.step * key.step
+                kstep = 1
             else:
-                step = 1
+                step = self.step * key.step
 
             if key.start is None:
-                start = self.start
+                s_start = self.start
             else:  # Assuming happy path with no negative vals
-                start = self.start + key.start * self.step
+                s_start = self.start + key.start * self.step
 
             if key.stop is None:
-                stop = self.stop
+                s_stop = self.stop
             else:
-                stop = self.start + key.stop * step
+                s_stop = self.start + key.stop * step
+
+            delta = abs(s_stop-s_start)
+            len_raw = delta // abs(self.step) +\
+                self.step_function(delta % self.step)
+            len_step = len_raw // abs(kstep) +\
+                self.step_function(delta % kstep)
+
+            start = s_start
+            stop = s_start + len_step * step
 
             return Pairs(start, stop, step, self.raw_repr)
 
