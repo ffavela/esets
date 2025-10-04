@@ -60,10 +60,10 @@ class Pairs:
             else:  # Assuming happy path with no negative vals
                 start = self.start + key.start * self.step
 
-            if key.stop is not None:
-                stop = self.start + key.stop * step
-            else:
+            if key.stop is None:
                 stop = self.stop
+            else:
+                stop = self.start + key.stop * step
 
             return Pairs(start, stop, step, self.raw_repr)
 
