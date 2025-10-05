@@ -28,22 +28,11 @@ class Pairs:
             return 0
         return 1
 
-    # def __len__(self): # Welp I tried
-    #     return int(float('Inf'))
-
     def __len__(self):
-        return self.abs_len()
-
-    def abs_len(self):
-        start = self.start
-        stop = self.stop
-        step = self.step
-
-        if stop is not None:
-            delta = stop - start
-            delta = abs(delta)
-            return self.step_function(delta % step) +\
-                delta // abs(step)
+        if self.stop is not None:
+            delta = abs(self.stop - self.start)
+            return self.step_function(delta % self.step) +\
+                delta // abs(self.step)
         raise ValueError('Aleph_0 infinite')
 
     def __getitem__(self, key):
