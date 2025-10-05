@@ -63,7 +63,7 @@ class Pairs:
             if key.stop is None:
                 s_stop = self.stop
             else:
-                s_stop = self.start + key.stop * step
+                s_stop = self.start + key.stop * self.step
 
             delta = abs(s_stop - s_start)
             len_raw = delta // abs(self.step) +\
