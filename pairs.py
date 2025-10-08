@@ -54,7 +54,7 @@ class Pairs:
             else:
                 s_stop = self.start + key.stop * self.step
 
-            delta = abs(s_stop - s_start)
+            delta = s_stop - s_start if s_stop > s_start else 0
             len_raw = delta // abs(self.step) +\
                 self.step_function(delta % self.step)
             len_step = len_raw // abs(kstep) +\
