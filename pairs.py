@@ -6,7 +6,7 @@ VALUE = 2
 class Pairs:
     """Something that contains all positive integer pairs"""
     def __init__(self, start=0, stop=None, step=1,
-                 raw_repr=False):
+                 raw_repr=False, dir_sign = 1):
         if start is None:
             start = 0
         if not isinstance(step, int):
@@ -21,6 +21,7 @@ class Pairs:
         self.step = step
         self.stop = stop
         self.raw_repr = raw_repr
+        self.dir_sign = dir_sign
 
     def step_function(self, i: int) -> int:
         """A simple step function"""
@@ -37,6 +38,7 @@ class Pairs:
 
     def __getitem__(self, key):
         if isinstance(key, slice):
+            dir_sign = self.dir_sign
             kstep = key.step
             if key.step is None:
                 step = self.step
@@ -54,7 +56,12 @@ class Pairs:
             else:
                 s_stop = self.start + key.stop * self.step
 
-            delta = s_stop - s_start if s_stop > s_start else 0
+            if s_stop < s_start and dir_sign == 1 \
+               or s_stop > s_start and dir_sign == -1:
+                delta = 0
+            else:
+                delta = abs(s_stop - s_start)
+
             len_raw = delta // abs(self.step) +\
                 self.step_function(delta % self.step)
             len_step = len_raw // abs(kstep) +\
