@@ -44,6 +44,8 @@ class Pairs:
             else:
                 step = self.step * key.step
 
+            flip = True if step * self.step < 0 else False
+
             if key.start is None:
                 s_start = self.start
             else:  # Assuming happy path with no negative vals
@@ -66,7 +68,16 @@ class Pairs:
                 self.step_function(delta % kstep)
 
             start = s_start
-            stop = s_start + len_step * step
+            stop = start + len_step * abs(step)
+
+            if flip:
+                if self.step > 0:  # step < 0
+                    new_start = stop + step
+                    new_stop = new_start + len_step * step
+                if self.step < 0:  # step > 0
+                    new_start = s_stop + step
+                    new_stop = s_start + step
+                start, stop = new_start, new_stop
 
             return Pairs(start, stop, step, self.raw_repr)
 
@@ -132,7 +143,7 @@ def get_repr_str(obj: Pairs, max_val: int = 4) -> str:
     else:
         return f'obj.start = {obj.start},\n' +\
             f'obj.stop = {obj.stop},\n' +\
-            f'obj.step = {obj.step},\n'
+            f'obj.step = {obj.step}'
 
 
 if __name__ == '__main__':

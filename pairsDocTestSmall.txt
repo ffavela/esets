@@ -89,3 +89,24 @@ Using a key stop that is 6 with step 2 and start 1:
 
 >>> pp[1:6:2]
 <esets.Pairs (2, 6, 10)>
+
+Using a new var.
+
+>>> w = p[3:12]
+
+>>> w
+<esets.Pairs (6, 8, 10, 12, ...)>
+
+>>> w[::-1]
+<esets.Pairs (22, 20, 18, 16, ...)>
+
+# >>> w.raw_repr = True
+
+>>> w[::-1][::-1]
+<esets.Pairs (6, 8, 10, 12, ...)>
+
+>>> list(w)
+[6, 8, 10, 12, 14, 16, 18, 20, 22]
+
+>>> list(w[::-1][::-1])
+[6, 8, 10, 12, 14, 16, 18, 20, 22]
