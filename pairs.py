@@ -75,8 +75,8 @@ class Pairs:
                     new_start = stop + step
                     new_stop = new_start + len_step * step
                 if self.step < 0:  # step > 0
-                    new_start = s_stop + step
-                    new_stop = s_start + step
+                    new_start = s_stop - self.step
+                    new_stop = s_start - self.step
                 start, stop = new_start, new_stop
 
             return Pairs(start, stop, step, self.raw_repr)
