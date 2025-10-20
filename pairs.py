@@ -56,8 +56,13 @@ class Pairs:
             else:
                 s_stop = self.start + key.stop * self.step
 
-            if s_stop < s_start and self.step > 0 \
-               or s_stop > s_start and self.step < 0:
+            if s_stop is None and step < 0:
+                raise ValueError('Cannot enumerate backward from infinite')
+
+            if (s_stop < s_start and step > 0
+               or s_stop > s_start and step < 0)\
+               and (key.start is not None or
+                    key.stop is not None):
                 delta = 0
             else:
                 delta = abs(s_stop - s_start)
@@ -67,6 +72,8 @@ class Pairs:
             len_step = len_raw // abs(kstep) +\
                 self.step_function(delta % kstep)
 
+            # Equivalent to self.step > 0 and step > 0, placed here
+            # cause the flip cases need it.
             start = s_start
             stop = start + len_step * abs(step)
 
@@ -74,10 +81,15 @@ class Pairs:
                 if self.step > 0:  # step < 0
                     new_start = stop + step
                     new_stop = new_start + len_step * step
+                    # new_start = start
+                    # new_stop = new_start + len_step * step
                 if self.step < 0:  # step > 0
                     new_start = s_stop - self.step
                     new_stop = s_start - self.step
                 start, stop = new_start, new_stop
+            else:
+                if self.step < 0:  # step < 0 i.e. no flip
+                    start, stop = s_start, s_stop
 
             return Pairs(start, stop, step, self.raw_repr)
 
