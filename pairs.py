@@ -72,24 +72,14 @@ class Pairs:
             len_step = len_raw // abs(kstep) +\
                 self.step_function(delta % kstep)
 
-            # Equivalent to self.step > 0 and step > 0, placed here
-            # cause the flip cases need it.
             start = s_start
-            stop = start + len_step * abs(step)
+            if flip and step < 0 and key.stop is None:
+                start = s_stop + step
+            stop = start + len_step * step
 
             if flip:
-                if self.step > 0:  # step < 0
-                    new_start = stop + step
-                    new_stop = new_start + len_step * step
-                    # new_start = start
-                    # new_stop = new_start + len_step * step
                 if self.step < 0:  # step > 0
-                    new_start = s_stop - self.step
-                    new_stop = s_start - self.step
-                start, stop = new_start, new_stop
-            else:
-                if self.step < 0:  # step < 0 i.e. no flip
-                    start, stop = s_start, s_stop
+                    start, stop = s_stop-self.step, s_start-self.step
 
             return Pairs(start, stop, step, self.raw_repr)
 

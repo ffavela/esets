@@ -106,13 +106,13 @@ Using a new var.
 >>> list(w[::-1])
 [22, 20, 18, 16, 14, 12, 10, 8, 6]
 
->>> w.raw_repr = True
+# >>> w.raw_repr = True
 
->>> w
+# >>> w
 
->>> w[::-1]
+# >>> w[::-1]
 
->>> w.raw_repr = False
+# >>> w.raw_repr = False
 
 # >>> w[::-1][:4]
 
@@ -149,14 +149,17 @@ Traceback (most recent call last):
 ...
 ValueError: Cannot enumerate backward from infinite
 
->>> p.raw_repr = True
+>>> p[3:20:4]
+<esets.Pairs (6, 14, 22, 30, ...)>
+
+# >>> p.raw_repr = True
 
 >>> list(p[3:20:4][::-1])
 [38, 30, 22, 14, 6]
 
->>> p[3:20:4]
+# >>> p[3:20:4]
 
->>> p[3:20:4][::-1]
+# >>> p[3:20:4][::-1]
 
 >>> [2*e for e in range(20,3,-4)]
 [40, 32, 24, 16, 8]
@@ -164,13 +167,13 @@ ValueError: Cannot enumerate backward from infinite
 >>> list(p[20:3:-4])
 [40, 32, 24, 16, 8]
 
->>> p
+# >>> p
 
->>> p[20:3:-1]
+# >>> p[20:3:-1]
 
->>> p[20:3:-4]
+# >>> p[20:3:-4]
 
->>> p.raw_repr = False
+# >>> p.raw_repr = False
 
 # >>> [2*e for e in range(3,20)][::-4][::-3]
 # [6, 30]
