@@ -74,7 +74,7 @@ class Pairs:
 
             start = s_start
             if flip and step < 0 and key.stop is None:
-                start = s_stop + step
+                start = s_stop - self.step
             stop = start + len_step * step
 
             if flip:
