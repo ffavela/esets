@@ -36,6 +36,7 @@ class Pairs:
         raise ValueError('Aleph_0 infinite')
 
     def __getitem__(self, key):
+        enum_error = 'Cannot enumerate backward from infinite'
         if isinstance(key, slice):
             kstep = key.step
             if key.step is None:
@@ -46,18 +47,32 @@ class Pairs:
 
             flip = True if step * self.step < 0 else False
 
-            if key.start is None:
-                s_start = self.start
-            else:  # Assuming happy path with no negative vals
-                s_start = self.start + key.start * self.step
-
             if key.stop is None:
                 s_stop = self.stop
             else:
-                s_stop = self.start + key.stop * self.step
+                kstop = key.stop
+                if kstop < 0:
+                    if self.stop is None:
+                        raise ValueError(enum_error)
+                    kstop += self.__len__()
+                if kstop < 0:  # Yes I know checking again...
+                    s_stop = self.start - self.step
+                else:
+                    s_stop = self.start + kstop * self.step
 
             if s_stop is None and step < 0:
-                raise ValueError('Cannot enumerate backward from infinite')
+                raise ValueError(enum_error)
+
+            if key.start is None:
+                s_start = self.start
+            else:
+                kstart = key.start
+                if kstart < 0:
+                    if s_stop is None:
+                        raise ValueError(enum_error)
+                    kstart += self.__len__()
+                    kstart = max(kstart, 0)
+                s_start = self.start + kstart * self.step
 
             if flip and step < 0:
                 if key.stop is None:

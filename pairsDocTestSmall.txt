@@ -144,6 +144,9 @@ Using a new var.
 >>> list(p[:10000000000000000:-4])
 []
 
+>>> list(p[:10000000000000000:-4][::-1])
+[]
+
 >>> list(p[0::-4][::-1])
 Traceback (most recent call last):
 ...
@@ -264,3 +267,53 @@ ValueError: Cannot enumerate backward from infinite
 # obj.step = -40
 
 # >>> p.raw_repr = False
+
+>>> p[300:2000][70::-40]
+<esets.Pairs (740, 660)>
+
+>>> p[305:1800][70::-40]
+<esets.Pairs (750, 670)>
+
+>>> p[305:1800][70::-21]
+<esets.Pairs (750, 708, 666, 624)>
+
+>>> p[305:1800:6][70::-21]
+<esets.Pairs (1450, 1198, 946, 694)>
+
+>>> p[305:1800:6][70::-21][::2]
+<esets.Pairs (1450, 946)>
+
+>>> pp[1:6:2][0::]
+<esets.Pairs (2, 6, 10)>
+
+>>> pp[1:6:2][-3::]
+<esets.Pairs (2, 6, 10)>
+
+>>> pp[1:6:2][-3:-1:]
+<esets.Pairs (2, 6)>
+
+>>> pp[1:20:2]
+<esets.Pairs (2, 6, 10, 14, ...)>
+
+>>> pp[1:20:2][-7:]
+<esets.Pairs (14, 18, 22, 26, ...)>
+
+>>> pp[1:20:2][-7:-2]
+<esets.Pairs (14, 18, 22, 26, ...)>
+
+>>> p[-3:]
+Traceback (most recent call last):
+...
+ValueError: Cannot enumerate backward from infinite
+
+>>> p[:10:2][-1:-5]
+<esets.Pairs ()>
+
+>>> p[:20:2][-10:-1]
+<esets.Pairs (0, 4, 8, 12, ...)>
+
+>>> p[:20:2][-10:-1:-2]
+<esets.Pairs ()>
+
+>>> p[:10:2][-1:-10:-2]
+<esets.Pairs (16, 8, 0)>
