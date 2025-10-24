@@ -194,6 +194,26 @@ ValueError: Cannot enumerate backward from infinite
 
 # >>> p[3:20:-4]
 
-# >>> p[3:20:-4][::3]
+>>> p[20:3:-4]
+<esets.Pairs (40, 32, 24, 16, ...)>
 
-# >>> p[3:20:-4][::3][::-1]
+>>> p[20:3:-4][::3][::-1]
+<esets.Pairs (16, 40)>
+
+>>> p[25:5:-4]
+<esets.Pairs (50, 42, 34, 26, ...)>
+
+>>> p[25:5:-4][::2]
+<esets.Pairs (50, 34, 18)>
+
+# >>> p.raw_repr = True
+
+# >>> p[25:5:-4]
+
+# >>> p[25:5:-4][::2]
+
+# >>> p.raw_repr = False
+
+
+>>> p[25:5:-4][::2][::-2]
+<esets.Pairs (18, 50)>

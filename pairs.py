@@ -70,7 +70,7 @@ class Pairs:
             len_raw = delta // abs(self.step) +\
                 self.step_function(delta % self.step)
             len_step = len_raw // abs(kstep) +\
-                self.step_function(delta % kstep)
+                self.step_function(len_raw % kstep)
 
             start = s_start
             if flip and step < 0 and key.stop is None:
