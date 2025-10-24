@@ -141,7 +141,7 @@ Using a new var.
 >>> list(p[3:20:-4][::-1])
 []
 
->>> list(p[:10000000000000000:-4][::-1])
+>>> list(p[:10000000000000000:-4])
 []
 
 >>> list(p[0::-4][::-1])
@@ -245,3 +245,22 @@ ValueError: Cannot enumerate backward from infinite
 
 >>> p[100:5:-2][2:9:3][:2]
 <esets.Pairs (192, 180)>
+
+
+>>> p[30:2000]
+<esets.Pairs (60, 62, 64, 66, ...)>
+
+>>> p[30:2000][70::-40]
+<esets.Pairs (200, 120)>
+
+# >>> p.raw_repr = True
+
+# >>> p[30:2000]
+# <esets.Pairs (60, 62, 64, 66, ...)>
+
+# >>> p[30:2000][70::-40]
+# obj.start = 100,
+# obj.stop = 20,
+# obj.step = -40
+
+# >>> p.raw_repr = False

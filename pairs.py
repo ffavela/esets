@@ -59,6 +59,15 @@ class Pairs:
             if s_stop is None and step < 0:
                 raise ValueError('Cannot enumerate backward from infinite')
 
+            if flip and step < 0:
+                if key.stop is None:
+                    s_stop = self.start - self.step
+                if key.start is None:
+                    if self.stop is None:
+                        s_start = s_stop - self.step
+                    else:
+                        s_start = self.stop - self.step
+
             if (s_stop < s_start and step > 0
                or s_stop > s_start and step < 0)\
                and (key.start is not None or
@@ -73,8 +82,6 @@ class Pairs:
                 self.step_function(len_raw % kstep)
 
             start = s_start
-            if flip and step < 0 and key.stop is None:
-                start = s_stop - self.step
             stop = start + len_step * step
 
             if flip:
