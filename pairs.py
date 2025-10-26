@@ -60,6 +60,9 @@ class Pairs:
                         # The following satisfies:
                         # 0 < kstop < self.__len__()
                         kstop += self.__len__()
+                # The next satisfies kstop > 0 too
+                elif flip and kstop >= self.__len__():
+                    kstop = self.__len__() - 1
                 s_stop = self.start + kstop * self.step
 
             if s_stop is None and step < 0:
@@ -79,7 +82,7 @@ class Pairs:
                         # 0 < kstart < self.__len__()
                         kstart += self.__len__()
                 # The next satisfies kstart > 0 too
-                elif flip and step < 0 and kstart > self.__len__():
+                elif flip and kstart > self.__len__():
                     kstart = self.__len__() - 1
                 s_start = self.start + kstart * self.step
 
