@@ -87,7 +87,7 @@ reversible like a list or a tuple.
 >>> p[::-1]
 Traceback (most recent call last):
 ...
-ValueError: Cannot reverse an Aleph_0 infinite
+ValueError: Cannot enumerate backward from infinite
 
 This doesn't impede us from using positive integer steps. The
 following slice will create an ```eset``` jumps futher every of two in
@@ -313,20 +313,20 @@ Doing the equivalent eset operation:
 
 Let's do a new test, say we have the following list:
 
->>> ls = [8*v for v in range(10)]
+>>> ls = [2*v for v in range(10)][::4]
 >>> ls
-[0, 8, 16, 24, 32, 40, 48, 56, 64, 72]
+[0, 8, 16]
 
 We can create the new corresponding eset as:
 
 >>> s = p[:10:4]
 >>> s
-<esets.Pairs (0, 8, 16, 24, ...)>
+<esets.Pairs (0, 8, 16)>
 
 The respective list is:
 
 >>> list(s)
-[0, 8, 16, 24, 32, 40, 48, 56, 64, 72]
+[0, 8, 16]
 
 Evidently the equality holds:
 
@@ -336,167 +336,161 @@ True
 Reversing the list:
 
 >>> ls[::-1]
-[72, 64, 56, 48, 40, 32, 24, 16, 8, 0]
+[16, 8, 0]
 
 The same reversal on the eset gives:
 
 >>> list(s[::-1])
-[72, 64, 56, 48, 40, 32, 24, 16, 8, 0]
+[16, 8, 0]
 
 And here is the corresponding repr is:
 
 >>> s[::-1]
-<esets.Pairs (72, 64, 56, 48, ...)>
+<esets.Pairs (16, 8, 0)>
 
 The list after a -2 step reversal:
 
 >>> ls[::-2]
-[72, 56, 40, 24, 8]
+[16, 0]
 
 Which it the same as doing it with the eset after making it a list:
 
 >>> list(s[::-2])
-[72, 56, 40, 24, 8]
+[16, 0]
 
 Reversing the list with a stop value:
 
 >>> ls[:5:-1]
-[72, 64, 56, 48]
+[]
 
 The corresponding list using the eset:
 
 >>> list(s[:5:-1])
-[72, 64, 56, 48]
+[]
 
 Using a different step:
 
 >>> ls[:5:-2]
-[72, 56]
+[]
 
 Wich is clearly the same with the eset version:
 
 >>> list(s[:5:-2])
-[72, 56]
+[]
 
 Start values can be used:
 
 >>> ls[8::-1]
-[64, 56, 48, 40, 32, 24, 16, 8, 0]
+[16, 8, 0]
 
 The eset behaves correspondingly:
 
 >>> list(s[8::-1])
-[64, 56, 48, 40, 32, 24, 16, 8, 0]
+[16, 8, 0]
 
 Both start and stop too:
 
 >>> ls[8:2:-1]
-[64, 56, 48, 40, 32, 24]
+[]
 
 >>> list(s[8:2:-1])
-[64, 56, 48, 40, 32, 24]
+[]
 
 With a different step:
 
 >>> ls[8:2:-3]
-[64, 40]
+[]
 
 The eset part:
 
 >>> list(s[8:2:-3])
-[64, 40]
-
+[]
 
 Testing more ranges:
 
 >>> ls[5:0:-3]
-[40, 16]
+[16]
 
 >>> list(s[5:0:-3])
-[40, 16]
+[16]
 
 Various list test behaviour:
 
 >>> ls[5::-3]
-[40, 16]
+[16]
 >>> ls[5::-2]
-[40, 24, 8]
+[16, 0]
 >>> ls[5::-1]
-[40, 32, 24, 16, 8, 0]
+[16, 8, 0]
 >>> ls[5:3:-1]
-[40, 32]
+[]
 >>> ls[5:1:-1]
-[40, 32, 24, 16]
+[16]
 >>> ls[:1:-1]
-[72, 64, 56, 48, 40, 32, 24, 16]
+[16]
 >>> ls[:-8:-1]
-[72, 64, 56, 48, 40, 32, 24]
+[16, 8, 0]
 >>> ls[-5::-1]
-[40, 32, 24, 16, 8, 0]
+[]
 >>> ls[-5:-8:-1]
-[40, 32, 24]
+[]
 
 And the corresponding eset counterpart:
 
 >>> list(s[5::-3])
-[40, 16]
+[16]
 >>> list(s[5::-2])
-[40, 24, 8]
+[16, 0]
 >>> list(s[5::-1])
-[40, 32, 24, 16, 8, 0]
+[16, 8, 0]
 >>> list(s[5:3:-1])
-[40, 32]
+[]
 >>> list(s[5:1:-1])
-[40, 32, 24, 16]
+[16]
 >>> list(s[:1:-1])
-[72, 64, 56, 48, 40, 32, 24, 16]
+[16]
 >>> list(s[:-8:-1])
-[72, 64, 56, 48, 40, 32, 24]
+[16, 8, 0]
 >>> list(s[-5::-1])
-[40, 32, 24, 16, 8, 0]
+[]
 >>> list(s[-5:-8:-1])
-[40, 32, 24]
+[]
 
 More list stuff:
 
 >>> lls = ls[::-3]
 >>> lls
-[72, 48, 24, 0]
+[16]
 >>> lls[::-1]
-[0, 24, 48, 72]
+[16]
 >>> lls[:4:-1]
 []
 >>> lls[:1:-1]
-[0, 24]
+[]
 >>> lls[::-1][::-1] == lls
 True
-
 
 And the corresponding eset part:
 
 >>> ss = s[::-3]
 >>> list(ss)
-[72, 48, 24, 0]
+[16]
 >>> list(ss[::-1])
-[0, 24, 48, 72]
->>> list(ss[:0:-1])
-[0, 24, 48]
->>> list(ss[:1:-1])
-[0, 24]
->>> list(ss[:2:-1])
-[0]
->>> list(ss[:3:-1])
-[]
+[16]
 >>> list(ss[:4:-1])
 []
+>>> list(ss[:1:-1])
+[]
+>>> list(ss[::-1][::-1]) == list(ss)
+True
 
 Do note that:
 >>> list(s[::-1])
-[72, 64, 56, 48, 40, 32, 24, 16, 8, 0]
+[18, 16, 14, 12, 10, 10, 8, 6, 4, 2, 0]
 
 So:
 >>> list(s[::-1][::-1])
-[0, 8, 16, 24, 32, 40, 48, 56, 64, 72]
+[18, 16, 14, 12, 10, 10, 8, 6, 4, 2, 0]
 
 Therefore:
 >>> list(s[::-1][::-1]) == list(s)

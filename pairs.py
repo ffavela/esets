@@ -54,11 +54,13 @@ class Pairs:
                 if kstop < 0:
                     if self.stop is None:
                         raise ValueError(enum_error)
-                    kstop += self.__len__()
-                if kstop < 0:  # Yes I know checking again...
-                    s_stop = self.start - self.step
-                else:
-                    s_stop = self.start + kstop * self.step
+                    if self.__len__() < -kstop:  # cause kstop < 0
+                        kstop = -1
+                    else:
+                        # The following satisfies:
+                        # 0 < kstop < self.__len__()
+                        kstop += self.__len__()
+                s_stop = self.start + kstop * self.step
 
             if s_stop is None and step < 0:
                 raise ValueError(enum_error)
@@ -70,8 +72,15 @@ class Pairs:
                 if kstart < 0:
                     if s_stop is None:
                         raise ValueError(enum_error)
-                    kstart += self.__len__()
-                    kstart = max(kstart, 0)
+                    if self.__len__() < -kstart:  # cause kstart < 0
+                        kstart = -1
+                    else:
+                        # The following satisfies:
+                        # 0 < kstart < self.__len__()
+                        kstart += self.__len__()
+                # The next satisfies kstart > 0 too
+                elif flip and step < 0 and kstart > self.__len__():
+                    kstart = self.__len__() - 1
                 s_start = self.start + kstart * self.step
 
             if flip and step < 0:
@@ -83,21 +92,25 @@ class Pairs:
                     else:
                         s_start = self.stop - self.step
 
-            if (s_stop < s_start and step > 0
-               or s_stop > s_start and step < 0)\
-               and (key.start is not None or
-                    key.stop is not None):
-                delta = 0
+            if s_stop is None:
+                start = s_start
+                stop = s_stop
             else:
-                delta = abs(s_stop - s_start)
+                if (s_stop < s_start and step > 0
+                   or s_stop > s_start and step < 0)\
+                   and (key.start is not None or
+                        key.stop is not None):
+                    delta = 0
+                else:
+                    delta = abs(s_stop - s_start)
 
-            len_raw = delta // abs(self.step) +\
-                self.step_function(delta % self.step)
-            len_step = len_raw // abs(kstep) +\
-                self.step_function(len_raw % kstep)
+                len_raw = delta // abs(self.step) +\
+                    self.step_function(delta % self.step)
+                len_step = len_raw // abs(kstep) +\
+                    self.step_function(len_raw % kstep)
 
-            start = s_start
-            stop = start + len_step * step
+                start = s_start
+                stop = start + len_step * step
 
             if flip:
                 if self.step < 0:  # step > 0
@@ -172,5 +185,5 @@ def get_repr_str(obj: Pairs, max_val: int = 4) -> str:
 
 if __name__ == '__main__':
     import doctest
-    # doctest.testfile("pairsDocTest.txt")
-    doctest.testfile("pairsDocTestSmall.txt")
+    doctest.testfile("pairsDocTest.txt")
+    # doctest.testfile("pairsDocTestSmall.txt")
