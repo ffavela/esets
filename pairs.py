@@ -137,13 +137,15 @@ class Pairs:
         raise ValueError('Need a slice or a positive integer')
 
     def __contains__(self, val):
-        if val % (VALUE*self.step) != 0:
+        diff = val - self.start * VALUE
+        if diff % (VALUE*self.step) != 0:
             return False
-        if val >= self.start*VALUE:
+        if self.step > 0 and val >= self.start*VALUE:
             if self.stop is None or\
-               val < (self.start+self.__len__()*self.step)*VALUE:
+               val < self.stop*VALUE:
                 return True
-        # Need to set the step < 0 case
+        if self.step < 0 and self.stop*VALUE < val <= self.start*VALUE:
+            return True
         return False
 
     def index(self, val):
