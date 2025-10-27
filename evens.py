@@ -3,8 +3,8 @@ import pdb
 VALUE = 2
 
 
-class Pairs:
-    """Something that contains all positive integer pairs"""
+class Evens:
+    """Something that contains all positive integer evens"""
     def __init__(self, start=0, stop=None, step=1,
                  raw_repr=False):
         if start is None:
@@ -124,7 +124,7 @@ class Pairs:
                 if self.step < 0:  # step > 0
                     start, stop = s_stop-self.step, s_start-self.step
 
-            return Pairs(start, stop, step, self.raw_repr)
+            return Evens(start, stop, step, self.raw_repr)
 
         if isinstance(key, int):
             i = int(key)
@@ -175,7 +175,7 @@ class Pairs:
         return get_repr_str(self)
 
 
-def get_repr_str(obj: Pairs, max_val: int = 4) -> str:
+def get_repr_str(obj: Evens, max_val: int = 4) -> str:
     if not obj.raw_repr:
         ellipsis = ', ...'
         try:
@@ -186,7 +186,7 @@ def get_repr_str(obj: Pairs, max_val: int = 4) -> str:
             last = max_val
         rstr = ', '.join([str(v) for v in obj[:last]])
         rstr += ellipsis
-        return f'<esets.Pairs ({rstr})>'
+        return f'<esets.Evens ({rstr})>'
     else:
         return f'obj.start = {obj.start},\n' +\
             f'obj.stop = {obj.stop},\n' +\
@@ -195,5 +195,5 @@ def get_repr_str(obj: Pairs, max_val: int = 4) -> str:
 
 if __name__ == '__main__':
     import doctest
-    doctest.testfile("pairsDocTest.txt")
-    # doctest.testfile("pairsDocTestSmall.txt")
+    doctest.testfile("evensDocTest.txt")
+    # doctest.testfile("evensDocTestSmall.txt")

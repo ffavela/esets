@@ -1,10 +1,10 @@
->>> from pairs import Pairs
+>>> from evens import Evens
 
 Now use it:
 
->>> p = Pairs()
+>>> p = Evens()
 >>> p
-<esets.Pairs (0, 2, 4, 6, ...)>
+<esets.Evens (0, 2, 4, 6, ...)>
 
 >>> pp = p[:10]
 
@@ -16,7 +16,7 @@ This creates a finite version were we can get its len:
 And here is the repr:
 
 >>> pp
-<esets.Pairs (0, 2, 4, 6, ...)>
+<esets.Evens (0, 2, 4, 6, ...)>
 
 Here is the list:
 
@@ -33,75 +33,75 @@ list compehension:
 Using a step of 2 on the pp eset:
 
 >>> pp[::2]
-<esets.Pairs (0, 4, 8, 12, ...)>
+<esets.Evens (0, 4, 8, 12, ...)>
 
 Using a step of 3 on the pp eset:
 
 >>> pp[::3]
-<esets.Pairs (0, 6, 12, 18)>
+<esets.Evens (0, 6, 12, 18)>
 
 Using a step of 4 on the pp eset:
 
 >>> pp[::4]
-<esets.Pairs (0, 8, 16)>
+<esets.Evens (0, 8, 16)>
 
 Using a step of 5 on the pp eset:
 
 >>> pp[::5]
-<esets.Pairs (0, 10)>
+<esets.Evens (0, 10)>
 
 Using a key start that is not None:
 
 >>> pp[1::2]
-<esets.Pairs (2, 6, 10, 14, ...)>
+<esets.Evens (2, 6, 10, 14, ...)>
 
 Using a key start that is 2:
 
 >>> pp[2::2]
-<esets.Pairs (4, 8, 12, 16)>
+<esets.Evens (4, 8, 12, 16)>
 
 Using a key start that is 3:
 
 >>> pp[3::2]
-<esets.Pairs (6, 10, 14, 18)>
+<esets.Evens (6, 10, 14, 18)>
 
 Using a key start that is 4:
 
 >>> pp[4::2]
-<esets.Pairs (8, 12, 16)>
+<esets.Evens (8, 12, 16)>
 
 Using a key start that is 2 but with step 3:
 
 >>> pp[2::3]
-<esets.Pairs (4, 10, 16)>
+<esets.Evens (4, 10, 16)>
 
 Using a key start that is 1 but with step 3:
 
 >>> pp[1::3]
-<esets.Pairs (2, 8, 14)>
+<esets.Evens (2, 8, 14)>
 
 Using a key stop that is 6 with step 2:
 
 >>> pp[:6:2]
-<esets.Pairs (0, 4, 8)>
+<esets.Evens (0, 4, 8)>
 
 Using a key stop that is 6 with step 2 and start 1:
 
 >>> pp[1:6:2]
-<esets.Pairs (2, 6, 10)>
+<esets.Evens (2, 6, 10)>
 
 Using a new var.
 
 >>> w = p[3:12]
 
 >>> w
-<esets.Pairs (6, 8, 10, 12, ...)>
+<esets.Evens (6, 8, 10, 12, ...)>
 
 >>> list(w)
 [6, 8, 10, 12, 14, 16, 18, 20, 22]
 
 >>> w[::-1]
-<esets.Pairs (22, 20, 18, 16, ...)>
+<esets.Evens (22, 20, 18, 16, ...)>
 
 >>> list(w[::-1])
 [22, 20, 18, 16, 14, 12, 10, 8, 6]
@@ -119,7 +119,7 @@ Using a new var.
 # >>> w.raw_repr = False
 
 >>> w[::-1][::-1]
-<esets.Pairs (6, 8, 10, 12, ...)>
+<esets.Evens (6, 8, 10, 12, ...)>
 
 >>> list(w)
 [6, 8, 10, 12, 14, 16, 18, 20, 22]
@@ -130,7 +130,7 @@ Using a new var.
 >>> ww = p[3:20:4]
 
 >>> ww
-<esets.Pairs (6, 14, 22, 30, ...)>
+<esets.Evens (6, 14, 22, 30, ...)>
 
 >>> [2*e for e in range(3,20,-4)]
 []
@@ -153,7 +153,7 @@ Traceback (most recent call last):
 ValueError: Cannot enumerate backward from infinite
 
 >>> p[3:20:4]
-<esets.Pairs (6, 14, 22, 30, ...)>
+<esets.Evens (6, 14, 22, 30, ...)>
 
 # >>> p.raw_repr = True
 
@@ -196,7 +196,7 @@ ValueError: Cannot enumerate backward from infinite
 [6, 30]
 
 >>> p[3:20][::-4][::-3]
-<esets.Pairs (6, 30)>
+<esets.Evens (6, 30)>
 
 # >>> [2*e for e in range(3,20)][::-4][::3]
 # [38, 14]
@@ -212,16 +212,16 @@ ValueError: Cannot enumerate backward from infinite
 # >>> p[3:20:-4]
 
 >>> p[20:3:-4]
-<esets.Pairs (40, 32, 24, 16, ...)>
+<esets.Evens (40, 32, 24, 16, ...)>
 
 >>> p[20:3:-4][::3][::-1]
-<esets.Pairs (16, 40)>
+<esets.Evens (16, 40)>
 
 >>> p[25:5:-4]
-<esets.Pairs (50, 42, 34, 26, ...)>
+<esets.Evens (50, 42, 34, 26, ...)>
 
 >>> p[25:5:-4][::2]
-<esets.Pairs (50, 34, 18)>
+<esets.Evens (50, 34, 18)>
 
 # >>> p.raw_repr = True
 
@@ -232,34 +232,34 @@ ValueError: Cannot enumerate backward from infinite
 # >>> p.raw_repr = False
 
 >>> p[25:5:-4][::2][::-2]
-<esets.Pairs (18, 50)>
+<esets.Evens (18, 50)>
 
 >>> p[50:5:-7][::3]
-<esets.Pairs (100, 58, 16)>
+<esets.Evens (100, 58, 16)>
 
 >>> p[50:5:-7][::3][::-2]
-<esets.Pairs (16, 100)>
+<esets.Evens (16, 100)>
 
 >>> p[50:5:-2][2:9:3]
-<esets.Pairs (92, 80, 68)>
+<esets.Evens (92, 80, 68)>
 
 >>> p[50:5:-2][2:9:3][:2]
-<esets.Pairs (92, 80)>
+<esets.Evens (92, 80)>
 
 >>> p[100:5:-2][2:9:3][:2]
-<esets.Pairs (192, 180)>
+<esets.Evens (192, 180)>
 
 
 >>> p[30:2000]
-<esets.Pairs (60, 62, 64, 66, ...)>
+<esets.Evens (60, 62, 64, 66, ...)>
 
 >>> p[30:2000][70::-40]
-<esets.Pairs (200, 120)>
+<esets.Evens (200, 120)>
 
 # >>> p.raw_repr = True
 
 # >>> p[30:2000]
-# <esets.Pairs (60, 62, 64, 66, ...)>
+# <esets.Evens (60, 62, 64, 66, ...)>
 
 # >>> p[30:2000][70::-40]
 # obj.start = 100,
@@ -269,37 +269,37 @@ ValueError: Cannot enumerate backward from infinite
 # >>> p.raw_repr = False
 
 >>> p[300:2000][70::-40]
-<esets.Pairs (740, 660)>
+<esets.Evens (740, 660)>
 
 >>> p[305:1800][70::-40]
-<esets.Pairs (750, 670)>
+<esets.Evens (750, 670)>
 
 >>> p[305:1800][70::-21]
-<esets.Pairs (750, 708, 666, 624)>
+<esets.Evens (750, 708, 666, 624)>
 
 >>> p[305:1800:6][70::-21]
-<esets.Pairs (1450, 1198, 946, 694)>
+<esets.Evens (1450, 1198, 946, 694)>
 
 >>> p[305:1800:6][70::-21][::2]
-<esets.Pairs (1450, 946)>
+<esets.Evens (1450, 946)>
 
 >>> pp[1:6:2][0::]
-<esets.Pairs (2, 6, 10)>
+<esets.Evens (2, 6, 10)>
 
 >>> pp[1:6:2][-3::]
-<esets.Pairs (2, 6, 10)>
+<esets.Evens (2, 6, 10)>
 
 >>> pp[1:6:2][-3:-1:]
-<esets.Pairs (2, 6)>
+<esets.Evens (2, 6)>
 
 >>> pp[1:20:2]
-<esets.Pairs (2, 6, 10, 14, ...)>
+<esets.Evens (2, 6, 10, 14, ...)>
 
 >>> pp[1:20:2][-7:]
-<esets.Pairs (14, 18, 22, 26, ...)>
+<esets.Evens (14, 18, 22, 26, ...)>
 
 >>> pp[1:20:2][-7:-2]
-<esets.Pairs (14, 18, 22, 26, ...)>
+<esets.Evens (14, 18, 22, 26, ...)>
 
 >>> p[-3:]
 Traceback (most recent call last):
@@ -307,13 +307,13 @@ Traceback (most recent call last):
 ValueError: Cannot enumerate backward from infinite
 
 >>> p[:10:2][-1:-5]
-<esets.Pairs ()>
+<esets.Evens ()>
 
 >>> p[:20:2][-10:-1]
-<esets.Pairs (0, 4, 8, 12, ...)>
+<esets.Evens (0, 4, 8, 12, ...)>
 
 >>> p[:20:2][-10:-1:-2]
-<esets.Pairs ()>
+<esets.Evens ()>
 
 >>> p[:10:2][-1:-10:-2]
-<esets.Pairs (16, 8, 0)>
+<esets.Evens (16, 8, 0)>
