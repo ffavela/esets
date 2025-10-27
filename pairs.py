@@ -76,7 +76,7 @@ class Pairs:
                     if s_stop is None:
                         raise ValueError(enum_error)
                     if self.__len__() < -kstart:  # cause kstart < 0
-                        kstart = -1
+                        kstart = 0
                     else:
                         # The following satisfies:
                         # 0 < kstart < self.__len__()
