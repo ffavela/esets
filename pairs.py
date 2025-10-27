@@ -76,7 +76,7 @@ class Pairs:
                     if s_stop is None:
                         raise ValueError(enum_error)
                     if self.__len__() < -kstart:  # cause kstart < 0
-                        kstart = 0
+                        kstart = -1
                     else:
                         # The following satisfies:
                         # 0 < kstart < self.__len__()
@@ -84,7 +84,12 @@ class Pairs:
                 # The next satisfies kstart > 0 too
                 elif flip and kstart > self.__len__():
                     kstart = self.__len__() - 1
+                # If despite of trying it is still negative
+                if not flip and kstart < 0:
+                    kstart = 0
                 s_start = self.start + kstart * self.step
+                # if not flip and s_start < 0:
+                #     s_start = self.start
 
             if flip and step < 0:
                 if key.stop is None:

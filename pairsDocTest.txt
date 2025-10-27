@@ -495,3 +495,71 @@ So:
 Therefore:
 >>> list(s[::-1][::-1]) == list(s)
 True
+
+Say:
+
+>>> ss = p[5:12:6]
+
+>>> ss
+<esets.Pairs (10, 22)>
+
+Now if:
+
+>>> ss[-5:]
+<esets.Pairs (10, 22)>
+
+>>> ss.raw_repr = True
+
+>>> ss
+obj.start = 5,
+obj.stop = 17,
+obj.step = 6
+
+>>> ss[-5:]
+obj.start = 5,
+obj.stop = 17,
+obj.step = 6
+
+>>> ss.raw_repr = False
+
+>> ss[::-1]
+<esets.Pairs (22, 10)>
+>>> list(ss)
+[10, 22]
+>>> list(ss)[::-1]
+[22, 10]
+>>> list(ss)[::-2]
+[22]
+>>> 10 in ss[::-1]
+True
+>>> 10 in ss[::-2]
+False
+>>> 22 in ss[::-1]
+True
+>>> 232143432 in ss[::-1]
+False
+
+>>> ss.index(10)
+0
+>>> ss.index(7)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/home/frank/programas/python/esets/pairs.py", line 160, in index
+    raise ValueError(msg)
+ValueError: 7 not in 'Pairs'
+>>> ss.index(22)
+1
+>>> ss[::-1].index(22)
+0
+>>> ss[::-1].index(10)
+1
+>>> ss[::-1].index(7)
+Traceback (most recent call last):
+...
+ValueError: 7 not in 'Pairs'
+>>> ss[::-2].index(22)
+0
+>>> ss[::-2].index(10)
+Traceback (most recent call last):
+...
+ValueError: 10 not in 'Pairs'
