@@ -195,5 +195,5 @@ def get_repr_str(obj: Evens, max_val: int = 4) -> str:
 
 if __name__ == '__main__':
     import doctest
-    doctest.testfile("evensDocTest.txt")
-    # doctest.testfile("evensDocTestSmall.txt")
+    # doctest.testfile("evensDocTest.txt")
+    doctest.testfile("evensDocTestSmall.txt")
