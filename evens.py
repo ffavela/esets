@@ -86,8 +86,6 @@ class Evens:
                 if not flip and kstart < 0:
                     kstart = 0
                 s_start = self.start + kstart * self.step
-                # if not flip and s_start < 0:
-                #     s_start = self.start
 
             if flip and step < 0:
                 if key.stop is None:
@@ -158,16 +156,16 @@ class Evens:
             raise ValueError(msg)
         return (val - self.start * VALUE)//(VALUE * self.step)
 
-    # There are better ways, but this is good enough
-    def __iter__(self, i=0):
+    def iter_condition(self, i):
         if self.stop is None:
-            while True:
-                yield VALUE * (self.start + i * self.step)
-                i += 1
+            return True
         else:
-            while i < self.__len__():
-                yield VALUE * (self.start + i * self.step)
-                i += 1
+            return i < self.__len__()
+
+    def __iter__(self, i=0):
+        while self.iter_condition(i):
+            yield VALUE * (self.start + i * self.step)
+            i += 1
 
     def __repr__(self):
         max_val = 4
