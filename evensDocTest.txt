@@ -511,14 +511,14 @@ Now if:
 >>> ss.raw_repr = True
 
 >>> ss
-obj.start = 5,
-obj.stop = 17,
-obj.step = 6
+self.start = 5,
+self.stop = 17,
+self.step = 6
 
 >>> ss[-5:]
-obj.start = 5,
-obj.stop = 17,
-obj.step = 6
+self.start = 5,
+self.stop = 17,
+self.step = 6
 
 >>> ss.raw_repr = False
 

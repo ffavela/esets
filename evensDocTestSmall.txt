@@ -291,9 +291,9 @@ ValueError: Aleph_0 infinite
 # <esets.Evens (60, 62, 64, 66, ...)>
 
 # >>> p[30:2000][70::-40]
-# obj.start = 100,
-# obj.stop = 20,
-# obj.step = -40
+# self.start = 100,
+# self.stop = 20,
+# self.step = -40
 
 # >>> p.raw_repr = False
 

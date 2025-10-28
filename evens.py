@@ -1,5 +1,3 @@
-import pdb
-
 VALUE = 2
 
 
@@ -172,28 +170,25 @@ class Evens:
                 i += 1
 
     def __repr__(self):
-        return get_repr_str(self)
-
-
-def get_repr_str(obj: Evens, max_val: int = 4) -> str:
-    if not obj.raw_repr:
-        ellipsis = ', ...'
-        try:
-            last = min(max_val, len(obj))
-            if max_val >= len(obj):
-                ellipsis = ''
-        except ValueError:
-            last = max_val
-        rstr = ', '.join([str(v) for v in obj[:last]])
-        rstr += ellipsis
-        return f'<esets.Evens ({rstr})>'
-    else:
-        return f'obj.start = {obj.start},\n' +\
-            f'obj.stop = {obj.stop},\n' +\
-            f'obj.step = {obj.step}'
+        max_val = 4
+        if not self.raw_repr:
+            ellipsis = ', ...'
+            try:
+                last = min(max_val, len(self))
+                if max_val >= len(self):
+                    ellipsis = ''
+            except ValueError:
+                last = max_val
+            rstr = ', '.join([str(v) for v in self[:last]])
+            rstr += ellipsis
+            return f'<esets.Evens ({rstr})>'
+        else:
+            return f'self.start = {self.start},\n' +\
+                f'self.stop = {self.stop},\n' +\
+                f'self.step = {self.step}'
 
 
 if __name__ == '__main__':
     import doctest
-    # doctest.testfile("evensDocTest.txt")
-    doctest.testfile("evensDocTestSmall.txt")
+    doctest.testfile("evensDocTest.txt")
+    # doctest.testfile("evensDocTestSmall.txt")
