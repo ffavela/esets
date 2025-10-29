@@ -14,10 +14,15 @@ class Evens:
                 raise ValueError('Values need to be integers.')
         if start < 0 and stop is None:
             raise ValueError('No last value exists.')
+        if start == 0 and stop is None and step == 1:
+            sliced = False
+        else:
+            sliced = True
 
         self.start = start
         self.step = step
         self.stop = stop
+        self.sliced = sliced
         self.raw_repr = raw_repr
 
     def step_function(self, i: int) -> int:
@@ -179,14 +184,17 @@ class Evens:
                 last = max_val
             rstr = ', '.join([str(v) for v in self[:last]])
             rstr += ellipsis
-            return f'<esets.Evens ({rstr})>'
+            sliceStr = '*' if self.sliced else ''
+            return '<esets.Evens'+sliceStr+f' ({rstr})>'
         else:
             return f'self.start = {self.start},\n' +\
                 f'self.stop = {self.stop},\n' +\
-                f'self.step = {self.step}'
+                f'self.step = {self.step},\n' +\
+                f'self.sliced = {self.sliced},\n' +\
+                f'self.raw_repr = {self.raw_repr}'
 
 
 if __name__ == '__main__':
     import doctest
-    doctest.testfile("evensDocTest.txt")
-    # doctest.testfile("evensDocTestSmall.txt")
+    # doctest.testfile("evensDocTest.txt")
+    doctest.testfile("evensDocTestSmall.txt")

@@ -94,7 +94,7 @@ following slice will create an ```eset``` jumps futher every of two in
 the evens eset, that is it'll contain every positive multiple of four:
 
 >>> p[::2]
-<esets.Evens (0, 4, 8, 12, ...)>
+<esets.Evens* (0, 4, 8, 12, ...)>
 
 In general, slicing is accepted by ```esets```:
 
@@ -176,7 +176,7 @@ tests on this doctest.
 It can also be inverted:
 
 >>> pp[::-1]
-<esets.Evens (18, 16, 14, 12, ...)>
+<esets.Evens* (18, 16, 14, 12, ...)>
 
 And we can confirm directly with the list version behavior that it
 inverted the elements:
@@ -188,7 +188,7 @@ Of course lower bounds can also be defined on the `eset`:
 
 >>> e = p[3:]
 >>> e
-<esets.Evens (6, 8, 10, 12, ...)>
+<esets.Evens* (6, 8, 10, 12, ...)>
 
 As expected, the previous `eset` contains all even numbers starting
 from the third one (6).
@@ -197,7 +197,7 @@ A lower an upper bound can be simultaneusly defined:
 
 >>> w = p[3:10]
 >>> w
-<esets.Evens (6, 8, 10, 12, ...)>
+<esets.Evens* (6, 8, 10, 12, ...)>
 
 Which is of course equivalent to the list counterpart:
 
@@ -208,7 +208,7 @@ Once bounded, not only can negative integer indices can be used but
 also slicing with negative integer values:
 
 >>> w[:-5]
-<esets.Evens (6, 8)>
+<esets.Evens* (6, 8)>
 
 A quick check with the list counterpart shows:
 
@@ -218,7 +218,7 @@ A quick check with the list counterpart shows:
 Both the start and stop values for the slice can be negative:
 
 >>> w[-7:-5]
-<esets.Evens (6, 8)>
+<esets.Evens* (6, 8)>
 
 Which just so happens to be the same behavior as in the list case:
 
@@ -229,7 +229,7 @@ Let's try another larger slice
 
 >>> s = p[:25]
 >>> s
-<esets.Evens (0, 2, 4, 6, ...)>
+<esets.Evens* (0, 2, 4, 6, ...)>
 
 Which of course gives the following list:
 
@@ -246,7 +246,7 @@ Reversing that list with a different upper bound gives:
 working as expected):
 
 >>> s[:14:-1]
-<esets.Evens (48, 46, 44, 42, ...)>
+<esets.Evens* (48, 46, 44, 42, ...)>
 
 Making it a list:
 
@@ -321,7 +321,7 @@ We can create the new corresponding eset as:
 
 >>> s = p[:10:4]
 >>> s
-<esets.Evens (0, 8, 16)>
+<esets.Evens* (0, 8, 16)>
 
 The respective list is:
 
@@ -346,7 +346,7 @@ The same reversal on the eset gives:
 And here is the corresponding repr is:
 
 >>> s[::-1]
-<esets.Evens (16, 8, 0)>
+<esets.Evens* (16, 8, 0)>
 
 The list after a -2 step reversal:
 
@@ -501,29 +501,33 @@ Say:
 >>> ss = p[5:12:6]
 
 >>> ss
-<esets.Evens (10, 22)>
+<esets.Evens* (10, 22)>
 
 Now if:
 
 >>> ss[-5:]
-<esets.Evens (10, 22)>
+<esets.Evens* (10, 22)>
 
 >>> ss.raw_repr = True
 
 >>> ss
 self.start = 5,
 self.stop = 17,
-self.step = 6
+self.step = 6,
+self.sliced = True,
+self.raw_repr = True
 
 >>> ss[-5:]
 self.start = 5,
 self.stop = 17,
-self.step = 6
+self.step = 6,
+self.sliced = True,
+self.raw_repr = True
 
 >>> ss.raw_repr = False
 
 >> ss[::-1]
-<esets.Evens (22, 10)>
+<esets.Evens* (22, 10)>
 >>> list(ss)
 [10, 22]
 >>> list(ss)[::-1]
