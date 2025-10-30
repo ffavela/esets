@@ -14,6 +14,10 @@ class Evens:
                 raise ValueError('Values need to be integers.')
         if start < 0 and stop is None:
             raise ValueError('No last value exists.')
+        if stop is not None:
+            if stop < start and step > 0 \
+               or stop > start and step < 0:
+                raise ValueError('Invalid initialization state.')
         if start == 0 and stop is None and step == 1:
             sliced = False
         else:
