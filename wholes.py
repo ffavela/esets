@@ -144,6 +144,8 @@ class Wholes:
         raise ValueError('Need a slice or a positive integer')
 
     def __contains__(self, val):
+        if not isinstance(val, int):
+            return False
         diff = val - self.start
         if diff % self.step != 0:
             return False

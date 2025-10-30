@@ -147,6 +147,8 @@ class Evens:
         raise ValueError('Need a slice or a positive integer')
 
     def __contains__(self, val):
+        if not isinstance(val, int):
+            return False
         diff = val - self.start * VALUE
         if diff % (VALUE*self.step) != 0:
             return False
