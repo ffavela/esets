@@ -567,3 +567,351 @@ ValueError: 7 not in 'Evens'
 Traceback (most recent call last):
 ...
 ValueError: 10 not in 'Evens'
+>>> from evens import Evens
+
+Now use it:
+
+>>> p = Evens()
+>>> p
+<esets.Evens (0, 2, 4, 6, ...)>
+
+>>> pp = p[:10]
+
+This creates a finite version were we can get its len:
+
+>>> len(pp)
+10
+
+And here is the repr:
+
+>>> pp
+<esets.Evens* (0, 2, 4, 6, ...)>
+
+Here is the list:
+
+>>> list(pp)
+[0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+
+This is of course similar to what one would obtain from the following
+list compehension:
+
+>>> lpp = [2*v for v in range(10)]
+>>> lpp
+[0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+
+Using a step of 2 on the pp eset:
+
+>>> pp[::2]
+<esets.Evens* (0, 4, 8, 12, ...)>
+
+Using a step of 3 on the pp eset:
+
+>>> pp[::3]
+<esets.Evens* (0, 6, 12, 18)>
+
+Using a step of 4 on the pp eset:
+
+>>> pp[::4]
+<esets.Evens* (0, 8, 16)>
+
+Using a step of 5 on the pp eset:
+
+>>> pp[::5]
+<esets.Evens* (0, 10)>
+
+Using a key start that is not None:
+
+>>> pp[1::2]
+<esets.Evens* (2, 6, 10, 14, ...)>
+
+Using a key start that is 2:
+
+>>> pp[2::2]
+<esets.Evens* (4, 8, 12, 16)>
+
+Using a key start that is 3:
+
+>>> pp[3::2]
+<esets.Evens* (6, 10, 14, 18)>
+
+Using a key start that is 4:
+
+>>> pp[4::2]
+<esets.Evens* (8, 12, 16)>
+
+Using a key start that is 2 but with step 3:
+
+>>> pp[2::3]
+<esets.Evens* (4, 10, 16)>
+
+Using a key start that is 1 but with step 3:
+
+>>> pp[1::3]
+<esets.Evens* (2, 8, 14)>
+
+Using a key stop that is 6 with step 2:
+
+>>> pp[:6:2]
+<esets.Evens* (0, 4, 8)>
+
+Using a key stop that is 6 with step 2 and start 1:
+
+>>> pp[1:6:2]
+<esets.Evens* (2, 6, 10)>
+
+Using a new var.
+
+>>> w = p[3:12]
+
+>>> w
+<esets.Evens* (6, 8, 10, 12, ...)>
+
+>>> list(w)
+[6, 8, 10, 12, 14, 16, 18, 20, 22]
+
+>>> w[::-1]
+<esets.Evens* (22, 20, 18, 16, ...)>
+
+>>> list(w[::-1])
+[22, 20, 18, 16, 14, 12, 10, 8, 6]
+
+# >>> w.raw_repr = True
+
+# >>> w
+
+# >>> w[::-1]
+
+# >>> w.raw_repr = False
+
+# >>> w[::-1][:4]
+
+# >>> w.raw_repr = False
+
+>>> w[::-1][::-1]
+<esets.Evens* (6, 8, 10, 12, ...)>
+
+>>> list(w)
+[6, 8, 10, 12, 14, 16, 18, 20, 22]
+
+>>> list(w[::-1][::-1])
+[6, 8, 10, 12, 14, 16, 18, 20, 22]
+
+>>> ww = p[3:20:4]
+
+>>> ww
+<esets.Evens* (6, 14, 22, 30, ...)>
+
+>>> [2*e for e in range(3,20,-4)]
+[]
+
+>>> list(p[3:20:-4])
+Traceback (most recent call last):
+...
+ValueError: Aleph_0 infinite
+
+>>> list(p[3:20:-4][::-1])
+Traceback (most recent call last):
+...
+ValueError: Aleph_0 infinite
+
+>>> list(p[:10000000000000000:-4])
+Traceback (most recent call last):
+...
+ValueError: Aleph_0 infinite
+
+>>> list(p[:10000000000000000:-4][::-1])
+Traceback (most recent call last):
+...
+ValueError: Aleph_0 infinite
+
+>>> list(p[0::-4][::-1])
+Traceback (most recent call last):
+...
+ValueError: Cannot enumerate backward from infinite
+
+>>> p[3:20:4]
+<esets.Evens* (6, 14, 22, 30, ...)>
+
+# >>> p.raw_repr = True
+
+>>> list(p[3:20:4][::-1])
+[38, 30, 22, 14, 6]
+
+# >>> p[3:20:4]
+
+# >>> p[3:20:4][::-1]
+
+>>> [2*e for e in range(20,3,-4)]
+[40, 32, 24, 16, 8]
+
+>>> list(p[20:3:-4])
+Traceback (most recent call last):
+...
+ValueError: Aleph_0 infinite
+
+# >>> p
+
+# >>> p[20:3:-1]
+
+# >>> p[20:3:-4]
+
+# >>> p.raw_repr = False
+
+# >>> [2*e for e in range(3,20)][::-4][::-3]
+# [38, 30]
+
+>>> list(p[3:20][::-4])
+[38, 30, 22, 14, 6]
+
+# >>> p.raw_repr = True
+
+# >>> p[3:20]
+
+# >>> p[3:20][::-4]
+
+# >>> p.raw_repr = False
+
+>>> list(p[3:20][::-4][::-3])
+[6, 30]
+
+>>> p[3:20][::-4][::-3]
+<esets.Evens* (6, 30)>
+
+# >>> [2*e for e in range(3,20)][::-4][::3]
+# [38, 14]
+
+# >>> list(p[3:20:-4][::3])
+# [38, 14]
+
+# >>> list(p[3:20:-4][::3][::-1])
+# [14, 38]
+
+# >>> p.raw_repr = True
+
+# >>> p[3:20:-4]
+
+>>> p[20:3:-4]
+Traceback (most recent call last):
+...
+ValueError: Aleph_0 infinite
+
+>>> p[20:3:-4][::3][::-1]
+Traceback (most recent call last):
+...
+ValueError: Aleph_0 infinite
+
+>>> p[25:5:-4]
+Traceback (most recent call last):
+...
+ValueError: Aleph_0 infinite
+
+>>> p[25:5:-4][::2]
+Traceback (most recent call last):
+...
+ValueError: Aleph_0 infinite
+
+# >>> p.raw_repr = True
+
+# >>> p[25:5:-4]
+
+# >>> p[25:5:-4][::2]
+
+# >>> p.raw_repr = False
+
+>>> p[25:5:-4][::2][::-2]
+Traceback (most recent call last):
+...
+ValueError: Aleph_0 infinite
+
+>>> p[50:5:-7][::3]
+Traceback (most recent call last):
+...
+ValueError: Aleph_0 infinite
+
+>>> p[50:5:-7][::3][::-2]
+Traceback (most recent call last):
+...
+ValueError: Aleph_0 infinite
+
+>>> p[50:5:-2][2:9:3]
+Traceback (most recent call last):
+...
+ValueError: Aleph_0 infinite
+
+>>> p[50:5:-2][2:9:3][:2]
+Traceback (most recent call last):
+...
+ValueError: Aleph_0 infinite
+
+>>> p[100:5:-2][2:9:3][:2]
+Traceback (most recent call last):
+...
+ValueError: Aleph_0 infinite
+
+>>> p[30:2000]
+<esets.Evens* (60, 62, 64, 66, ...)>
+
+>>> p[30:2000][70::-40]
+<esets.Evens* (200, 120)>
+
+# >>> p.raw_repr = True
+
+# >>> p[30:2000]
+# <esets.Evens* (60, 62, 64, 66, ...)>
+
+# >>> p[30:2000][70::-40]
+# self.start = 100,
+# self.stop = 20,
+# self.step = -40
+
+# >>> p.raw_repr = False
+
+>>> p[300:2000][70::-40]
+<esets.Evens* (740, 660)>
+
+>>> p[305:1800][70::-40]
+<esets.Evens* (750, 670)>
+
+>>> p[305:1800][70::-21]
+<esets.Evens* (750, 708, 666, 624)>
+
+>>> p[305:1800:6][70::-21]
+<esets.Evens* (1450, 1198, 946, 694)>
+
+>>> p[305:1800:6][70::-21][::2]
+<esets.Evens* (1450, 946)>
+
+>>> pp[1:6:2][0::]
+<esets.Evens* (2, 6, 10)>
+
+>>> pp[1:6:2][-3::]
+<esets.Evens* (2, 6, 10)>
+
+>>> pp[1:6:2][-3:-1:]
+<esets.Evens* (2, 6)>
+
+>>> pp[1:20:2]
+<esets.Evens* (2, 6, 10, 14, ...)>
+
+>>> pp[1:20:2][-7:]
+<esets.Evens* (14, 18, 22, 26, ...)>
+
+>>> pp[1:20:2][-7:-2]
+<esets.Evens* (14, 18, 22, 26, ...)>
+
+>>> p[-3:]
+Traceback (most recent call last):
+...
+ValueError: Cannot enumerate backward from infinite
+
+>>> p[:10:2][-1:-5]
+<esets.Evens* ()>
+
+>>> p[:20:2][-10:-1]
+<esets.Evens* (0, 4, 8, 12, ...)>
+
+>>> p[:20:2][-10:-1:-2]
+<esets.Evens* ()>
+
+>>> p[:10:2][-1:-10:-2]
+<esets.Evens* (16, 8, 0)>

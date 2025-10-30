@@ -196,5 +196,4 @@ class Evens:
 
 if __name__ == '__main__':
     import doctest
-    # doctest.testfile("evensDocTest.txt")
-    doctest.testfile("evensDocTestSmall.txt")
+    doctest.testfile("docTest.txt")
