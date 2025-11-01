@@ -1,3 +1,4 @@
+import sys
 VALUE = 2
 
 
@@ -36,6 +37,12 @@ class Evens:
         return 1
 
     def __len__(self):
+        ret_len = self.len()
+        if ret_len <= sys.maxsize:
+            return ret_len
+        raise NotImplementedError('__len__ is limited use obj.len() instead')
+
+    def len(self):
         if self.stop is not None:
             delta = abs(self.stop - self.start)
             return self.step_function(delta % self.step) +\
@@ -61,15 +68,15 @@ class Evens:
                 if kstop < 0:
                     if self.stop is None:
                         raise ValueError(enum_error)
-                    if self.__len__() < -kstop:  # cause kstop < 0
+                    if self.len() < -kstop:  # cause kstop < 0
                         kstop = -1
                     else:
                         # The following satisfies:
-                        # 0 < kstop < self.__len__()
-                        kstop += self.__len__()
+                        # 0 < kstop < self.len()
+                        kstop += self.len()
                 # The next satisfies kstop > 0 too
-                elif flip and kstop >= self.__len__():
-                    kstop = self.__len__() - 1
+                elif flip and kstop >= self.len():
+                    kstop = self.len() - 1
                 s_stop = self.start + kstop * self.step
 
             if s_stop is None and step < 0:
@@ -82,15 +89,15 @@ class Evens:
                 if kstart < 0:
                     if s_stop is None:
                         raise ValueError(enum_error)
-                    if self.__len__() < -kstart:  # cause kstart < 0
+                    if self.len() < -kstart:  # cause kstart < 0
                         kstart = -1
                     else:
                         # The following satisfies:
-                        # 0 < kstart < self.__len__()
-                        kstart += self.__len__()
+                        # 0 < kstart < self.len()
+                        kstart += self.len()
                 # The next satisfies kstart > 0 too
-                elif flip and kstart > self.__len__():
-                    kstart = self.__len__() - 1
+                elif flip and kstart > self.len():
+                    kstart = self.len() - 1
                 # If despite of trying it is still negative
                 if not flip and kstart < 0:
                     kstart = 0
@@ -137,11 +144,11 @@ class Evens:
                 if self.stop is None:
                     msg = 'Cannot count backward from an Aleph_0 infinite set'
                     raise IndexError(msg)
-                if i + self.__len__() < 0:
+                if i + self.len() < 0:
                     raise IndexError('eset index out of range')
-                i = self.__len__() + i
+                i = self.len() + i
             if i >= 0:
-                if self.stop is None or i < self.__len__():
+                if self.stop is None or i < self.len():
                     return (self.start + i * self.step) * VALUE
                 raise IndexError('eset index out of range')
         raise ValueError('Need a slice or a positive integer')
@@ -171,7 +178,7 @@ class Evens:
         if self.stop is None:
             return True
         else:
-            return i < self.__len__()
+            return i < self.len()
 
     def __iter__(self, i=0):
         while self.iter_condition(i):
@@ -183,8 +190,8 @@ class Evens:
         if not self.raw_repr:
             ellipsis = ', ...'
             try:
-                last = min(max_val, len(self))
-                if max_val >= len(self):
+                last = min(max_val, self.len())
+                if max_val >= self.len():
                     ellipsis = ''
             except ValueError:
                 last = max_val

@@ -33,6 +33,10 @@ False
 >>> -2 in p
 False
 
+Also floats aren't in there
+
+>>> 2.5 in p
+False
 
 ```p``` is an inmutable sequence this means that ```index``` is
 supported. Trying to get the index from odd values or negative
@@ -55,6 +59,9 @@ But for any positive even number:
 10
 >>> p.index(1234343243242342340)
 617171621621171170
+
+>>> p.index(2*10**100)
+10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
 We can address those values from within the ```eset``` like:
 
@@ -104,6 +111,29 @@ This creates a finite version were we can get its len:
 
 >>> len(pp)
 10
+
+It can go to higher values even, but there is a limitation it is
+system dependant so:
+
+>>> import sys
+
+The sys.maxsize is the maximum value for the dunder __len__ method,
+anything higher like:
+
+>>> len(p[:sys.maxsize+1])
+Traceback (most recent call last):
+...
+NotImplementedError: __len__ is limited use obj.len() instead
+
+The not so cool len method can help us get there and beyond. Let's use
+as upperbound a googol:
+
+>>> p[:10**100].len()
+10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+For a discussion about this see:
+
+https://stackoverflow.com/questions/79805440/in-python-is-there-a-way-to-get-len-with-int-data-type-and-not-and-index-sized-i
 
 We can loop through the values (it supports __iter__):
 
@@ -547,10 +577,9 @@ False
 0
 >>> ss.index(7)
 Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-  File "/home/frank/programas/python/esets/evens.py", line 160, in index
-    raise ValueError(msg)
+...
 ValueError: 7 not in 'Evens'
+
 >>> ss.index(22)
 1
 >>> ss[::-1].index(22)
@@ -922,6 +951,9 @@ Let's try using sizes of the order of a googol:
 
 >>> e
 <esets.Evens (0, 2, 4, 6, ...)>
+
+>>> e[10**100]
+20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
 >>> ee = e[10**100:10**100+10]
 >>> ee
