@@ -137,7 +137,8 @@ class Eset(abc.ABC):
                 if self.step < 0:  # step > 0
                     start, stop = s_stop-self.step, s_start-self.step
 
-            return Eset(start, stop, step, self.raw_repr)
+            cls = type(self)
+            return cls(start, stop, step, self.raw_repr)
 
         if isinstance(key, int):
             i = int(key)
@@ -154,16 +155,16 @@ class Eset(abc.ABC):
                 raise IndexError('eset index out of range')
         raise ValueError('Need a slice or a positive integer')
 
-    @abc.abstractclassmethod
+    @abc.abstractmethod
     def __contains__(self, val):
         """Conditions to check if value belongs to the eset."""
 
-    @abc.abstractclassmethod
+    @abc.abstractmethod
     def index_fun(self, val):
-        """The index value to return given a value, the inverse function"""
+        """The index to return given a value, the inverse function"""
 
-    @abc.abstractclassmethod
-    def direct_function(self, val):
+    @abc.abstractmethod
+    def direct_function(self, i):
         """The value to return given an index"""
 
     def index(self, val):
