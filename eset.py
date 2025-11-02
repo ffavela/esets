@@ -1,8 +1,8 @@
+import abc
 import sys
 
 
-class Wholes:
-    """Something that contains the Whole numbers"""
+class Eset(abc.ABC):
     def __init__(self, start=0, stop=None, step=1,
                  raw_repr=False):
         if start is None:
@@ -18,6 +18,8 @@ class Wholes:
             if stop < start and step > 0 \
                or stop > start and step < 0:
                 raise ValueError('Invalid initialization state.')
+        # TODO: consider finite cases. Probably a test init stop
+        # function
         if start == 0 and stop is None and step == 1:
             sliced = False
         else:
@@ -135,7 +137,7 @@ class Wholes:
                 if self.step < 0:  # step > 0
                     start, stop = s_stop-self.step, s_start-self.step
 
-            return Wholes(start, stop, step, self.raw_repr)
+            return Eset(start, stop, step, self.raw_repr)
 
         if isinstance(key, int):
             i = int(key)
@@ -148,30 +150,28 @@ class Wholes:
                 i = self.len() + i
             if i >= 0:
                 if self.stop is None or i < self.len():
-                    return (self.start + i * self.step)
+                    return self.direct_function(i)
                 raise IndexError('eset index out of range')
         raise ValueError('Need a slice or a positive integer')
 
+    @abc.abstractclassmethod
     def __contains__(self, val):
-        if not isinstance(val, int):
-            return False
-        diff = val - self.start
-        if diff % self.step != 0:
-            return False
-        if self.step > 0 and val >= self.start:
-            if self.stop is None or\
-               val < self.stop:
-                return True
-        if self.step < 0 and self.stop < val <= self.start:
-            return True
-        return False
+        """Conditions to check if value belongs to the eset."""
+
+    @abc.abstractclassmethod
+    def index_fun(self, val):
+        """The index value to return given a value, the inverse function"""
+
+    @abc.abstractclassmethod
+    def direct_function(self, val):
+        """The value to return given an index"""
 
     def index(self, val):
         if val not in self:
             cls = type(self)
             msg = f'{val!r} not in {cls.__name__!r}'
             raise ValueError(msg)
-        return (val - self.start)//(self.step)
+        return self.index_fun(val)
 
     def iter_condition(self, i):
         if self.stop is None:
@@ -181,7 +181,7 @@ class Wholes:
 
     def __iter__(self, i=0):
         while self.iter_condition(i):
-            yield self.start + i * self.step
+            yield self.direct_function(i)
             i += 1
 
     def __repr__(self):
@@ -197,7 +197,8 @@ class Wholes:
             rstr = ', '.join([str(v) for v in self[:last]])
             rstr += ellipsis
             sliceStr = '*' if self.sliced else ''
-            return '<esets.Wholes'+sliceStr+f' ({rstr})>'
+            cls = type(self)
+            return f'<esets.{cls}'+sliceStr+f' ({rstr})>'
         else:
             return f'self.start = {self.start},\n' +\
                 f'self.stop = {self.stop},\n' +\
