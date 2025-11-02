@@ -24,6 +24,9 @@ class Evens(Eset):
     def direct_function(self, i):
         return (self.start + i * self.step) * VALUE
 
+    def stop_init(self, stop=None):
+        return stop
+
 
 if __name__ == '__main__':
     import doctest

@@ -5,6 +5,8 @@ import sys
 class Eset(abc.ABC):
     def __init__(self, start=0, stop=None, step=1,
                  raw_repr=False, sliced=False):
+        if not sliced:
+            stop = self.stop_init()
         if start is None:
             start = 0
         if not isinstance(step, int):
@@ -161,11 +163,11 @@ class Eset(abc.ABC):
     def direct_function(self, i):
         """The value to return given an index"""
 
-    # @abc.abstractmethod
-    # def stop_init(self, i):
-    #     """Should return the stop value for the eset, it can be either
-    #     a positive integer or a None (in case it is an Infinite eset)
-    #     """
+    @abc.abstractmethod
+    def stop_init(self, stop=None):
+        """Should return the stop value for the eset, it can be either
+        a positive integer or a None (in case it is an Infinite eset)
+        """
 
     def index(self, val):
         if val not in self:
