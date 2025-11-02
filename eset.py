@@ -4,7 +4,7 @@ import sys
 
 class Eset(abc.ABC):
     def __init__(self, start=0, stop=None, step=1,
-                 raw_repr=False):
+                 raw_repr=False, sliced=False):
         if start is None:
             start = 0
         if not isinstance(step, int):
@@ -18,13 +18,6 @@ class Eset(abc.ABC):
             if stop < start and step > 0 \
                or stop > start and step < 0:
                 raise ValueError('Invalid initialization state.')
-        # TODO: consider finite cases. Probably a test init stop
-        # function
-        if start == 0 and stop is None and step == 1:
-            sliced = False
-        else:
-            sliced = True
-
         self.start = start
         self.step = step
         self.stop = stop
@@ -137,8 +130,9 @@ class Eset(abc.ABC):
                 if self.step < 0:  # step > 0
                     start, stop = s_stop-self.step, s_start-self.step
 
+            sliced = True
             cls = type(self)
-            return cls(start, stop, step, self.raw_repr)
+            return cls(start, stop, step, self.raw_repr, sliced)
 
         if isinstance(key, int):
             i = int(key)
@@ -166,6 +160,12 @@ class Eset(abc.ABC):
     @abc.abstractmethod
     def direct_function(self, i):
         """The value to return given an index"""
+
+    # @abc.abstractmethod
+    # def stop_init(self, i):
+    #     """Should return the stop value for the eset, it can be either
+    #     a positive integer or a None (in case it is an Infinite eset)
+    #     """
 
     def index(self, val):
         if val not in self:
