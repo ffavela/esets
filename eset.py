@@ -185,6 +185,14 @@ class Eset(abc.ABC):
             yield self.direct_function(i)
             i += 1
 
+    def clean_class_name(self):
+        cls = str(type(self))
+        # Hey it works!... ok?! If there are performance issues down
+        # the line, for some reason... cause it is mostly for the
+        # repr, we'll come back to this.
+        return cls[cls.index('.')+1:cls.index('.') +
+                   cls[cls.index('.'):].index("'")]
+
     def __repr__(self):
         max_val = 4
         if not self.raw_repr:
@@ -198,8 +206,8 @@ class Eset(abc.ABC):
             rstr = ', '.join([str(v) for v in self[:last]])
             rstr += ellipsis
             sliceStr = '*' if self.sliced else ''
-            cls = type(self)
-            return f'<esets.{cls}'+sliceStr+f' ({rstr})>'
+            ccls = self.clean_class_name()
+            return f'<esets.{ccls}'+sliceStr+f' ({rstr})>'
         else:
             return f'self.start = {self.start},\n' +\
                 f'self.stop = {self.stop},\n' +\
