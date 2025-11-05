@@ -171,8 +171,9 @@ class Eset(abc.ABC):
 
     def index(self, val):
         if val not in self:
+            sliceStr = '*' if self.sliced else ''
             cls = type(self)
-            msg = f'{val!r} not in {cls.__name__!r}'
+            msg = f'{val!r} not in {cls.__name__}'+sliceStr
             raise ValueError(msg)
         return self.index_fun(val)
 
