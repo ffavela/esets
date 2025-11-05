@@ -45,11 +45,11 @@ integers will raise an ValueError.
 >>> p.index(5)
 Traceback (most recent call last):
 ...
-ValueError: 5 not in 'Evens'
+ValueError: 5 not in Evens
 >>> p.index(-6)
 Traceback (most recent call last):
 ...
-ValueError: -6 not in 'Evens'
+ValueError: -6 not in Evens
 
 But for any positive even number:
 
@@ -578,7 +578,7 @@ False
 >>> ss.index(7)
 Traceback (most recent call last):
 ...
-ValueError: 7 not in 'Evens'
+ValueError: 7 not in Evens*
 
 >>> ss.index(22)
 1
@@ -589,13 +589,13 @@ ValueError: 7 not in 'Evens'
 >>> ss[::-1].index(7)
 Traceback (most recent call last):
 ...
-ValueError: 7 not in 'Evens'
+ValueError: 7 not in Evens*
 >>> ss[::-2].index(22)
 0
 >>> ss[::-2].index(10)
 Traceback (most recent call last):
 ...
-ValueError: 10 not in 'Evens'
+ValueError: 10 not in Evens*
 >>> from evens import Evens
 
 Now use it:
