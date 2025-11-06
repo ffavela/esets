@@ -147,7 +147,7 @@ class Eset(abc.ABC):
                 i = self.len() + i
             if i >= 0:
                 if self.stop is None or i < self.len():
-                    return self.direct_function(i)
+                    return self.internal_direct_function(i)
                 raise IndexError('eset index out of range')
         raise ValueError('Need a slice or a positive integer')
 
@@ -156,7 +156,7 @@ class Eset(abc.ABC):
         """Conditions to check if value belongs to the eset."""
 
     @abc.abstractmethod
-    def index_fun(self, val):
+    def inverse_fun(self, val):
         """The index to return given a value, the inverse function"""
 
     @abc.abstractmethod
@@ -168,6 +168,13 @@ class Eset(abc.ABC):
         """Should return the stop value for the eset, it can be either
         a positive integer or a None (in case it is an Infinite eset)
         """
+    def internal_direct_function(self, i):
+        """The used internal value given an index"""
+        return self.direct_function(self.start + i * self.step)
+
+    def internal_inverse_fun(self, val):
+        """The used internal index given a value, the inverse"""
+        return (self.inverse_fun(val) - self.start) // self.step
 
     def index(self, val):
         if val not in self:
@@ -175,7 +182,7 @@ class Eset(abc.ABC):
             cls = type(self)
             msg = f'{val!r} not in {cls.__name__}'+sliceStr
             raise ValueError(msg)
-        return self.index_fun(val)
+        return self.internal_inverse_fun(val)
 
     def iter_condition(self, i):
         if self.stop is None:
@@ -185,7 +192,7 @@ class Eset(abc.ABC):
 
     def __iter__(self, i=0):
         while self.iter_condition(i):
-            yield self.direct_function(i)
+            yield self.internal_direct_function(i)
             i += 1
 
     def clean_class_name(self):

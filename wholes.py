@@ -6,22 +6,23 @@ class Wholes(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        diff = val - self.start
+        diff = self.direct_function(self.start) - val
         if diff % self.step != 0:
             return False
-        if self.step > 0 and val >= self.start:
+        if self.step > 0 and val >= self.direct_function(self.start):
             if self.stop is None or\
-               val < self.stop:
+               val < self.direct_function(self.stop):
                 return True
-        if self.step < 0 and self.stop < val <= self.start:
+        if self.step < 0 and self.direct_function(self.stop) < val \
+           <= self.direct_function(self.start):
             return True
         return False
 
-    def index_fun(self, val):
-        return (val - self.start)//(self.step)
+    def inverse_fun(self, val):
+        return val
 
     def direct_function(self, i):
-        return self.start + i * self.step
+        return i
 
     def stop_init(self, stop=None):
         return stop

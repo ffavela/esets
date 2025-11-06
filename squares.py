@@ -8,22 +8,23 @@ class Squares(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        diff = int(sqrt(val))**VALUE - val
+        diff = self.direct_function(self.inverse_fun(val)) - val
         if diff != 0:
             return False
-        if self.step > 0 and val >= self.start**VALUE:
+        if self.step > 0 and val >= self.direct_function(self.start):
             if self.stop is None or\
-               val < self.stop**VALUE:
+               val < self.direct_function(self.stop):
                 return True
-        if self.step < 0 and self.stop**VALUE < val <= self.start**VALUE:
+        if self.step < 0 and self.direct_function(self.stop) < val \
+           <= self.direct_function(self.start):
             return True
         return False
 
-    def index_fun(self, val):
-        return (int(sqrt(val)) - self.start) // self.step
+    def inverse_fun(self, val):
+        return int(sqrt(val))
 
     def direct_function(self, i):
-        return (self.start + i * self.step) ** VALUE
+        return i ** VALUE
 
     def stop_init(self, stop=None):
         return stop

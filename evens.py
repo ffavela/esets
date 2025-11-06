@@ -7,22 +7,23 @@ class Evens(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        diff = val - self.start * VALUE
-        if diff % (VALUE*self.step) != 0:
+        diff = val - self.direct_function(self.start)
+        if diff % self.direct_function(self.step) != 0:
             return False
-        if self.step > 0 and val >= self.start*VALUE:
+        if self.step > 0 and val >= self.direct_function(self.start):
             if self.stop is None or\
-               val < self.stop*VALUE:
+               val < self.direct_function(self.stop):
                 return True
-        if self.step < 0 and self.stop*VALUE < val <= self.start*VALUE:
+        if self.step < 0 and self.direct_function(self.stop) < val \
+           <= self.direct_function(self.start):
             return True
         return False
 
-    def index_fun(self, val):
-        return (val - self.start * VALUE)//(VALUE * self.step)
+    def inverse_fun(self, val):
+        return val // VALUE
 
     def direct_function(self, i):
-        return (self.start + i * self.step) * VALUE
+        return i * VALUE
 
     def stop_init(self, stop=None):
         return stop
