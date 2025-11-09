@@ -1,9 +1,12 @@
 from eset import Eset
-VALUE = 2
 
 
 class Evens(Eset):
     """Something that contains all positive integer evens"""
+    def __init__(self, *args, **kargs):
+        super().__init__(*args, **kargs)
+        self.VALUE = 2
+
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
@@ -20,10 +23,10 @@ class Evens(Eset):
         return False
 
     def inverse_fun(self, val):
-        return val // VALUE
+        return val // self.VALUE
 
     def direct_function(self, i):
-        return i * VALUE
+        return i * self.VALUE
 
     def stop_init(self, stop=None):
         return stop

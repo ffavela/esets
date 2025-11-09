@@ -1,10 +1,13 @@
 from eset import Eset
 from math import sqrt
-VALUE = 2
 
 
 class Squares(Eset):
     """Something that contains all squares"""
+    def __init__(self, *args, **kargs):
+        super().__init__(*args, **kargs)
+        self.VALUE = 2
+
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
@@ -24,7 +27,7 @@ class Squares(Eset):
         return int(sqrt(val))
 
     def direct_function(self, i):
-        return i ** VALUE
+        return i ** self.VALUE
 
     def stop_init(self, stop=None):
         return stop
