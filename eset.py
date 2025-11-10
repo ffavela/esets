@@ -224,11 +224,11 @@ class Eset(abc.ABC):
                 if end_max < self.len() - last:
                     tail_str = ', '.join([str(v) for v in self[-end_max:]])
                 else:  # that is end_max >= self.len() - last
-                    tail_str = ', '.join([str(v) for v in self[last+1:]])
+                    tail_str = ', '.join([str(v) for v in self[last:]])
                     ellipsis = ''
             rstr = ', '.join([str(v) for v in self[:last]])
             rstr += ellipsis
-            if ellipsis != '' and tail_str != '':
+            if tail_str != '':
                 rstr += ', '
             rstr += tail_str
             sliceStr = '*' if self.sliced else ''
