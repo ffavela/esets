@@ -211,6 +211,9 @@ class Eset(abc.ABC):
                 last = min(max_val, self.len())
                 if max_val >= self.len():
                     ellipsis = ''
+                if (max_val + 1) == self.len():
+                    last = max_val + 1
+                    ellipsis = ''
             except ValueError:
                 last = max_val
             rstr = ', '.join([str(v) for v in self[:last]])

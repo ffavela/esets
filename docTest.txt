@@ -255,6 +255,21 @@ Which just so happens to be the same behavior as in the list case:
 >>> lpp[3:10][-7:-5] == list(w[-7:-5])
 True
 
+Let's try a slice where the number of elements is equal to the elements
+to be displayed by the repr:
+
+>>> s = p[:4]
+>>> s
+<esets.Evens* (0, 2, 4, 6)>
+
+In case the eset has just 1 more than the amount of elements to be
+displayed then instead of the elipsis that last element is displayed:
+
+>>> s = p[:5]
+>>> s
+<esets.Evens* (0, 2, 4, 6, 8)>
+
+
 Let's try another larger slice
 
 >>> s = p[:25]
@@ -631,7 +646,7 @@ list compehension:
 Using a step of 2 on the pp eset:
 
 >>> pp[::2]
-<esets.Evens* (0, 4, 8, 12, ...)>
+<esets.Evens* (0, 4, 8, 12, 16)>
 
 Using a step of 3 on the pp eset:
 
@@ -651,7 +666,7 @@ Using a step of 5 on the pp eset:
 Using a key start that is not None:
 
 >>> pp[1::2]
-<esets.Evens* (2, 6, 10, 14, ...)>
+<esets.Evens* (2, 6, 10, 14, 18)>
 
 Using a key start that is 2:
 
@@ -728,7 +743,7 @@ Using a new var.
 >>> ww = p[3:20:4]
 
 >>> ww
-<esets.Evens* (6, 14, 22, 30, ...)>
+<esets.Evens* (6, 14, 22, 30, 38)>
 
 >>> [2*e for e in range(3,20,-4)]
 []
@@ -759,7 +774,7 @@ Traceback (most recent call last):
 ValueError: Cannot enumerate backward from infinite
 
 >>> p[3:20:4]
-<esets.Evens* (6, 14, 22, 30, ...)>
+<esets.Evens* (6, 14, 22, 30, 38)>
 
 # >>> p.raw_repr = True
 
@@ -926,7 +941,7 @@ ValueError: Aleph_0 infinite
 <esets.Evens* (14, 18, 22, 26, ...)>
 
 >>> pp[1:20:2][-7:-2]
-<esets.Evens* (14, 18, 22, 26, ...)>
+<esets.Evens* (14, 18, 22, 26, 30)>
 
 >>> p[-3:]
 Traceback (most recent call last):
@@ -964,7 +979,7 @@ Let's try using sizes of the order of a googol:
 10
 
 >>> ee[::-2]
-<esets.Evens* (20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000018, 20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000014, 20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010, 20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006, ...)>
+<esets.Evens* (20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000018, 20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000014, 20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010, 20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006, 20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)>
 >>> len(ee[::-2])
 5
 >>> list(ee[::-2])
