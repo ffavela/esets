@@ -25,6 +25,8 @@ class Eset(abc.ABC):
         self.stop = stop
         self.sliced = sliced
         self.raw_repr = raw_repr
+        self.repr_start_max = 4
+        self.repr_end_max = 2
 
     def step_function(self, i: int) -> int:
         """A simple step function"""
@@ -204,7 +206,9 @@ class Eset(abc.ABC):
                    cls[cls.index('.'):].index("'")]
 
     def __repr__(self):
-        max_val = 4
+        max_val = self.repr_start_max
+        end_max = self.repr_end_max
+        tail_str = ''
         if not self.raw_repr:
             ellipsis = ', ...'
             try:
@@ -216,8 +220,17 @@ class Eset(abc.ABC):
                     ellipsis = ''
             except ValueError:
                 last = max_val
+            if self.stop is not None and end_max is not None:
+                if end_max < self.len() - last:
+                    tail_str = ', '.join([str(v) for v in self[-end_max:]])
+                else:  # that is end_max >= self.len() - last
+                    tail_str = ', '.join([str(v) for v in self[last+1:]])
+                    ellipsis = ''
             rstr = ', '.join([str(v) for v in self[:last]])
             rstr += ellipsis
+            if ellipsis != '' and tail_str != '':
+                rstr += ', '
+            rstr += tail_str
             sliceStr = '*' if self.sliced else ''
             ccls = self.clean_class_name()
             return f'<esets.{ccls}'+sliceStr+f' ({rstr})>'
@@ -226,7 +239,9 @@ class Eset(abc.ABC):
                 f'self.stop = {self.stop},\n' +\
                 f'self.step = {self.step},\n' +\
                 f'self.sliced = {self.sliced},\n' +\
-                f'self.raw_repr = {self.raw_repr}'
+                f'self.raw_repr = {self.raw_repr},\n' +\
+                f'self.repr_start_max = {self.repr_start_max},\n' +\
+                f'self.repr_end_max = {self.repr_end_max}'
 
 
 if __name__ == '__main__':
