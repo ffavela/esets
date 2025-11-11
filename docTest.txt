@@ -2,7 +2,7 @@ Testing ```esets``` (enumerated sets).
 
 Particularly the ```Evens``` Class.
 
->>> from evens import Evens
+>>> from esets import Evens
 
 Now use it:
 
@@ -617,9 +617,8 @@ ValueError: 7 not in Evens*
 Traceback (most recent call last):
 ...
 ValueError: 10 not in Evens*
->>> from evens import Evens
 
-Now use it:
+Starting over:
 
 >>> p = Evens()
 >>> p
