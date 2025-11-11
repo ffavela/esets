@@ -242,8 +242,3 @@ class Eset(abc.ABC):
                 f'self.raw_repr = {self.raw_repr},\n' +\
                 f'self.repr_start_max = {self.repr_start_max},\n' +\
                 f'self.repr_end_max = {self.repr_end_max}'
-
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testfile("docTest.txt")

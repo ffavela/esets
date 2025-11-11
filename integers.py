@@ -53,8 +53,3 @@ class Integers(Eset):
 
     def stop_init(self, stop=None):
         return stop
-
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testfile("docTest.txt")

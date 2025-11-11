@@ -24,6 +24,8 @@ class Squares(Eset):
         return False
 
     def inverse_fun(self, val):
+        # Not perfect because it is going through the floats, is there
+        # a better way?
         return int(sqrt(val))
 
     def direct_function(self, i):
@@ -31,8 +33,3 @@ class Squares(Eset):
 
     def stop_init(self, stop=None):
         return stop
-
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testfile("docTest.txt")
