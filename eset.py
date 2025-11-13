@@ -4,7 +4,8 @@ import sys
 
 class Eset(abc.ABC):
     def __init__(self, start=0, stop=None, step=1,
-                 raw_repr=False, sliced=False):
+                 raw_repr=False, sliced=False,
+                 xtra_params=()):
         if not sliced:
             stop = self.stop_init()
         if start is None:
@@ -27,6 +28,7 @@ class Eset(abc.ABC):
         self.raw_repr = raw_repr
         self.repr_start_max = 4
         self.repr_end_max = 2
+        self.xtra_params = xtra_params
 
     def step_function(self, i: int) -> int:
         """A simple step function"""
@@ -136,7 +138,8 @@ class Eset(abc.ABC):
 
             sliced = True
             cls = type(self)
-            return cls(start, stop, step, self.raw_repr, sliced)
+            return cls(start, stop, step, self.raw_repr,
+                       sliced, xtra_params=self.xtra_params)
 
         if isinstance(key, int):
             i = int(key)

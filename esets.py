@@ -33,6 +33,44 @@ class Evens(Eset):
         return stop
 
 
+class Multiples(Eset):
+    """Something that contains all positive multiples of a number"""
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs:
+            if len(kwargs['xtra_params']) != 0:
+                self.VALUE = kwargs['xtra_params'][0]
+            super().__init__(*args, **kwargs)
+        elif len(args) == 1:
+            self.VALUE = args[0]
+            super().__init__(xtra_params=(self.VALUE,))
+        else:
+            self.VALUE = 2
+            super().__init__(*args, xtra_params=(self.VALUE,))
+
+    def __contains__(self, val):
+        if not isinstance(val, int):
+            return False
+        diff = val - self.direct_function(self.start)
+        if diff % self.direct_function(self.step) != 0:
+            return False
+        if self.step > 0 and val >= self.direct_function(self.start):
+            if self.stop is None or\
+               val < self.direct_function(self.stop):
+                return True
+        if self.step < 0 and self.direct_function(self.stop) < val \
+           <= self.direct_function(self.start):
+            return True
+        return False
+
+    def inverse_fun(self, val):
+        return val // self.VALUE
+
+    def direct_function(self, i):
+        return i * self.VALUE
+
+    def stop_init(self, stop=None):
+        return stop
+
 class Negatives(Eset):
     """Something that contains the Negative Integer numbers"""
     def __contains__(self, val):
