@@ -4,8 +4,8 @@ from math import sqrt
 
 class Evens(Eset):
     """Something that contains all positive integer evens"""
-    def __init__(self, *args, **kargs):
-        super().__init__(*args, **kargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.VALUE = 2
 
     def __contains__(self, val):
