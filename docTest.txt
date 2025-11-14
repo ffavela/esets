@@ -562,8 +562,8 @@ self.step = 6,
 self.sliced = True,
 self.raw_repr = True,
 self.repr_start_max = 4,
-self.repr_end_max = 2
-
+self.repr_end_max = 2,
+self.xtra_params = ()
 
 >>> ss[-5:]
 self.start = 5,
@@ -572,8 +572,8 @@ self.step = 6,
 self.sliced = True,
 self.raw_repr = True,
 self.repr_start_max = 4,
-self.repr_end_max = 2
-
+self.repr_end_max = 2,
+self.xtra_params = ()
 
 >>> ss.raw_repr = False
 

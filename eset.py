@@ -244,4 +244,5 @@ class Eset(abc.ABC):
                 f'self.sliced = {self.sliced},\n' +\
                 f'self.raw_repr = {self.raw_repr},\n' +\
                 f'self.repr_start_max = {self.repr_start_max},\n' +\
-                f'self.repr_end_max = {self.repr_end_max}'
+                f'self.repr_end_max = {self.repr_end_max},\n' +\
+                f'self.xtra_params = {self.xtra_params}'
