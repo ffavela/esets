@@ -71,6 +71,7 @@ class Multiples(Eset):
     def stop_init(self, stop=None):
         return stop
 
+
 class Negatives(Eset):
     """Something that contains the Negative Integer numbers"""
     def __contains__(self, val):
