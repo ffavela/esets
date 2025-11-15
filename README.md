@@ -155,10 +155,7 @@ True
 False
 ```
 
-### Just as if we had more memory that could be potentially stored in
-### all the transistors in the history of human kind combined and
-### multiplied by various orders of magnitude at our disposal for this
-### mundane apparently pointless task.
+### Just as if we had more memory that could be potentially stored in all the transistors in the history of human kind combined and multiplied by various orders of magnitude at our disposal for this mundane apparently pointless task.
 
 I know, it is amazing.
 
@@ -209,6 +206,9 @@ However, this crazy little project doesn't really use a lot of memory
 to define an entire enumerated set (**eset**). In short an **eset**
 object is just a mathematical object.
 
+In terms of interface `len` is the only aspect I don't think there will
+be a way around it any time soon.
+
 ### What else? Are there other examples?
 
 Sure, let's try the Wholes **eset** which is essentially the Whole
@@ -238,8 +238,7 @@ Other multiples can actually be obtained from this, say multiples of
 <esets.Wholes* (0, 7, 14, 21, ...)>
 ```
 
-### Is there an **eset** where we can contruct the multiples from the
-### start?
+### Is there an **eset** where we can contruct the multiples from the start?
 
 I thought you'd never ask:
 
@@ -269,12 +268,48 @@ Note that the negatives can be extracted like this:
 <esets.Integers* (-1, -2, -3, -4, ...)>
 ```
 
-### Is there more?
+### All this looks way to academic. Is there more? Something more applied?
 
 Yep. But we'll leave it here for now.
 
-### TODO:
+Just as a teaser:
+
+```
+>>> import sys
+>>> from math import factorial
+>>> h=factorial(10**4)
+>>> sys.set_int_max_str_digits(50000)
+>>> print(len(str(h)))
+35660
+>>> print(str(h)[:3])
+284
+```
+
+This means that `10000!` is around `2.8*10**35659`, one may be tempted
+to say that the error starts from the second decimal on, which is
+technically true, however that happens to be more than 35 thousand
+orders of magnitude wrong!!
+
+We can actually do a:
+
+```
+>>> from esets import Wholes
+>>> w = Wholes()
+>>> w[:h]
+...
+```
+
+I'm deliberately not printing that last line but the eset can take it.
+
+In short, it is important to be precise when enumerating because the
+numbers refer to different elements even if the "error" is only one.
+
+That number (`h`) when storing it may look like a relatively small
+file this is actually a prelude of what is comming next.
+
+## TODO:
 
 * Expand this introduction.
 * Implement other esets (rationals?, floating points?)
 * Start development with combinators, permutators and other ones.
+* How do these compare with lists, tuples, sets etc.?
