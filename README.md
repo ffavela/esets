@@ -305,7 +305,7 @@ In short, it is important to be precise when enumerating because the
 numbers refer to different elements even if the "error" is only one.
 
 That number (`h`) when storing it may look like a relatively small
-file this is actually a prelude of what is comming next.
+file this is actually a prelude of what is coming next.
 
 ## TODO:
 
