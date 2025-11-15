@@ -192,7 +192,7 @@ which makes sense cause there isn't a large enough memory to store the
 entire address space that variable can point to.
 
 The sys.maxsize is the maximum value for the dunder __len__ method,
-anything higher like (normally `maxsize == 2**63-1`):
+anything higher like the following (normally `maxsize == 2**63-1`):
 
 ```
 >>> import sys
@@ -202,9 +202,9 @@ Traceback (most recent call last):
 NotImplementedError: __len__ is limited use obj.len() instead
 ```
 
-However, this crazy little project doesn't really use a lot of memory
-to define an entire enumerated set (**eset**). In short an **eset**
-object is just a mathematical object.
+Will raise the above error. However, this crazy little project doesn't
+really use a lot of memory to define an entire enumerated set
+(**eset**). In short an **eset** object is just a mathematical object.
 
 In terms of interface `len` is the only aspect I don't think there will
 be a way around it any time soon.
