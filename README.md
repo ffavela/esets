@@ -1,6 +1,6 @@
 # esets
 
-The datastructure that nobody asked for is finally here.
+The datastructure that nobody asked for is finally here. (beta)
 
 ## What is it? (An informal introduction)
 
