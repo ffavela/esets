@@ -290,6 +290,13 @@ to say that the error starts from the second decimal on, which is
 technically true, however that happens to be more than 35 thousand
 orders of magnitude wrong!!
 
+Please take a moment to contemplate this, it is not something that is
+off by 35 thousand, that is just 4 orders of magnitude (`~10**4`) the
+error is in fact 35 thousand orders of magnitude (`~10**35000`) even
+there it is actually off by about a googol to the six power
+(`(10**100)**6==10**600`) look how tiny that is in comparison to
+`10**35000`. This is a taste of combinatorial explosion.
+
 We can actually do a:
 
 ```
@@ -299,13 +306,23 @@ We can actually do a:
 ...
 ```
 
-I'm deliberately not printing that last line but the eset can take it.
+I'm deliberately not printing that last line but the eset can take
+it. The point is, **esets** can somewhat tame these kinds of problems.
+
+Do note that:
+
+```
+>>> w[:h].len() == h
+True
+```
 
 In short, it is important to be precise when enumerating because the
 numbers refer to different elements even if the "error" is only one.
 
 That number (`h`) when storing it may look like a relatively small
-file this is actually a prelude of what is coming next.
+file this is actually a prelude of what is coming next. I hope that
+this introduction got you in the right mindset for using this library.
+
 
 ## TODO:
 
@@ -313,3 +330,4 @@ file this is actually a prelude of what is coming next.
 * Implement other esets (rationals?, floating points?)
 * Start development with combinators, permutators and other ones.
 * How do these compare with lists, tuples, sets etc.?
+* Compare with itertools (once the above is ready).
