@@ -95,7 +95,8 @@ In fact the following is also valid:
 
 ### The relationship is clear for any index value just double it to get the respective Evens value right?
 
-Basically yes, and for the reverse we can use dividing by two:
+So far yes, this will not generally be the case. Similarly for the reverse
+we can use dividing by two:
 
 ```
 >>> e.index(42)
@@ -272,7 +273,13 @@ Note that the negatives can be extracted like this:
 
 Yep. But we'll leave it here for now.
 
-Just as a teaser:
+Just as a teaser consider the following; In many fields of study using
+a relative error that is 10% or under is usually good enough. When
+enumerating we are interested in an absolute error, anything different
+from zero is completely wrong (even if it is an error of
+1). Mathematical presicion is of the upmost importance.
+
+Consider the following:
 
 ```
 >>> import sys
@@ -287,12 +294,13 @@ Just as a teaser:
 
 This means that `10000!` is around `2.8*10**35659`, one may be tempted
 to say that the error starts from the second decimal on, which is
-technically true, however that happens to be more than 35 thousand
-orders of magnitude wrong!!
+technically true (when using a relative error context), however that
+happens to be more than 35 thousand orders of magnitude wrong in terms
+of the absolute error!!
 
 Please take a moment to contemplate this, it is not something that is
-off by 35 thousand, that is just 4 orders of magnitude (`~10**4`) the
-error is in fact 35 thousand orders of magnitude (`~10**35000`) even
+off by 35 thousand, that is just 4 orders of magnitude (`10**4`) the
+error is in fact 35 thousand orders of magnitude (`10**35000`) even
 there it is actually off by about a googol to the six power
 (`(10**100)**6==10**600`) look how tiny that is in comparison to
 `10**35000`. This is a taste of combinatorial explosion.
@@ -316,13 +324,20 @@ Do note that:
 True
 ```
 
-In short, it is important to be precise when enumerating because the
-numbers refer to different elements even if the "error" is only one.
-
 That number (`h`) when storing it may look like a relatively small
-file this is actually a prelude of what is coming next. I hope that
-this introduction got you in the right mindset for using this library.
+file (about 16kB):
 
+```
+>>> sys.getsizeof(factorial(10000))
+15820
+```
+
+A huge number can be a small file. It begs the question, can files be
+looked as index numbers from some **eset**?
+
+This is actually a prelude of what is coming next, combinatorial
+esets. I hope that this introduction got you in the right mindset for
+using this library.
 
 ## TODO:
 
