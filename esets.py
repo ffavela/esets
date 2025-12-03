@@ -218,18 +218,6 @@ class Float64_tpls(Eset):
     double precision format as tuples
 
     """
-    def __init__(self, *args, **kwargs):
-        if 'xtra_params' in kwargs:
-            if len(kwargs['xtra_params']) != 0:
-                self.neg_offset = kwargs['xtra_params'][0]
-            super().__init__(*args, **kwargs)
-        elif len(args) == 1:
-            self.neg_offset = args[0]
-            super().__init__(xtra_params=(self.neg_offset,))
-        else:
-            self.neg_offset = 2**63
-            super().__init__(*args, xtra_params=(self.neg_offset,))
-
     def __contains__(self, val):
         if not isinstance(val, tuple):
             return False
@@ -260,13 +248,12 @@ class Float64_tpls(Eset):
         return e, s
 
     def direct_function(self, i):
-        absolute_pos = self.start+i*self.step
-        if 0 <= absolute_pos <= self.neg_offset:
+        if (-1)**(i+1) < 0:
             s_bit = 1
         else:
             s_bit = 0
-        diff = abs(self.neg_offset - absolute_pos)
-        exponent, significand = self.get_e_s(diff)
+        v = (i+1)//2
+        exponent, significand = self.get_e_s(v)
         return (s_bit, exponent, significand)
 
     def stop_init(self, stop=None):
