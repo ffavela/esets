@@ -213,6 +213,66 @@ class Wholes(Eset):
         return stop
 
 
+class Float64_tpls(Eset):
+    """Something that contains all the float 64 using the IEEE 754
+    double precision format as tuples
+
+    """
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs:
+            if len(kwargs['xtra_params']) != 0:
+                self.neg_offset = kwargs['xtra_params'][0]
+            super().__init__(*args, **kwargs)
+        elif len(args) == 1:
+            self.neg_offset = args[0]
+            super().__init__(xtra_params=(self.neg_offset,))
+        else:
+            self.neg_offset = 2**63
+            super().__init__(*args, xtra_params=(self.neg_offset,))
+
+    def __contains__(self, val):
+        if not isinstance(val, tuple):
+            return False
+        s_bit, exponent, significand = val
+        if not isinstance(s_bit, int) or\
+           not isinstance(exponent, int) or\
+           not isinstance(significand, int):
+            return False
+        if s_bit not in (0, 1):
+            return False
+        if not 0 <= exponent < 2**11:
+            return False
+        if not 0 <= significand < 2**52:
+            return False
+
+    def inverse_fun(self, val):
+        s_bit, exponent, significand = val
+        if s_bit:
+            return self.neg_offset - (exponent * 2**53 + significand)
+        else:
+            return exponent * 2**53 + significand
+
+    def get_e_s(self, i):
+        e, s = 0, i
+        for j in range(63, 53, -1):
+            e += (s // 2**j) * 2**(j-52)
+            s %= 2**j
+        return e, s
+
+    def direct_function(self, i):
+        absolute_pos = self.start+i*self.step
+        if 0 <= absolute_pos <= self.neg_offset:
+            s_bit = 1
+        else:
+            s_bit = 0
+        diff = abs(self.neg_offset - absolute_pos)
+        exponent, significand = self.get_e_s(diff)
+        return (s_bit, exponent, significand)
+
+    def stop_init(self, stop=None):
+        return 2**64
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testfile("docTest.txt")
