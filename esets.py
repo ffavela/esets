@@ -232,6 +232,7 @@ class Float64_tpls(Eset):
             return False
         if not 0 <= significand < 2**52:
             return False
+        return True
 
     def inverse_fun(self, val):
         s_bit, exponent, significand = val
@@ -242,16 +243,16 @@ class Float64_tpls(Eset):
 
     def get_e_s(self, i):
         e, s = 0, i
-        for j in range(63, 53, -1):
+        for j in range(63, 52, -1):
             e += (s // 2**j) * 2**(j-52)
             s %= 2**j
         return e, s
 
     def direct_function(self, i):
         if (-1)**(i+1) < 0:
-            s_bit = 1
-        else:
             s_bit = 0
+        else:
+            s_bit = 1
         v = (i+1)//2
         exponent, significand = self.get_e_s(v)
         return (s_bit, exponent, significand)
