@@ -253,7 +253,7 @@ class Float64_tpls(Eset):
             s_bit = 0
         else:
             s_bit = 1
-        v = (i+1)//2
+        v = i//2
         exponent, significand = self.get_e_s(v)
         return (s_bit, exponent, significand)
 
