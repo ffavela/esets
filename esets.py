@@ -230,7 +230,7 @@ class Float64_tpls(Eset):
             return False
         if not 0 <= exponent < 2**11:
             return False
-        if not 0 <= significand < 2**53:
+        if not 0 <= significand < 2**53:  # -1=1+2^2+...+2^52
             return False
         diff = self.inverse_fun(val) - self.start
         if diff % self.step != 0:
@@ -265,7 +265,7 @@ class Float64_tpls(Eset):
         return (s_bit, exponent, significand)
 
     def stop_init(self, stop=None):
-        return 2**65-1  # == 1 + 2^1 + 2^2 + ... + 2^64
+        return 2**65  # -1 == 1 + 2^1 + 2^2 + ... + 2^64
 
 
 if __name__ == '__main__':
