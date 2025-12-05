@@ -232,6 +232,13 @@ class Float64_tpls(Eset):
             return False
         if not 0 <= significand < 2**53:
             return False
+        diff = self.inverse_fun(val) - self.start
+        if diff % self.step != 0:
+            return False
+        if self.start <= self.inverse_fun(val) < self.stop:
+            return True
+        if self.stop < self.inverse_fun(val) <= self.start:
+            return True
         return True
 
     def inverse_fun(self, val):
