@@ -243,8 +243,8 @@ class Float64_tpls(Eset):
 
     def get_e_s(self, i):
         e, s = 0, i
-        for j in range(63, 52, -1):
-            e += (s // 2**j) * 2**(j-52)
+        for j in range(64, 52, -1):
+            e += (s // 2**j) * 2**(j-53)
             s %= 2**j
         return e, s
 
@@ -258,7 +258,7 @@ class Float64_tpls(Eset):
         return (s_bit, exponent, significand)
 
     def stop_init(self, stop=None):
-        return 2**64
+        return 2**65-1  # == 1 + 2^1 + 2^2 + ... + 2^64
 
 
 if __name__ == '__main__':
