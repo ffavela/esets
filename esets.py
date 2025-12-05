@@ -230,16 +230,16 @@ class Float64_tpls(Eset):
             return False
         if not 0 <= exponent < 2**11:
             return False
-        if not 0 <= significand < 2**52:
+        if not 0 <= significand < 2**53:
             return False
         return True
 
     def inverse_fun(self, val):
         s_bit, exponent, significand = val
+        i = 2*(exponent * 2**53 + significand)
         if s_bit:
-            return self.neg_offset - (exponent * 2**53 + significand)
-        else:
-            return exponent * 2**53 + significand
+            i += 1
+        return i
 
     def get_e_s(self, i):
         e, s = 0, i
