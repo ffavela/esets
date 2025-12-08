@@ -78,6 +78,10 @@ class Eset(abc.ABC):
                 elif flip and kstop >= self.len():
                     kstop = self.len() - 1
                 s_stop = self.start + kstop * self.step
+                if self.stop is not None and\
+                   s_stop > self.stop and \
+                   step > 0 and not flip:
+                    s_stop = self.stop
 
             if s_stop is None and step < 0:
                 raise ValueError(enum_error)
