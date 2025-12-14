@@ -50,7 +50,7 @@ class Eset(abc.ABC):
         raise ValueError('Aleph_0 infinite')
 
     def __getitem__(self, key):
-        enum_error = 'Cannot enumerate backward from infinite'
+        enum_error = 'Cannot enumerate backward from infinity'
         if isinstance(key, slice):
             kstep = key.step
             if key.step is None:
