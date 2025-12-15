@@ -1,5 +1,6 @@
 from eset import Eset
 from math import sqrt
+import struct
 
 
 class Evens(Eset):
@@ -215,7 +216,8 @@ class Wholes(Eset):
 
 class Float64_tpls(Eset):
     """Something that contains all the float 64 using the IEEE 754
-    double precision format as tuples
+    double precision format as tuples with 3 integers, naming them
+    tpls
 
     """
     def __contains__(self, val):
@@ -266,6 +268,125 @@ class Float64_tpls(Eset):
 
     def stop_init(self, stop=None):
         return 2**65  # -1 == 1 + 2^1 + 2^2 + ... + 2^64
+
+
+class Float64(Eset):
+    """An Eset that contains all Floats64 (AKA doubles in some
+    languajes), this includes 1.0, 0.5, 0, -0, inf, -inf, nan, and
+    -nan.
+
+    Note that the IEEE 754 standard defines the infinites as having
+    all ones on the bits of the exponent (2**11-1 == 2047) and all
+    zeroes on the significand (i.e. 0 when seen as an integer). While
+    a nan has also all ones on the exponent bits but the significand
+    is not zero, we'll simply use as convention that a nan has a 1 on
+    the last (rightmost) bit that is a one when viewed as a base ten
+    integer (also it is simpler to enumerate this way). Also nans are
+    distinguishable from each other but to the general end user they
+    aren't, we'll just consider the aspect given by the sign bit hence
+    the enumeration of the nan and the -nan.
+
+    """
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs:
+            if len(kwargs['xtra_params']) != 0:
+                self.float64_tpl = kwargs['xtra_params'][0]
+            super().__init__(*args, **kwargs)
+        elif len(args) == 1:
+            self.float64_tpl = args[0]
+            super().__init__(xtra_params=(self.float64_tpl,))
+        else:
+            float64_tpl = Float64_tpls()
+            minus_nan_tpl_idx = float64_tpl.index((1, 2047, 1))
+            self.float64_tpl = float64_tpl[:minus_nan_tpl_idx+1]
+            super().__init__(*args, xtra_params=(self.float64_tpl,))
+
+    def stop_init(self, stop=None):
+        """This happens to be the same as
+        float64_tpl[:float64_tpl.index((1, 2047, 1))+1].len() ==
+        2*(2**64-2**53+2) == 2*(2**64-1-(2**53-1)+2) Note that the +2
+        inside the parenths is for the inf and the nan. And the 2*
+        coefficient is for considering the negatives too.
+
+        """
+        return 36875473748909621252
+
+    def binstr2bintpl(self, binstr):
+        n_sign = 1
+        n_exponent = 11
+        n_significand = 52
+        bin_tpl = (binstr[0], binstr[n_sign:n_exponent+n_sign],
+                   binstr[n_exponent+n_sign:])
+        if bin_tpl[1] == n_exponent*'1' and\
+           bin_tpl[2] != n_significand*'0':
+            # The nan case using my convention. It is cooler, ok not
+            # really I just took a poor decision early on cause I
+            # didn't know any better and now I'm too afraid to start
+            # changing that.
+            bin_tpl = (bin_tpl[0], bin_tpl[1],
+                       (n_significand-1)*'0'+'1')
+
+        return bin_tpl
+
+    def bintpl2tpl(self, bintpl):
+        return (int(bintpl[0], 2), int(bintpl[1], 2),
+                int(bintpl[2], 2))
+
+    def tpl2bintpl(self, tpl):
+        return (bin(tpl[0]), bin(tpl[1]), bin(tpl[2]))
+
+    def float2bintpl(self, fval):
+        # Pack the float into 8 bytes (64 bits) using the 'd' format
+        # specifier for double '!' specifies network byte order
+        # (big-endian), which ensures consistency across systems
+        packed_bytes = struct.pack('!d', fval)
+
+        # Unpack the 8 bytes as a 64-bit unsigned integer ('Q' format
+        # specifier) The result is a standard Python integer
+        unpacked_int = struct.unpack('!Q', packed_bytes)[0]
+
+        # Format the integer as a 64-bit binary string, zero-padded to
+        # 64 digits
+        binstr = format(unpacked_int, '064b')
+        bin_tpl = self.binstr2bintpl(binstr)
+        return bin_tpl
+
+    def bintpl2float(self, bintpl):
+        """
+        Converts a bintpl to a 64-bit float.
+        """
+        binary_string = bintpl[0]+bintpl[1]+bintpl[2]
+        # Convert the binary string to an integer
+        binary_int = int(binary_string, 2)
+
+        # Convert the integer to 8 bytes (64 bits) using big-endian
+        # byte order ('>Q') The 'Q' format character is for unsigned
+        # long long (8 bytes)
+        binary_bytes = struct.pack('>Q', binary_int)
+
+        # Unpack the bytes as a double (64-bit float) using big-endian
+        # byte order ('>d') The 'd' format character is for a double
+        float_value = struct.unpack('>d', binary_bytes)[0]
+
+        return float_value
+
+    def inverse_fun(self, fVal):
+        bintpl = self.float2bintpl(fVal)
+        tpl = self.bintpl2tpl(bintpl)
+        return self.float64_tpl.index(tpl)
+
+    def direct_function(self, i):
+        tpl = self.float64_tpl[i]
+        bintpl = self.tpl2bintpl(tpl)
+        fVal = self.float2bintpl(bintpl)
+        return fVal
+
+    def __getitem__(self, key):
+        """Delegating __getitem__ to the eset object float64_tpl and
+        creating another Float64 eset with it.
+
+        """
+        return Float64(self.float64_tpl[key])
 
 
 if __name__ == '__main__':
