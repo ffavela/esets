@@ -311,6 +311,12 @@ class Float64(Eset):
         """
         return 36875473748909621252
 
+    def __contains__(self, val):
+        # Just a very basic version for now.
+        if isinstance(val, float):
+            return True
+        return False
+
     def binstr2bintpl(self, binstr):
         n_sign = 1
         n_exponent = 11
@@ -333,7 +339,7 @@ class Float64(Eset):
                 int(bintpl[2], 2))
 
     def tpl2bintpl(self, tpl):
-        return (bin(tpl[0]), bin(tpl[1]), bin(tpl[2]))
+        return (bin(tpl[0])[2:], bin(tpl[1])[2:], bin(tpl[2])[2:])
 
     def float2bintpl(self, fval):
         # Pack the float into 8 bytes (64 bits) using the 'd' format
@@ -378,7 +384,7 @@ class Float64(Eset):
     def direct_function(self, i):
         tpl = self.float64_tpl[i]
         bintpl = self.tpl2bintpl(tpl)
-        fVal = self.float2bintpl(bintpl)
+        fVal = self.bintpl2float(bintpl)
         return fVal
 
     def __getitem__(self, key):
