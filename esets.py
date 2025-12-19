@@ -339,7 +339,9 @@ class Float64(Eset):
                 int(bintpl[2], 2))
 
     def tpl2bintpl(self, tpl):
-        return (bin(tpl[0])[2:], bin(tpl[1])[2:], bin(tpl[2])[2:])
+        return (format(tpl[0], '01b'),
+                format(tpl[1], '011b'),
+                format(tpl[2], '052b'))
 
     def float2bintpl(self, fval):
         # Pack the float into 8 bytes (64 bits) using the 'd' format
@@ -392,7 +394,11 @@ class Float64(Eset):
         creating another Float64 eset with it.
 
         """
-        return Float64(self.float64_tpl[key])
+        if isinstance(key, slice):
+            return Float64(xtra_params=(self.float64_tpl[key],))
+        elif isinstance(key, int):
+            return self.internal_direct_function(key)
+        raise ValueError('Need a slice or a positive integer')
 
 
 if __name__ == '__main__':
