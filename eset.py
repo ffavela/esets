@@ -158,7 +158,7 @@ class Eset(abc.ABC):
                 if self.stop is None or i < self.len():
                     return self.internal_direct_function(i)
                 raise IndexError('eset index out of range')
-        raise ValueError('Need a slice or a positive integer')
+        raise ValueError('Need a slice or an integer')
 
     @abc.abstractmethod
     def __contains__(self, val):
