@@ -232,7 +232,7 @@ class Float64_tpls(Eset):
             return False
         if not 0 <= exponent < 2**11:
             return False
-        if not 0 <= significand < 2**53:  # -1=1+2^2+...+2^52
+        if not 0 <= significand < 2**52:  # -1=1+2^2+...+2^51
             return False
         diff = self.inverse_fun(val) - self.start
         if diff % self.step != 0:
@@ -245,15 +245,15 @@ class Float64_tpls(Eset):
 
     def inverse_fun(self, val):
         s_bit, exponent, significand = val
-        i = 2*(exponent * 2**53 + significand)
+        i = 2*(exponent * 2**52 + significand)
         if s_bit:
             i += 1
         return i
 
     def get_e_s(self, i):
         e, s = 0, i
-        for j in range(64, 52, -1):
-            e += (s // 2**j) * 2**(j-53)
+        for j in range(63, 51, -1):
+            e += (s // 2**j) * 2**(j-52)
             s %= 2**j
         return e, s
 
@@ -267,7 +267,7 @@ class Float64_tpls(Eset):
         return (s_bit, exponent, significand)
 
     def stop_init(self, stop=None):
-        return 2**65  # -1 == 1 + 2^1 + 2^2 + ... + 2^64
+        return 2**64  # -1 == 1 + 2^1 + 2^2 + ... + 2^63
 
 
 class Float64(Eset):
@@ -304,12 +304,12 @@ class Float64(Eset):
     def stop_init(self, stop=None):
         """This happens to be the same as
         float64_tpl[:float64_tpl.index((1, 2047, 1))+1].len() ==
-        2*(2**64-2**53+2) == 2*(2**64-1-(2**53-1)+2) Note that the +2
-        inside the parenths is for the inf and the nan. And the 2*
+        2*(2**63-2**52+2) == 2*(2**63-1-(2**52-1)+2) Note that the
+        +2 inside the parenths is for the inf and the nan. And the 2*
         coefficient is for considering the negatives too.
 
         """
-        return 36875473748909621252
+        return 18437736874454810628
 
     def __contains__(self, val):
         # Just a very basic version for now.
@@ -389,6 +389,12 @@ class Float64(Eset):
         fVal = self.bintpl2float(bintpl)
         return fVal
 
+    def __len__(self):
+        return self.len()
+
+    def len(self):
+        return self.float64_tpl.len()
+
     def __getitem__(self, key):
         """Delegating __getitem__ to the eset object float64_tpl and
         creating another Float64 eset with it.
@@ -397,8 +403,10 @@ class Float64(Eset):
         if isinstance(key, slice):
             return Float64(xtra_params=(self.float64_tpl[key],))
         elif isinstance(key, int):
-            return self.internal_direct_function(key)
-        raise ValueError('Need a slice or a positive integer')
+            bintpl = self.tpl2bintpl(self.float64_tpl[key])
+            fVal = self.bintpl2float(bintpl)
+            return fVal
+        raise ValueError('Need a slice or an integer')
 
 
 if __name__ == '__main__':
