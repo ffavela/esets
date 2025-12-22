@@ -1,5 +1,5 @@
 from eset import Eset
-from math import sqrt
+from math import sqrt, copysign
 import struct
 
 
@@ -407,6 +407,13 @@ class Float64(Eset):
             fVal = self.bintpl2float(bintpl)
             return fVal
         raise ValueError('Need a slice or an integer')
+
+    def format_funct(self, v):
+        if v != v:  # Checking if v is nan (weird I know)
+            sign = copysign(1, v)
+            if sign < 0:
+                return '-nan'
+        return f"{v:.17g}"
 
 
 if __name__ == '__main__':
