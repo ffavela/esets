@@ -1,6 +1,7 @@
 from eset import Eset
 from math import sqrt, copysign
 import struct
+import sys
 
 
 class Evens(Eset):
@@ -288,6 +289,9 @@ class Float64(Eset):
 
     """
     def __init__(self, *args, **kwargs):
+        if not self.check_if_float64_sys():
+            raise NotImplementedError("The default floats aren't 64 bit")
+
         if 'xtra_params' in kwargs:
             if len(kwargs['xtra_params']) != 0:
                 self.float64_tpl = kwargs['xtra_params'][0]
@@ -316,6 +320,32 @@ class Float64(Eset):
         if isinstance(val, float):
             return True
         return False
+
+    def check_if_float64_sys(self):
+        float64_dict = {"dig": 15,
+                        "epsilon": 2.220446049250313e-16,
+                        "mant_dig": 53,
+                        "max": 1.7976931348623157e+308,
+                        "max_10_exp": 308,
+                        "max_exp": 1024,
+                        "min": 2.2250738585072014e-308,
+                        "min_10_exp": -307,
+                        "min_exp": -1021,
+                        "n_fields": 11,
+                        "n_sequence_fields": 11,
+                        "n_unnamed_fields": 0,
+                        "radix": 2,
+                        "rounds": 1
+                        }
+
+        for key in dir(sys.float_info):
+            if not key.startswith('_'):
+                if key in ['count', 'index']:
+                    continue
+                value = getattr(sys.float_info, key)
+                if float64_dict[key] != value:
+                    return False
+        return True
 
     def binstr2bintpl(self, binstr):
         n_sign = 1
