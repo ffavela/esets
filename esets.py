@@ -316,9 +316,6 @@ class Float64(Eset):
         return 18437736874454810628
 
     def __contains__(self, val):
-        # The float check takes care of infs and nans too.
-        if isinstance(val, float):
-            return True
         if isinstance(val, int):
             if int(float(val)) != val:
                 return False
