@@ -242,7 +242,7 @@ class Float64_tpls(Eset):
             return True
         if self.stop < self.inverse_fun(val) <= self.start:
             return True
-        return True
+        return False
 
     def inverse_fun(self, val):
         s_bit, exponent, significand = val
