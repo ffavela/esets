@@ -2,7 +2,7 @@ from eset import Eset
 from math import sqrt, copysign
 import struct
 import sys
-
+from fractions import Fraction
 
 class Evens(Eset):
     """Something that contains all positive integer evens"""
@@ -316,8 +316,16 @@ class Float64(Eset):
         return 18437736874454810628
 
     def __contains__(self, val):
-        # Just a very basic version for now.
+        # The float check takes care of infs and nans too.
         if isinstance(val, float):
+            return True
+        if isinstance(val, int):
+            if int(float(val)) != val:
+                return False
+            return True
+        if isinstance(val, Fraction):
+            if Fraction(float(val)) != val:
+                return False
             return True
         return False
 
