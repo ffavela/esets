@@ -231,7 +231,7 @@ class Float64_tpls(Eset):
             return False
         if s_bit not in (0, 1):
             return False
-        if not 0 <= exponent < 2**11:
+        if not 0 <= exponent < 2**11:  # -1=1+2^2+...+2^10
             return False
         if not 0 <= significand < 2**52:  # -1=1+2^2+...+2^51
             return False
@@ -322,12 +322,13 @@ class Float64(Eset):
         if isinstance(val, int):
             if int(float(val)) != val:
                 return False
-            return True
         if isinstance(val, Fraction):
             if Fraction(float(val)) != val:
                 return False
-            return True
-        return False
+        # Delegating the rest to Float64_tpls
+        bintpl = self.float2bintpl(val)
+        tpl = self.bintpl2tpl(bintpl)
+        return tpl in self.float64_tpl
 
     def check_if_float64_sys(self):
         float64_dict = {"dig": 15,
