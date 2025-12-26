@@ -339,6 +339,10 @@ This is actually a prelude of what is coming next, combinatorial
 esets. I hope that this introduction got you in the right mindset for
 using this library.
 
+Before going into outrageously large numbers, first take a look into
+the [FLOAT64S.MD](FLOAT64S.md) for an eset that enumerates all the 64
+bit floats.
+
 ## TODO:
 
 * Expand this introduction.
