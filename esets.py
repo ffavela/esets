@@ -271,7 +271,7 @@ class Float64_tpls(Eset):
         return 2**64  # -1 == 1 + 2^1 + 2^2 + ... + 2^63
 
 
-class Float64(Eset):
+class Float64s(Eset):
     """An Eset that contains all Floats64 (AKA doubles in some
     languajes), this includes 1.0, 0.5, 0, -0, inf, -inf, nan, and
     -nan.
@@ -379,6 +379,14 @@ class Float64(Eset):
                 format(tpl[1], '011b'),
                 format(tpl[2], '052b'))
 
+    def float2tpl(self, fval):
+        bintpl = self.float2bintpl(fval)
+        return self.bintpl2tpl(bintpl)
+
+    def tpl2float(self, tpl):
+        bintpl = self.tpl2bintpl(tpl)
+        return self.bintpl2float(bintpl)
+
     def float2bintpl(self, fval):
         # Pack the float into 8 bytes (64 bits) using the 'd' format
         # specifier for double '!' specifies network byte order
@@ -437,7 +445,7 @@ class Float64(Eset):
 
         """
         if isinstance(key, slice):
-            return Float64(xtra_params=(self.float64_tpl[key],))
+            return Float64s(xtra_params=(self.float64_tpl[key],))
         elif isinstance(key, int):
             bintpl = self.tpl2bintpl(self.float64_tpl[key])
             fVal = self.bintpl2float(bintpl)
