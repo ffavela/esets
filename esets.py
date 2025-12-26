@@ -434,7 +434,7 @@ class Float64s(Eset):
         return fVal
 
     def __len__(self):
-        return self.len()
+        return self.float64_tpl.__len__()
 
     def len(self):
         return self.float64_tpl.len()
