@@ -23,7 +23,7 @@ computer. The Real numbers are a mathematical concept but (in my
 opinion) it is an unfortunate naming convention, it tags them as in
 every sense of the word as real, the noun is comonly also interpreted
 as an adjective. You can still call them Real, but at least on this
-text mentally remove the real tag to avoid any confussion.
+text mentally remove the "real" tag to avoid any confussion.
 
 Sixty four bit floats on the other hand are a different story. They
 can represent up to 2**64 == 18446744073709551616 ~ 1.84e+19 different
@@ -97,7 +97,7 @@ and we can also see the respective binary representation:
 
 The IEEE is a bit vage regarding the nans, there can be many more than
 the 2 we've presented and the default base values can be
-different. For this implementation and for the sake of simplycity,
+different. For this implementation and for the sake of simplicity,
 only 2 are the accepted values for our Float64s eset.
 
 ### So what is the len?
@@ -118,7 +118,24 @@ But we can use:
 18437736874454810628
 ```
 
-### Wait that is not 2**64
+Using this we can calculate the number of bytes required to store
+them, 64 bits are 8 bytes, so:
+
+```
+>>> f64s.len()*8
+147501894995638485024
+>>> f64s.len()*8//10**18 # Exabytes
+147
+>>> f64s.len()*8//2**60 # Exbibytes
+127
+```
+
+So we need 147 exabites of a bit more precisely 127 exbibytes. A quick
+comparison, a laptop hard drive has around 1TB, 1EB ~ 10**6 TB. So
+around 100 million of these would be required to store all the 64 bit
+floats.
+
+### Yeah impressive, but wait that len is not 2**64
 
 Yeah, that is actually:
 
@@ -189,7 +206,7 @@ the same number!
 
 That doesn't happen with the Real numbers, on that case it doesn't
 even make sense to even concieve the first number after zero. It just
-doesn't exist. And if you would grab any real number (exluding zero)
+doesn't exist. And if you would grab any Real number (exluding zero)
 none would satisfy the above relationship. Also for any `n` say 1000,
 the average of 2 consecutive positive floats satisfy:
 
@@ -218,7 +235,7 @@ But for the case of enumerating rounding off stuff can give completely
 different results. Granted floats aren't used for that normally, so
 for all intended purposes we are safe.
 
-Let's explore some other properties. An eset has the __contain__
+Let's explore some other properties. An eset has the `__contain__`
 method so we can use the `in` operation:
 
 ```
@@ -280,7 +297,7 @@ for "containing" those values if we really cared about those
 particular issues but the main interest is the Float64s eset.
 
 Coming back to the 0.2 (1/5) case, we can make a fairer check if we
-use fractions, which is accepted by the __contains__ method so:
+use fractions, which is accepted by the `__contains__` method so:
 
 ```
 >>> Fraction(1, 5) in pf64s
@@ -291,6 +308,45 @@ This way, we have avoided the float conversion and it clearly shows a
 whole in the floats. Fractions are essentially Rational numbers, and
 regarding the previous discussion of the Reals, yes the tag is more
 appropriate.
+
+Note index method is actually able to get the integer value of any float:
+
+```
+>>> pf64s.index(2.718181)
+4613303218269380189
+```
+
+That number is an approximation of e. And for the positive floats,
+that corresponds to the 4613303218269380189 positive float. The next one is:
+
+```
+>>> pf64s[pf64s.index(2.718181)+1]
+2.7181810000000004
+```
+
+We can simply get a slice starting from the first approximation:
+
+```
+>>> pf64s[pf64s.index(2.718181):]
+<esets.Float64s (2.718181, 2.7181810000000004, 2.7181810000000008, 2.7181810000000013, ..., inf, nan)>
+```
+
+Also define the stop index to be the next number in the least
+significand digit 2.718182 making:
+
+```
+>>> pf64s[pf64s.index(2.718181):pf64s.index(2.718182)]
+<esets.Float64s (2.718181, 2.7181810000000004, 2.7181810000000008, 2.7181810000000013, ..., 2.7181819999999992, 2.7181819999999997)>
+```
+
+We can even get the len:
+
+```
+>>> pf64s[pf64s.index(2.718181):pf64s.index(2.718182)].len()
+2251799814
+```
+
+A lot of 64 bit floats on that small slice.
 
 Also, note the following:
 
@@ -403,3 +459,15 @@ And the total (including the negatives) is:
 >>> f64s[:f64s.f64tpls.index((1, 0, 2**52-1))+1].len()
 9007199254740992
 ```
+
+The total storage capacity to store these is:
+
+```
+>>> f64s[:f64s.f64tpls.index((1, 0, 2**52-1))+1].len()//8//10**12 # Terabytes
+1125
+>>> f64s[:f64s.f64tpls.index((1, 0, 2**52-1))+1].len()//8//2**40 # Tebibytes
+1024
+```
+
+So around 1000 of these laptop harddrives, more doable than the entire
+64bit floats. But still kind of out of reach.
