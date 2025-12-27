@@ -294,20 +294,20 @@ class Float64s(Eset):
 
         if 'xtra_params' in kwargs:
             if len(kwargs['xtra_params']) != 0:
-                self.float64_tpl = kwargs['xtra_params'][0]
+                self.f64tpls = kwargs['xtra_params'][0]
             super().__init__(*args, **kwargs)
         elif len(args) == 1:
-            self.float64_tpl = args[0]
-            super().__init__(xtra_params=(self.float64_tpl,))
+            self.f64tpls = args[0]
+            super().__init__(xtra_params=(self.f64tpls,))
         else:
-            float64_tpl = Float64_tpls()
-            minus_nan_tpl_idx = float64_tpl.index((1, 2047, 1))
-            self.float64_tpl = float64_tpl[:minus_nan_tpl_idx+1]
-            super().__init__(*args, xtra_params=(self.float64_tpl,))
+            f64tpls = Float64_tpls()
+            minus_nan_tpl_idx = f64tpls.index((1, 2047, 1))
+            self.f64tpls = f64tpls[:minus_nan_tpl_idx+1]
+            super().__init__(*args, xtra_params=(self.f64tpls,))
 
     def stop_init(self, stop=None):
         """This happens to be the same as
-        float64_tpl[:float64_tpl.index((1, 2047, 1))+1].len() ==
+        f64tpls[:f64tpls.index((1, 2047, 1))+1].len() ==
         2*(2**63-2**52+2) == 2*(2**63-1-(2**52-1)+2) Note that the
         +2 inside the parenths is for the inf and the nan. And the 2*
         coefficient is for considering the negatives too.
@@ -325,7 +325,7 @@ class Float64s(Eset):
         # Delegating the rest to Float64_tpls
         bintpl = self.float2bintpl(val)
         tpl = self.bintpl2tpl(bintpl)
-        return tpl in self.float64_tpl
+        return tpl in self.f64tpls
 
     def check_if_float64_sys(self):
         float64_dict = {"dig": 15,
@@ -425,29 +425,29 @@ class Float64s(Eset):
     def inverse_fun(self, fVal):
         bintpl = self.float2bintpl(fVal)
         tpl = self.bintpl2tpl(bintpl)
-        return self.float64_tpl.index(tpl)
+        return self.f64tpls.index(tpl)
 
     def direct_function(self, i):
-        tpl = self.float64_tpl[i]
+        tpl = self.f64tpls[i]
         bintpl = self.tpl2bintpl(tpl)
         fVal = self.bintpl2float(bintpl)
         return fVal
 
     def __len__(self):
-        return self.float64_tpl.__len__()
+        return self.f64tpls.__len__()
 
     def len(self):
-        return self.float64_tpl.len()
+        return self.f64tpls.len()
 
     def __getitem__(self, key):
-        """Delegating __getitem__ to the eset object float64_tpl and
+        """Delegating __getitem__ to the eset object f64tpls and
         creating another Float64 eset with it.
 
         """
         if isinstance(key, slice):
-            return Float64s(xtra_params=(self.float64_tpl[key],))
+            return Float64s(xtra_params=(self.f64tpls[key],))
         elif isinstance(key, int):
-            bintpl = self.tpl2bintpl(self.float64_tpl[key])
+            bintpl = self.tpl2bintpl(self.f64tpls[key])
             fVal = self.bintpl2float(bintpl)
             return fVal
         raise ValueError('Need a slice or an integer')
