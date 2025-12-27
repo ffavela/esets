@@ -376,3 +376,30 @@ Also between 2**54 and 2**55 values start jumping in 4s:
 >>> pf64s[pf64s.index(2**54):pf64s.index(2**55)]
 <esets.Float64s (18014398509481984, 18014398509481988, 18014398509481992, 18014398509481996, ..., 36028797018963960, 36028797018963964)>
 ```
+
+### Were do subnormals fall here?
+
+So the first subnormal (the exponent bits are zero) is zero and the
+last has all ones on the significand that is 2**52-1, so looking and
+the pf64s:
+
+```
+>>> pf64s.tpl2bintpl((0, 0, 2**52-1))
+('0', '00000000000', '1111111111111111111111111111111111111111111111111111')
+>>> pf64s[:pf64s.f64tpls.index((0, 0, 2**52-1))+1]
+<esets.Float64s (0, 4.9406564584124654e-324, 9.8813129168249309e-324, 1.4821969375237396e-323, ..., 2.2250738585072004e-308, 2.2250738585072009e-308)>
+```
+
+The amount of positive subnormals are:
+
+```
+>>> pf64s[:pf64s.f64tpls.index((0, 0, 2**52-1))+1].len()
+4503599627370496
+```
+
+And the total (including the negatives) is:
+
+```
+>>> f64s[:f64s.f64tpls.index((1, 0, 2**52-1))+1].len()
+9007199254740992
+```
