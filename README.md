@@ -47,7 +47,7 @@ memory we can check it e.g.:
 True
 >>> a+1 in e
 False
-
+>>>
 ```
 
 ### So what about it's len?
@@ -80,7 +80,7 @@ relationship between the Even numbers and the Whole numbers (0, 1, 2,
 2 4
 3 6
 4 8
-
+>>>
 ```
 
 In fact the following is also valid:
@@ -94,7 +94,7 @@ In fact the following is also valid:
 2 4
 3 6
 4 8
-
+>>>
 ```
 
 ### The relationship is clear for any index value just double it to get the respective Evens value right?
@@ -105,7 +105,7 @@ we can use dividing by two:
 ```
 >>> e.index(42)
 21
-
+>>>
 ```
 
 ### So it is just a convoluted way of doing some trivial math?
@@ -142,7 +142,7 @@ on the Evens **eset**:
 ```
 >>> e[3:10**100]
 <esets.Evens* (6, 8, 10, 12, ..., 19999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999996, 19999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999998)>
-
+>>>
 ```
 
 So naturally here:
@@ -160,7 +160,7 @@ True
 True
 >>> 2*10**100 in e[3:10**100] # Not touched as expected
 False
-
+>>>
 ```
 
 ### Just as if we had more memory that could be potentially stored in all the transistors in the history of human kind combined and multiplied by various orders of magnitude at our disposal for this mundane apparently pointless task.
@@ -185,7 +185,7 @@ I hear you it should output some huge number fairly close to
 ```
 >>> e[3:10**100].len()
 9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999997
-
+>>>
 ```
 
 ### That is unpythonic and therefore uncool, please fix it! Not that I'm even interested in this library.
@@ -209,7 +209,7 @@ anything higher like the following (normally `maxsize == 2**63-1`):
 Traceback (most recent call last):
 ...
 NotImplementedError: __len__ is limited use obj.len() instead
-
+>>>
 ```
 
 Will raise the above error. However, this crazy little project doesn't
@@ -238,7 +238,7 @@ slice with a step of 2:
 ```
 >>> w[::2]
 <esets.Wholes* (0, 2, 4, 6, ...)>
-
+>>>
 ```
 
 Other multiples can actually be obtained from this, say multiples of
@@ -247,7 +247,7 @@ Other multiples can actually be obtained from this, say multiples of
 ```
 >>> w[::7]
 <esets.Wholes* (0, 7, 14, 21, ...)>
-
+>>>
 ```
 
 ### Is there an **eset** where we can contruct the multiples from the start?
@@ -271,7 +271,7 @@ Here you go:
 >>> i = Integers()
 >>> i
 <esets.Integers (0, 1, -1, 2, ...)>
-
+>>>
 ```
 
 Note that the negatives can be extracted like this:
@@ -279,7 +279,7 @@ Note that the negatives can be extracted like this:
 ```
 >>> i[2::2]
 <esets.Integers* (-1, -2, -3, -4, ...)>
-
+>>>
 ```
 
 ### All this looks way to academic. Is there more? Something more applied?
@@ -303,7 +303,7 @@ Consider the following:
 35660
 >>> print(str(h)[:3])
 284
-
+>>>
 ```
 
 This means that `10000!` is around `2.8*10**35659`, one may be tempted
@@ -326,7 +326,7 @@ We can actually do a:
 >>> w = Wholes()
 >>> w[:h] #doctest:+ELLIPSIS
 <esets.Wholes* ...
-
+>>>
 ```
 
 I'm deliberately not printing that last line but the eset can take
@@ -337,7 +337,7 @@ Do note that:
 ```
 >>> w[:h].len() == h
 True
-
+>>>
 ```
 
 That number (`h`) when storing it may look like a relatively small
@@ -346,7 +346,7 @@ file (about 16kB):
 ```
 >>> sys.getsizeof(factorial(10000))
 15820
-
+>>>
 ```
 
 A huge number can be a small file. It begs the question, can files be
