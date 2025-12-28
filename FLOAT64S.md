@@ -327,7 +327,7 @@ False
 ```
 
 This way, we have avoided the float conversion and it clearly shows a
-whole in the floats. Fractions are essentially Rational numbers, and
+hole in the floats. Fractions are essentially Rational numbers, and
 regarding the previous discussion of the Reals, yes the tag is more
 appropriate.
 
@@ -443,7 +443,7 @@ at basically any other given float.
 
 As mentioned above the total number of positive 64 bit floats is
 9218868437227405314 which is approximately 9.2e+18 different
-values. Let's say we want a partition of the whole 0.0 to the maximum
+values. Let's say we want a partition of the hole 0.0 to the maximum
 numeric float value, that could be done by dividing the float range by
 the desired value, say `10**6`. However note that the float density is
 not actually uniform (see next section), it may be clearer to
@@ -475,7 +475,7 @@ The highest numeric value is 1.7976931348623155e+308
 
 ### Ok so that should be last possible integer it can contain, right?
 
-Yes, but there are integer wholes there too.
+Yes, but there are integer holes there too.
 
 ### Where? How can they be found?
 
@@ -530,7 +530,7 @@ False
 Yep the internal float conversion can try to fool us again but the
 Fractions come to the rescue.
 
-### So the integer wholes are from `2**53` and on?
+### So the integer holes are from `2**53` and on?
 
 Exactly between `2**53` and `2**54` values start jumping in 2s:
 
