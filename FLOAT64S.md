@@ -459,9 +459,9 @@ partition the positive floats in the index space and sampling every
 >>>
 ```
 
-We get a million elements on the `fsample` eset we could use that to
-apply a function like `epsilon` on it and perhaps get a better sense
-on how `epsilon` behaves throughout the floats.
+We get about a million elements on the `fsample` eset we could use
+that to apply a function like `epsilon` on it and perhaps get a better
+sense on how `epsilon` behaves throughout the floats.
 
 Also, note the following:
 
