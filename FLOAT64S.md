@@ -312,41 +312,102 @@ appropriate.
 Note index method is actually able to get the integer value of any float:
 
 ```
->>> pf64s.index(2.718181)
-4613303218269380189
+>>> pf64s.index(2.718281)
+4613303443449361558
 ```
 
 That number is an approximation of e. And for the positive floats,
-that corresponds to the 4613303218269380189 positive float. The next one is:
+that corresponds to the 4613303443449361558 positive float. The next
+one is:
 
 ```
->>> pf64s[pf64s.index(2.718181)+1]
-2.7181810000000004
+>>> pf64s[pf64s.index(2.718281)+1]
+2.7182810000000006
 ```
 
 We can simply get a slice starting from the first approximation:
 
 ```
->>> pf64s[pf64s.index(2.718181):]
-<esets.Float64s (2.718181, 2.7181810000000004, 2.7181810000000008, 2.7181810000000013, ..., inf, nan)>
+>>> pf64s[pf64s.index(2.718281):]
+<esets.Float64s (2.7182810000000002, 2.7182810000000006, 2.7182810000000011, 2.7182810000000015, ..., inf, nan)>
 ```
 
 Also define the stop index to be the next number in the least
-significand digit 2.718182 making:
+significand digit 2.718282 making, saving that eset into a variable
+called sliver:
 
 ```
->>> pf64s[pf64s.index(2.718181):pf64s.index(2.718182)]
-<esets.Float64s (2.718181, 2.7181810000000004, 2.7181810000000008, 2.7181810000000013, ..., 2.7181819999999992, 2.7181819999999997)>
+>>> sliver = pf64s[pf64s.index(2.718281):pf64s.index(2.718282)]
+>>> sliver
+<esets.Float64s (2.7182810000000002, 2.7182810000000006, 2.7182810000000011, 2.7182810000000015, ..., 2.718281999999999, 2.7182819999999994)>
 ```
 
 We can even get the len:
 
 ```
->>> pf64s[pf64s.index(2.718181):pf64s.index(2.718182)].len()
-2251799814
+>>> sliver.len()
+2251799813
 ```
 
-A lot of 64 bit floats on that small slice.
+A lot of 64 bit floats on that "small" slice. Let's search for the
+index on that sliver variable of the value of `e` directly from the
+math library.
+
+```
+>>> from math import e
+>>> e
+2.718281828459045
+>>> sliver.index(e)
+1865523923
+```
+
+So as expected:
+
+```
+>>> sliver[1865523923]
+2.718281828459045
+```
+
+### What about the epsilon?
+
+That is actually straightforward we simply find the index of the 1.0
+and add one to that index and then take the difference:
+
+```
+>>> pf64s[pf64s.index(1.0)+1]-1.0
+2.220446049250313e-16
+```
+
+However, we can actually generalize quite easely to an epsilon
+function defined on almost all the floats like the following:
+
+```
+>>> def epsilon(x: float) -> float:
+...     pf64s = Float64s()[::2]
+...     x = abs(x) # Focusing on the positive floats
+...     if x >= pf64s[-3]: # The largest numeric value
+...             raise ValueError("Out of bounds")
+...     return pf64s[pf64s.index(x)+1] - x
+...
+>>> epsilon(0)
+5e-324
+>>> epsilon(1.0)
+2.220446049250313e-16
+>>> epsilon(2.0)
+4.440892098500626e-16
+>>> epsilon(5.0)
+8.881784197001252e-16
+>>> epsilon(100.0)
+1.4210854715202004e-14
+>>> epsilon(10000.0)
+1.8189894035458565e-12
+>>> epsilon(10000000.0)
+1.862645149230957e-09
+>>>
+```
+
+It reproduces the expected result for 1.0, also it gives us the value
+at basically any other given float.
 
 Also, note the following:
 
@@ -433,7 +494,7 @@ Also between 2**54 and 2**55 values start jumping in 4s:
 <esets.Float64s (18014398509481984, 18014398509481988, 18014398509481992, 18014398509481996, ..., 36028797018963960, 36028797018963964)>
 ```
 
-### Were do subnormals fall here?
+### Were do subnormals (a.k.a. denormals) fall here?
 
 So the first subnormal (the exponent bits are zero) is zero and the
 last has all ones on the significand that is 2**52-1, so looking and
