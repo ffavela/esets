@@ -28,13 +28,13 @@ text mentally remove the "real" tag to avoid any confussion.
 Sixty four bit floats on the other hand are a different story. They
 can represent up to 2**64 == 18446744073709551616 ~ 1.84e+19 different
 values, the IEEE 754 specifies a format for them. One bit for a sign,
-11 for an exponent and 52 for a significant (sometimes called fraction
+11 for an exponent and 52 for a significand (sometimes called fraction
 or mantissa). The exponent bits have a 1023 bias, i.e. the interpreted
 exponent is exponent-1023.
 
 All that just to say that we can store any single float and also if we
 were determined enough we could even store all of them given the
-current storage capacity of mankind that'll take a significan portion
+current storage capacity of mankind that'll take a significant portion
 but it is currently possible.
 
 ### Storing all 64 bit floats is definetively a terrible idea
