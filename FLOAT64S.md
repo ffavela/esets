@@ -222,7 +222,7 @@ think...).
 
 We could look into more weirdness in how floats behave, but let's move
 forward. The key takeaway is simply to note that they are in fact
-increadably useful but we need to be aware of their limitations. It
+incredibly useful but we need to be aware of their limitations. It
 doesn't matter how many bits are used, they simply aren't continuous
 and operating with them can lead to information loss. That isn't bad
 for many intended purposes.
@@ -235,7 +235,7 @@ But for the case of enumerating rounding off stuff can give completely
 different results. Granted floats aren't used for that normally, so
 for all intended purposes we are safe.
 
-Let's explore some other properties. An eset has the `__contain__`
+Let's explore some other properties. An eset has the `__contains__`
 method so we can use the `in` operation:
 
 ```
@@ -277,12 +277,13 @@ Let's print it with 17 digits to better explain:
 ```
 
 Yep ^, 0.2 (a.k.a 1/5) cannot be properly represented in
-binary. Python is cheating here, our value is converted to a float
-i.e. 0.2 turns into a 0.20000000000000001 and then it says yeah that
-float value is present. This would happen on other programming
-languajes by the way, that convesion is done under the hood and is
+binary. Python seems to be cheating here, our value is converted to a
+float i.e. 0.2 turns into a 0.20000000000000001 and then it says yeah
+that float value is present. This would happen on other programming
+languajes by the way, that conversion is done under the hood and is
 actually expected. But in this particular case we need to highlight
-it, Real values are rounded to the nearest float. And on the aforementioned pi approximation:
+it, Real values are rounded to the nearest float. And on the
+aforementioned pi approximation:
 
 ```
 >>> format(3.121592, '.17g')
@@ -333,7 +334,7 @@ We can simply get a slice starting from the first approximation:
 ```
 
 Also define the stop index to be the next number in the least
-significand digit 2.718282 making, saving that eset into a variable
+significant digit 2.718282 making, saving that eset into a variable
 called sliver:
 
 ```
@@ -371,7 +372,8 @@ So as expected:
 ### What about the epsilon?
 
 That is actually straightforward we simply find the index of the 1.0
-and add one to that index and then take the difference:
+and add one to that index and then take the difference between the
+pf64s float on that value and 1.0:
 
 ```
 >>> pf64s[pf64s.index(1.0)+1]-1.0
