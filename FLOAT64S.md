@@ -301,7 +301,7 @@ that float value is present. This would happen on other programming
 languajes by the way, that conversion is done under the hood and is
 actually expected. But in this particular case we need to highlight
 it, Real values are rounded to the nearest float. And on the
-aforementioned pi approximation:
+aforementioned `pi` approximation:
 
 ```
 >>> format(3.121592, '.17g')
@@ -310,7 +310,7 @@ aforementioned pi approximation:
 ```
 
 There it is, a bunch of zeroes and then a one, which differs by a tiny
-amount from the pi approximation. So yeah floats give approximations
+amount from the `pi` approximation. So yeah floats give approximations
 to values that are already approximations, even when using a finite
 decimal expansion. Yes there are other objects we could use instead
 for "containing" those values if we really cared about those
@@ -409,8 +409,9 @@ pf64s float on that value and 1.0:
 >>>
 ```
 
-However, we can actually generalize quite easely to an epsilon
-function defined on almost all the floats like the following:
+No need to do a while loop just a simple substraction once we have the
+desired index. However, we can actually generalize quite easely to an
+epsilon function defined on almost all the floats like the following:
 
 ```
 >>> def epsilon(x: float) -> float:
