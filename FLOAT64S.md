@@ -444,7 +444,7 @@ at basically any other given float.
 
 As mentioned above the total number of positive 64 bit floats is
 9218868437227405314 which is approximately 9.2e+18 different
-values. Let's say we want a partition of the hole 0.0 to the maximum
+values. Let's say we want a partition of the whole range from 0.0 to the maximum
 numeric float value, that could be done by dividing the float range by
 the desired value, say `10**6`. However note that the float density is
 not actually uniform (see next section), it may be clearer to
