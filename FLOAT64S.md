@@ -16,7 +16,7 @@ Reals aren't real, floats aren't Real, floats are real.
 Digitally speaking, we cannot realistically store a single Real
 number. Not even with the combined cumilative storage capacity of all
 the history of human kind. Granted we can define them through a
-process, and perform an abtract definition, even have an arbitrary
+process, and perform an abstract definition, even have an arbitrary
 precision, but that doesn't change the fact that we can't store a
 single one on a digital binary (or ternary or whichever base)
 computer. The Real numbers are a mathematical concept but (in my
