@@ -127,7 +127,7 @@ Using this we can calculate the number of bytes required to store
 them, 64 bits are 8 bytes, so:
 
 ```
->>> f64s.len()*8
+>>> f64s.len()*8 # Bytes
 147501894995638485024
 >>> f64s.len()*8//10**18 # Exabytes
 147
@@ -472,7 +472,7 @@ Also, note the following:
 >>>
 ```
 
-The highest numeric value is 1.7976931348623155e+308
+The highest numeric value is 1.7976931348623157e+308.
 
 ### Ok so that should be last possible integer it can contain, right?
 
