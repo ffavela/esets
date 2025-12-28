@@ -464,3 +464,4 @@ if __name__ == '__main__':
     import doctest
     doctest.testfile("docTest.txt")
     doctest.testfile("README.md")
+    doctest.testfile("FLOAT64S.md")
