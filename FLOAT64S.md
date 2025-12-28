@@ -172,7 +172,7 @@ precise number too:
 >>>
 ```
 
-### Ok back to the Float64s, what if I just want the positives
+### Ok back to the Float64s, what if I just want the positives?
 
 As in the case of the integers the floats are "folded" with
 alternating positive and negative values, so we can extract them via a
@@ -297,11 +297,12 @@ Let's print it with 17 digits to better explain:
 Yep ^, 0.2 (a.k.a 1/5) cannot be properly represented in
 binary. Python seems to be cheating here, our value is converted to a
 float i.e. 0.2 turns into a 0.20000000000000001 and then it says yeah
-that float value is present. This would happen on other programming
-languajes by the way, that conversion is done under the hood and is
-actually expected. But in this particular case we need to highlight
-it, Real values are rounded to the nearest float. And on the
-aforementioned `pi` approximation:
+that float value I just converted to (not the one you actually asked about)
+is present. This would happen on other programming languajes by the
+way, that conversion is done under the hood and is actually
+expected. But in this particular case we need to highlight it, Real
+values are rounded to the nearest float. And on the aforementioned
+`pi` approximation:
 
 ```
 >>> format(3.121592, '.17g')
