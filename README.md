@@ -305,7 +305,7 @@ Note that the negatives can be extracted like this:
 
 ### All this looks way to academic. Is there more? Something more applied?
 
-Yep. But we'll leave it here for now.
+Yep and it may pay off big time. But we'll leave it here for now.
 
 Just as a teaser consider the following; In many fields of study using
 a relative error that is 10% or under is usually good enough. When
