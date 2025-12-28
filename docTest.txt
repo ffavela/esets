@@ -94,7 +94,7 @@ reversible like a list or a tuple.
 >>> p[::-1]
 Traceback (most recent call last):
 ...
-ValueError: Cannot enumerate backward from infinite
+ValueError: Cannot enumerate backward from infinity
 
 This doesn't impede us from using positive integer steps. The
 following slice will create an ```eset``` jumps futher every of two in
@@ -776,7 +776,7 @@ ValueError: Aleph_0 infinite
 >>> list(p[0::-4][::-1])
 Traceback (most recent call last):
 ...
-ValueError: Cannot enumerate backward from infinite
+ValueError: Cannot enumerate backward from infinity
 
 >>> p[3:20:4]
 <esets.Evens* (6, 14, 22, 30, 38)>
@@ -956,7 +956,7 @@ Remembering that
 >>> p[-3:]
 Traceback (most recent call last):
 ...
-ValueError: Cannot enumerate backward from infinite
+ValueError: Cannot enumerate backward from infinity
 
 >>> p[:10:2][-1:-5]
 <esets.Evens* ()>

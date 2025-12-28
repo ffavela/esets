@@ -1,6 +1,8 @@
 from eset import Eset
-from math import sqrt
-
+from math import sqrt, copysign
+import struct
+import sys
+from fractions import Fraction
 
 class Evens(Eset):
     """Something that contains all positive integer evens"""
@@ -215,7 +217,8 @@ class Wholes(Eset):
 
 class Float64_tpls(Eset):
     """Something that contains all the float 64 using the IEEE 754
-    double precision format as tuples
+    double precision format as tuples with 3 integers, naming them
+    tpls
 
     """
     def __contains__(self, val):
@@ -228,9 +231,9 @@ class Float64_tpls(Eset):
             return False
         if s_bit not in (0, 1):
             return False
-        if not 0 <= exponent < 2**11:
+        if not 0 <= exponent < 2**11:  # -1=1+2^2+...+2^10
             return False
-        if not 0 <= significand < 2**53:  # -1=1+2^2+...+2^52
+        if not 0 <= significand < 2**52:  # -1=1+2^2+...+2^51
             return False
         diff = self.inverse_fun(val) - self.start
         if diff % self.step != 0:
@@ -239,19 +242,19 @@ class Float64_tpls(Eset):
             return True
         if self.stop < self.inverse_fun(val) <= self.start:
             return True
-        return True
+        return False
 
     def inverse_fun(self, val):
         s_bit, exponent, significand = val
-        i = 2*(exponent * 2**53 + significand)
+        i = 2*(exponent * 2**52 + significand)
         if s_bit:
             i += 1
         return i
 
     def get_e_s(self, i):
         e, s = 0, i
-        for j in range(64, 52, -1):
-            e += (s // 2**j) * 2**(j-53)
+        for j in range(63, 51, -1):
+            e += (s // 2**j) * 2**(j-52)
             s %= 2**j
         return e, s
 
@@ -265,9 +268,200 @@ class Float64_tpls(Eset):
         return (s_bit, exponent, significand)
 
     def stop_init(self, stop=None):
-        return 2**65  # -1 == 1 + 2^1 + 2^2 + ... + 2^64
+        return 2**64  # -1 == 1 + 2^1 + 2^2 + ... + 2^63
+
+
+class Float64s(Eset):
+    """An Eset that contains all Floats64 (AKA doubles in some
+    languajes), this includes 1.0, 0.5, 0, -0, inf, -inf, nan, and
+    -nan.
+
+    Note that the IEEE 754 standard defines the infinites as having
+    all ones on the bits of the exponent (2**11-1 == 2047) and all
+    zeroes on the significand (i.e. 0 when seen as an integer). While
+    a nan has also all ones on the exponent bits but the significand
+    is not zero, we'll simply use as convention that a nan has a 1 on
+    the last (rightmost) bit that is a one when viewed as a base ten
+    integer (also it is simpler to enumerate this way). Also nans are
+    distinguishable from each other but to the general end user they
+    aren't, we'll just consider the aspect given by the sign bit hence
+    the enumeration of the nan and the -nan.
+
+    """
+    def __init__(self, *args, **kwargs):
+        if not self.check_if_float64_sys():
+            raise NotImplementedError("The default floats aren't 64 bit")
+
+        if 'xtra_params' in kwargs:
+            if len(kwargs['xtra_params']) != 0:
+                self.f64tpls = kwargs['xtra_params'][0]
+            super().__init__(*args, **kwargs)
+        elif len(args) == 1:
+            self.f64tpls = args[0]
+            super().__init__(xtra_params=(self.f64tpls,))
+        else:
+            f64tpls = Float64_tpls()
+            minus_nan_tpl_idx = f64tpls.index((1, 2047, 1))
+            self.f64tpls = f64tpls[:minus_nan_tpl_idx+1]
+            super().__init__(*args, xtra_params=(self.f64tpls,))
+
+    def stop_init(self, stop=None):
+        """This happens to be the same as
+        f64tpls[:f64tpls.index((1, 2047, 1))+1].len() ==
+        2*(2**63-2**52+2) == 2*(2**63-1-(2**52-1)+2) Note that the
+        +2 inside the parenths is for the inf and the nan. And the 2*
+        coefficient is for considering the negatives too.
+
+        """
+        return 18437736874454810628
+
+    def __contains__(self, val):
+        if isinstance(val, int):
+            if int(float(val)) != val:
+                return False
+        if isinstance(val, Fraction):
+            if Fraction(float(val)) != val:
+                return False
+        # Delegating the rest to Float64_tpls
+        bintpl = self.float2bintpl(val)
+        tpl = self.bintpl2tpl(bintpl)
+        return tpl in self.f64tpls
+
+    def check_if_float64_sys(self):
+        float64_dict = {"dig": 15,
+                        "epsilon": 2.220446049250313e-16,
+                        "mant_dig": 53,
+                        "max": 1.7976931348623157e+308,
+                        "max_10_exp": 308,
+                        "max_exp": 1024,
+                        "min": 2.2250738585072014e-308,
+                        "min_10_exp": -307,
+                        "min_exp": -1021,
+                        "n_fields": 11,
+                        "n_sequence_fields": 11,
+                        "n_unnamed_fields": 0,
+                        "radix": 2,
+                        "rounds": 1
+                        }
+
+        for key in dir(sys.float_info):
+            if not key.startswith('_'):
+                if key in ['count', 'index']:
+                    continue
+                value = getattr(sys.float_info, key)
+                if float64_dict[key] != value:
+                    return False
+        return True
+
+    def binstr2bintpl(self, binstr):
+        n_sign = 1
+        n_exponent = 11
+        n_significand = 52
+        bin_tpl = (binstr[0], binstr[n_sign:n_exponent+n_sign],
+                   binstr[n_exponent+n_sign:])
+        if bin_tpl[1] == n_exponent*'1' and\
+           bin_tpl[2] != n_significand*'0':
+            # The nan case using my convention. It is cooler, ok not
+            # really I just took a poor decision early on cause I
+            # didn't know any better and now I'm too afraid to start
+            # changing that.
+            bin_tpl = (bin_tpl[0], bin_tpl[1],
+                       (n_significand-1)*'0'+'1')
+
+        return bin_tpl
+
+    def bintpl2tpl(self, bintpl):
+        return (int(bintpl[0], 2), int(bintpl[1], 2),
+                int(bintpl[2], 2))
+
+    def tpl2bintpl(self, tpl):
+        return (format(tpl[0], '01b'),
+                format(tpl[1], '011b'),
+                format(tpl[2], '052b'))
+
+    def float2tpl(self, fval):
+        bintpl = self.float2bintpl(fval)
+        return self.bintpl2tpl(bintpl)
+
+    def tpl2float(self, tpl):
+        bintpl = self.tpl2bintpl(tpl)
+        return self.bintpl2float(bintpl)
+
+    def float2bintpl(self, fval):
+        # Pack the float into 8 bytes (64 bits) using the 'd' format
+        # specifier for double '!' specifies network byte order
+        # (big-endian), which ensures consistency across systems
+        packed_bytes = struct.pack('!d', fval)
+
+        # Unpack the 8 bytes as a 64-bit unsigned integer ('Q' format
+        # specifier) The result is a standard Python integer
+        unpacked_int = struct.unpack('!Q', packed_bytes)[0]
+
+        # Format the integer as a 64-bit binary string, zero-padded to
+        # 64 digits
+        binstr = format(unpacked_int, '064b')
+        bin_tpl = self.binstr2bintpl(binstr)
+        return bin_tpl
+
+    def bintpl2float(self, bintpl):
+        """
+        Converts a bintpl to a 64-bit float.
+        """
+        binary_string = bintpl[0]+bintpl[1]+bintpl[2]
+        # Convert the binary string to an integer
+        binary_int = int(binary_string, 2)
+
+        # Convert the integer to 8 bytes (64 bits) using big-endian
+        # byte order ('>Q') The 'Q' format character is for unsigned
+        # long long (8 bytes)
+        binary_bytes = struct.pack('>Q', binary_int)
+
+        # Unpack the bytes as a double (64-bit float) using big-endian
+        # byte order ('>d') The 'd' format character is for a double
+        float_value = struct.unpack('>d', binary_bytes)[0]
+
+        return float_value
+
+    def inverse_fun(self, fVal):
+        bintpl = self.float2bintpl(fVal)
+        tpl = self.bintpl2tpl(bintpl)
+        return self.f64tpls.index(tpl)
+
+    def direct_function(self, i):
+        tpl = self.f64tpls[i]
+        bintpl = self.tpl2bintpl(tpl)
+        fVal = self.bintpl2float(bintpl)
+        return fVal
+
+    def __len__(self):
+        return self.f64tpls.__len__()
+
+    def len(self):
+        return self.f64tpls.len()
+
+    def __getitem__(self, key):
+        """Delegating __getitem__ to the eset object f64tpls and
+        creating another Float64 eset with it.
+
+        """
+        if isinstance(key, slice):
+            return Float64s(xtra_params=(self.f64tpls[key],))
+        elif isinstance(key, int):
+            bintpl = self.tpl2bintpl(self.f64tpls[key])
+            fVal = self.bintpl2float(bintpl)
+            return fVal
+        raise ValueError('Need a slice or an integer')
+
+    def format_funct(self, v):
+        if v != v:  # Checking if v is nan (weird I know)
+            sign = copysign(1, v)
+            if sign < 0:
+                return '-nan'
+        return f"{v:.17g}"
 
 
 if __name__ == '__main__':
     import doctest
     doctest.testfile("docTest.txt")
+    doctest.testfile("README.md")
+    doctest.testfile("FLOAT64S.md")

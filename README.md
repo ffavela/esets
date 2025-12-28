@@ -9,6 +9,33 @@ The datastructure that nobody asked for is finally here. (beta)
   of even numbers). This is possible since in essence they are lazy
   generated sequences.
 
+### Why?
+
+Well it turns out it is easier to define the whole rather than a part
+of it. It kind of sounds paradoxical but perhaps this (probably
+apocryphal) quote from Michelangelo may help.  When asked about his
+difficult process during the sculpting of David he responded:
+
+> It is easy. You just chip away the stone that doesn’t look like
+> David.
+
+This is of course a sarcastic response, chipping away stuff is were
+the difficulty is. Anydoby can describe a block of marble no matter
+the size, it is a humbling experience that someone had the talent,
+determination and character to pull that off and turn that marble
+block into David.
+
+To put it into the `eset` perspective, mathematically it is easier to
+describe and enumerate the entire infinite set of Whole numbers than
+the chipped away subset of twin prime numbers or the odd perfect
+numbers, even if this later one may actually turn out to be finite or
+even empty.
+
+Note also that it is easier to describe the evens than to describe the
+set of even numbers up to some humongous value. Because that humongous
+value can take a lot of memory while simply saying no last value
+exists (infinite) can take very little.
+
 ### Is this like an is_even library?
 
 Sure it can be used like that:
@@ -34,6 +61,7 @@ assign `Evens()` to a variable and check out what is in there:
 >>> e = Evens()
 >>> e
 <esets.Evens (0, 2, 4, 6, ...)>
+>>>
 ```
 
 Here the ellipsis (`...`) at the end means that the sequence goes on
@@ -46,6 +74,7 @@ memory we can check it e.g.:
 True
 >>> a+1 in e
 False
+>>>
 ```
 
 ### So what about it's len?
@@ -78,6 +107,7 @@ relationship between the Even numbers and the Whole numbers (0, 1, 2,
 2 4
 3 6
 4 8
+>>>
 ```
 
 In fact the following is also valid:
@@ -91,6 +121,7 @@ In fact the following is also valid:
 2 4
 3 6
 4 8
+>>>
 ```
 
 ### The relationship is clear for any index value just double it to get the respective Evens value right?
@@ -101,6 +132,7 @@ we can use dividing by two:
 ```
 >>> e.index(42)
 21
+>>>
 ```
 
 ### So it is just a convoluted way of doing some trivial math?
@@ -137,6 +169,7 @@ on the Evens **eset**:
 ```
 >>> e[3:10**100]
 <esets.Evens* (6, 8, 10, 12, ..., 19999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999996, 19999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999998)>
+>>>
 ```
 
 So naturally here:
@@ -154,6 +187,7 @@ True
 True
 >>> 2*10**100 in e[3:10**100] # Not touched as expected
 False
+>>>
 ```
 
 ### Just as if we had more memory that could be potentially stored in all the transistors in the history of human kind combined and multiplied by various orders of magnitude at our disposal for this mundane apparently pointless task.
@@ -178,6 +212,7 @@ I hear you it should output some huge number fairly close to
 ```
 >>> e[3:10**100].len()
 9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999997
+>>>
 ```
 
 ### That is unpythonic and therefore uncool, please fix it! Not that I'm even interested in this library.
@@ -197,10 +232,11 @@ anything higher like the following (normally `maxsize == 2**63-1`):
 
 ```
 >>> import sys
->>> len(p[:sys.maxsize+1])
+>>> len(e[:sys.maxsize+1])
 Traceback (most recent call last):
 ...
 NotImplementedError: __len__ is limited use obj.len() instead
+>>>
 ```
 
 Will raise the above error. However, this crazy little project doesn't
@@ -229,6 +265,7 @@ slice with a step of 2:
 ```
 >>> w[::2]
 <esets.Wholes* (0, 2, 4, 6, ...)>
+>>>
 ```
 
 Other multiples can actually be obtained from this, say multiples of
@@ -237,6 +274,7 @@ Other multiples can actually be obtained from this, say multiples of
 ```
 >>> w[::7]
 <esets.Wholes* (0, 7, 14, 21, ...)>
+>>>
 ```
 
 ### Is there an **eset** where we can contruct the multiples from the start?
@@ -260,6 +298,7 @@ Here you go:
 >>> i = Integers()
 >>> i
 <esets.Integers (0, 1, -1, 2, ...)>
+>>>
 ```
 
 Note that the negatives can be extracted like this:
@@ -267,17 +306,18 @@ Note that the negatives can be extracted like this:
 ```
 >>> i[2::2]
 <esets.Integers* (-1, -2, -3, -4, ...)>
+>>>
 ```
 
 ### All this looks way to academic. Is there more? Something more applied?
 
-Yep. But we'll leave it here for now.
+Yep and it may pay off big time. But we'll leave it here for now.
 
 Just as a teaser consider the following; In many fields of study using
 a relative error that is 10% or under is usually good enough. When
 enumerating we are interested in an absolute error, anything different
 from zero is completely wrong (even if it is an error of
-1). Mathematical presicion is of the upmost importance.
+1). Mathematical precision is of the upmost importance.
 
 Consider the following:
 
@@ -290,6 +330,7 @@ Consider the following:
 35660
 >>> print(str(h)[:3])
 284
+>>>
 ```
 
 This means that `10000!` is around `2.8*10**35659`, one may be tempted
@@ -310,8 +351,9 @@ We can actually do a:
 ```
 >>> from esets import Wholes
 >>> w = Wholes()
->>> w[:h]
-...
+>>> w[:h] #doctest:+ELLIPSIS
+<esets.Wholes* ...
+>>>
 ```
 
 I'm deliberately not printing that last line but the eset can take
@@ -322,6 +364,7 @@ Do note that:
 ```
 >>> w[:h].len() == h
 True
+>>>
 ```
 
 That number (`h`) when storing it may look like a relatively small
@@ -330,6 +373,7 @@ file (about 16kB):
 ```
 >>> sys.getsizeof(factorial(10000))
 15820
+>>>
 ```
 
 A huge number can be a small file. It begs the question, can files be
@@ -338,6 +382,10 @@ looked as index numbers from some **eset**?
 This is actually a prelude of what is coming next, combinatorial
 esets. I hope that this introduction got you in the right mindset for
 using this library.
+
+Before going into outrageously large numbers, first take a look into
+the [FLOAT64S.md](FLOAT64S.md) for an eset that enumerates all the 64
+bit floats.
 
 ## TODO:
 

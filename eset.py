@@ -50,7 +50,7 @@ class Eset(abc.ABC):
         raise ValueError('Aleph_0 infinite')
 
     def __getitem__(self, key):
-        enum_error = 'Cannot enumerate backward from infinite'
+        enum_error = 'Cannot enumerate backward from infinity'
         if isinstance(key, slice):
             kstep = key.step
             if key.step is None:
@@ -158,7 +158,7 @@ class Eset(abc.ABC):
                 if self.stop is None or i < self.len():
                     return self.internal_direct_function(i)
                 raise IndexError('eset index out of range')
-        raise ValueError('Need a slice or a positive integer')
+        raise ValueError('Need a slice or an integer')
 
     @abc.abstractmethod
     def __contains__(self, val):
@@ -212,7 +212,12 @@ class Eset(abc.ABC):
         return cls[cls.index('.')+1:cls.index('.') +
                    cls[cls.index('.'):].index("'")]
 
+    def format_funct(self, v):
+        """A format function intended to be used with the repr"""
+        return str(v)
+
     def __repr__(self):
+        ff = self.format_funct
         max_val = self.repr_start_max
         end_max = self.repr_end_max
         tail_str = ''
@@ -229,11 +234,11 @@ class Eset(abc.ABC):
                 last = max_val
             if self.stop is not None and end_max is not None:
                 if end_max < self.len() - last:
-                    tail_str = ', '.join([str(v) for v in self[-end_max:]])
+                    tail_str = ', '.join([ff(v) for v in self[-end_max:]])
                 else:  # that is end_max >= self.len() - last
-                    tail_str = ', '.join([str(v) for v in self[last:]])
+                    tail_str = ', '.join([ff(v) for v in self[last:]])
                     ellipsis = ''
-            rstr = ', '.join([str(v) for v in self[:last]])
+            rstr = ', '.join([ff(v) for v in self[:last]])
             rstr += ellipsis
             if tail_str != '':
                 rstr += ', '
