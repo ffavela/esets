@@ -9,6 +9,27 @@ The datastructure that nobody asked for is finally here. (beta)
   of even numbers). This is possible since in essence they are lazy
   generated sequences.
 
+### Why?
+
+Well it turns out it is easier to define the whole rather than a part
+of it. It kind of sounds paradoxical but perhaps this (probably
+apocryphal) quote from Michelangelo may help.  When asked about his
+difficult process during the sculpting of David he responded:
+
+> It is easy. You just chip away the stone that doesn’t look like
+> David.
+
+This is of course a sarcastic response, chipping away stuff is were
+the difficulty is. Anydoby can describe a block of marble no matter
+the size, it is a humbling experience that someone had the talent,
+determination and character to pull that off and turn it into David.
+
+To put it into the `eset` perspective, it is easier to describe the
+entire set of the evens than to describe the set of even numbers up to
+some humongous value. Because that humongous value can take a lot of
+memory while simply saying no last value exists (infinite) can take
+very little.
+
 ### Is this like an is_even library?
 
 Sure it can be used like that:
