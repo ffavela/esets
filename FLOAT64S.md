@@ -359,7 +359,7 @@ We can simply get a slice starting from the first approximation:
 ```
 
 Also define the stop index to be the next number in the least
-significant digit 2.718282 making, saving that eset into a variable
+significant digit retulting in 2.718282, saving that eset into a variable
 called sliver:
 
 ```
