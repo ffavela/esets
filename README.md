@@ -24,11 +24,16 @@ the difficulty is. Anydoby can describe a block of marble no matter
 the size, it is a humbling experience that someone had the talent,
 determination and character to pull that off and turn it into David.
 
-To put it into the `eset` perspective, it is easier to describe the
-entire set of the evens than to describe the set of even numbers up to
-some humongous value. Because that humongous value can take a lot of
-memory while simply saying no last value exists (infinite) can take
-very little.
+To put it into the `eset` perspective, mathematically it is easier to
+describe and enumerate the entire infinite set of Whole numbers than
+the chipped subset of twin prime numbers or the odd perfect numbers,
+even if this later one may actually turn out to be finite or even
+empty.
+
+Note also that it is easier to describe the evens than to describe the
+set of even numbers up to some humongous value. Because that humongous
+value can take a lot of memory while simply saying no last value
+exists (infinite) can take very little.
 
 ### Is this like an is_even library?
 
