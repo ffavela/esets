@@ -290,7 +290,7 @@ Just as a teaser consider the following; In many fields of study using
 a relative error that is 10% or under is usually good enough. When
 enumerating we are interested in an absolute error, anything different
 from zero is completely wrong (even if it is an error of
-1). Mathematical presicion is of the upmost importance.
+1). Mathematical precision is of the upmost importance.
 
 Consider the following:
 
