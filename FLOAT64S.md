@@ -533,4 +533,6 @@ The total storage capacity to store these is:
 ```
 
 So around 1000 of these laptop harddrives, more doable than the entire
-64bit floats. But still kind of out of reach.
+64bit floats. But still kind of out of reach through conventional
+approaches like using lists or tuples, but definetively reachable via
+the Float64s eset B-).
