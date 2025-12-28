@@ -26,11 +26,11 @@ as an adjective. You can still call them Real, but at least on this
 text mentally remove the "real" tag to avoid any confussion.
 
 Sixty four bit floats on the other hand are a different story. They
-can represent up to 2**64 == 18446744073709551616 ~ 1.84e+19 different
-values, the IEEE 754 specifies a format for them. One bit for a sign,
-11 for an exponent and 52 for a significand (sometimes called fraction
-or mantissa). The exponent bits have a 1023 bias, i.e. the interpreted
-exponent is exponent-1023.
+can represent up to `2**64 == 18446744073709551616 ~ 1.84e+19`
+different values, the IEEE 754 specifies a format for them. One bit
+for a sign, 11 for an exponent and 52 for a significand (sometimes
+called fraction or mantissa). The exponent bits have a 1023 bias,
+i.e. the interpreted exponent is exponent-1023.
 
 All that just to say that we can store any single float and also if we
 were determined enough we could even store all of them given the
@@ -138,11 +138,11 @@ them, 64 bits are 8 bytes, so:
 ```
 
 So we need 147 exabites of a bit more precisely 127 exbibytes. A quick
-comparison, a laptop hard drive has around 1TB, 1EB ~ 10**6 TB. So
+comparison, a laptop hard drive has around 1TB, 1EB ~ `10**6` TB. So
 around 100 million of these would be required to store all the 64 bit
 floats.
 
-### Yeah impressive, but wait that len is not 2**64
+### Yeah impressive, but wait that len is not `2**64`
 
 Yeah, that is actually:
 
@@ -445,10 +445,10 @@ As mentioned above the total number of positive 64 bit floats is
 9218868437227405314 which is approximately 9.2e+18 different
 values. Let's say we want a partition of the whole 0.0 to the maximum
 numeric float value, that could be done by dividing the float range by
-the desired value, say 10**6. However note that the float density is
+the desired value, say `10**6`. However note that the float density is
 not actually uniform (see next section), it may be clearer to
 partition the positive floats in the index space and sampling every
-10**13 floats (yes every ten trillion) so:
+`10**13` floats (yes every ten trillion) so:
 
 ```
 >>> fsample = pf64s[::10**13]
@@ -480,7 +480,7 @@ Yes, but there are integer wholes there too.
 ### Where? How can they be found?
 
 So the significand (the fractional part of the float64) has 52 bits,
- any number higher than this (2**52) cannot have a fractional part
+ any number higher than this (`2**52`) cannot have a fractional part
  that is only integers:
 
 ```
@@ -509,7 +509,7 @@ Or:
 >>>
 ```
 
-This goes all the way until 2**53:
+This goes all the way until `2**53`:
 
 ```
 >>> pf64s[pf64s.index(2**52):pf64s.index(2**53)]
@@ -530,9 +530,9 @@ False
 Yep the internal float conversion can try to fool us again but the
 Fractions come to the rescue.
 
-### So the integer wholes are from 2**53 and on?
+### So the integer wholes are from `2**53` and on?
 
-Exactly between 2**53 and 2**54 values start jumping in 2s:
+Exactly between `2**53` and `2**54` values start jumping in 2s:
 
 ```
 >>> pf64s[pf64s.index(2**53):pf64s.index(2**54)]
@@ -548,7 +548,7 @@ False
 >>>
 ```
 
-Also between 2**54 and 2**55 values start jumping in 4s:
+Also between `2**54` and `2**55` values start jumping in 4s:
 
 ```
 >>> pf64s[pf64s.index(2**54):pf64s.index(2**55)]
@@ -559,7 +559,7 @@ Also between 2**54 and 2**55 values start jumping in 4s:
 ### Were do subnormals (a.k.a. denormals) fall here?
 
 So the first subnormal (the exponent bits are zero) is zero and the
-last has all ones on the significand that is 2**52-1, so looking and
+last has all ones on the significand that is `2**52-1`, so looking and
 the pf64s:
 
 ```
