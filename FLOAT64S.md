@@ -441,6 +441,28 @@ epsilon function defined on almost all the floats like the following:
 It reproduces the expected result for 1.0, also it gives us the value
 at basically any other given float.
 
+As mentioned above the total number of positive 64 bit floats is
+9218868437227405314 which is approximately 9.2e+18 different
+values. Let's say we want a partition of the whole 0.0 to the maximum
+numeric float value, that could be done by dividing the float range by
+the desired value, say 10**6. However note that the float density is
+not actually uniform (see next section), it may be clearer to
+partition the positive floats in the index space and sampling every
+10**13 floats (yes every ten trillion) so:
+
+```
+>>> fsample = pf64s[::10**13]
+>>> fsample
+<esets.Float64s (0, 4.9406564584124654e-311, 9.8813129168249309e-311, 1.4821969375237396e-310, ..., 1.7940133586971579e+308, 1.7960091990066926e+308)>
+>>> fsample.len()
+921887
+>>>
+```
+
+We get a million elements on the `fsample` eset we could use that to
+apply a function like `epsilon` on it and perhaps get a better sense
+on how `epsilon` behaves throughout the floats.
+
 Also, note the following:
 
 ```
