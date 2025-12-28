@@ -463,3 +463,4 @@ class Float64s(Eset):
 if __name__ == '__main__':
     import doctest
     doctest.testfile("docTest.txt")
+    doctest.testfile("README.md")
