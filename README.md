@@ -357,7 +357,7 @@ esets. I hope that this introduction got you in the right mindset for
 using this library.
 
 Before going into outrageously large numbers, first take a look into
-the [FLOAT64S.MD](FLOAT64S.md) for an eset that enumerates all the 64
+the [FLOAT64S.md](FLOAT64S.md) for an eset that enumerates all the 64
 bit floats.
 
 ## TODO:
