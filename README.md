@@ -9,12 +9,36 @@ The datastructure that nobody asked for is finally here. (beta)
   of even numbers). This is possible since in essence they are lazy
   generated sequences.
 
+In a sense, this could be described like a memoryless data structure.
+Something where the structure is in memory but not the data. The data
+is directly generated from the structure as soon as it is needed so
+there is no need to store the entirety of the data on memory. Despite
+this you may access the data via indexing, and operations such as
+slicing are accessible.
+
+### But don't indices relate to locations in memory in sequences?
+
+For the most part yes, the same way as in dictionaries the keys also
+relate to locations in memory. But at the end of the day a
+mathematical operation is performed to get the memory address and then
+the values are fetched from memory. For `esets` the mathematical
+operation gives directly the answer. You may imagine it as fetching
+the data from a meta memory space, or in a more honest sense from fake
+memory space.
+
+In a bit more technical sense, [eset.py](eset.py) is and abstract base
+class (ABC) and [esets.py](esets.py) has a set of classes that derive
+from the ABC, they implement the required methods like the function
+that gets the value given an index and the corresponding inverse
+function.
+
 ### Why?
 
 Well it turns out it is easier to define the whole rather than a part
-of it. It kind of sounds paradoxical but perhaps this (probably
-apocryphal) quote from Michelangelo may help.  When asked about his
-difficult process during the sculpting of David he responded:
+of it, and the whole can be quite large. It kind of sounds paradoxical
+but perhaps this (probably apocryphal) quote from Michelangelo may
+help.  When asked about his difficult process during the sculpting of
+David he responded:
 
 > It is easy. You just chip away the stone that doesn’t look like
 > David.
@@ -390,6 +414,7 @@ bit floats.
 ## TODO:
 
 * Expand this introduction.
+* Describe how to create and `eset`.
 * Implement other esets (rationals?, floating points?)
 * Start development with combinators, permutators and other ones.
 * How do these compare with lists, tuples, sets etc.?
