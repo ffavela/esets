@@ -23,8 +23,8 @@ relate to locations in memory. But at the end of the day a
 mathematical operation is performed to get the memory address and then
 the values are fetched from memory. For `esets` the mathematical
 operation gives directly the answer. You may imagine it as fetching
-the data from a meta memory space, or in a more honest sense from fake
-memory space.
+the data from a meta memory space, or in a more honest sense from a
+fake memory space.
 
 In a bit more technical sense, [eset.py](eset.py) is and abstract base
 class (ABC) and [esets.py](esets.py) has a set of classes that derive
