@@ -231,7 +231,7 @@ True
 ```
 
 Note that we are using the `==` which is normally a big no NO when
-dealing with floats. But is is ok, we know what we are doing (I
+dealing with floats. But it is ok, we know what we are doing (I
 think...).
 
 We could look into more weirdness in how floats behave, but let's move
