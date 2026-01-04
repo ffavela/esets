@@ -21,3 +21,24 @@ def get_permutation(val: int, size: int) -> tuple[int] | None:
 
     reslist = list(range(size))
     return tuple(get_idx_list(val, []))
+
+
+def get_permutation_number(nat_perm):
+    size = len(nat_perm)
+
+    reslist = list(range(size))
+
+    if sorted(nat_perm) != reslist:
+        return None
+
+    def get_number(perm):
+        if len(perm) == 1:
+            return 0
+
+        fnum = factorial(len(perm)-1)
+        val = reslist.index(perm[0])
+        reslist.pop(val)
+
+        return fnum * val + get_number(perm[1:])
+
+    return get_number(nat_perm)
