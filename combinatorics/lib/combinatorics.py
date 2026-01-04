@@ -7,8 +7,7 @@ def get_permutation(val: int, size: int) -> tuple[int] | None:
     if val >= factorial_n or val < 0:
         return None
 
-    def get_idx_list(resval: int, reslist: list[int],
-                     retlist: list[int]):
+    def get_idx_list(resval: int, retlist: list[int]):
         if len(reslist) == 1:
             retlist.append(reslist[0])
             return retlist
@@ -18,7 +17,7 @@ def get_permutation(val: int, size: int) -> tuple[int] | None:
 
         val = reslist.pop(div)
         retlist.append(val)
-        return get_idx_list(mod, reslist, retlist)
+        return get_idx_list(mod, retlist)
 
     reslist = list(range(size))
-    return tuple(get_idx_list(val, reslist, []))
+    return tuple(get_idx_list(val, []))
