@@ -23,7 +23,7 @@ def get_permutation(val: int, size: int) -> tuple[int] | None:
     return tuple(get_idx_list(val, []))
 
 
-def get_permutation_number(nat_perm):
+def get_permutation_number(nat_perm: tuple[int]) -> int | None:
     size = len(nat_perm)
 
     reslist = list(range(size))
