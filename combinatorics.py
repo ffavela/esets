@@ -1,14 +1,44 @@
 from eset import Eset
-from lib.combinatorics import *
+import lib.combinatorics as lc
 from math import factorial
 
-class canonical_permutator(Eset):
+
+class Canonical_Permutator(Eset):
     """A basic eset that handles permutations without repetition"""
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs:
+            if len(kwargs['xtra_params']) != 0:
+                self.VALUE = kwargs['xtra_params'][0]
+            super().__init__(*args, **kwargs)
+        elif len(args) == 1:
+            self.VALUE = args[0]
+            super().__init__(xtra_params=(self.VALUE,))
+        else:
+            self.VALUE = 2  # Not sure, may be better to raise error
+            super().__init__(*args, xtra_params=(self.VALUE,))
+
     def direct_function(self, i):
-        return self.get_permutation(i)
+        return lc.get_permutation(i, self.VALUE)
 
     def inverse_fun(self, val):
-        return self.get_permutation_number(val)
+        return lc.get_permutation_number(val)
 
-    def stop_init(self, stop): # Maybe review this in the ABC...
-        return factorial(stop)
+    def stop_init(self):
+        return factorial(self.VALUE)
+
+    def __contains__(self, val):
+        if not isinstance(val, tuple):
+            return False
+
+        restupl = tuple(range(self.VALUE))
+        if tuple(sorted(val)) != restupl:
+            return False
+
+        diff = self.inverse_fun(val) - self.start
+        if diff % self.step != 0:
+            return False
+        if self.start <= self.inverse_fun(val) < self.stop:
+            return True
+        if self.stop < self.inverse_fun(val) <= self.start:
+            return True
+        return False
