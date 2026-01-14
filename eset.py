@@ -173,7 +173,7 @@ class Eset(abc.ABC):
         """The value to return given an index"""
 
     @abc.abstractmethod
-    def stop_init(self, stop=None):
+    def stop_init(self):
         """Should return the stop value for the eset, it can be either
         a positive integer or a None (in case it is an Infinite eset)
         """
