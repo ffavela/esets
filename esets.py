@@ -4,6 +4,7 @@ import struct
 import sys
 from fractions import Fraction
 
+
 class Evens(Eset):
     """Something that contains all positive integer evens"""
     def __init__(self, *args, **kwargs):
@@ -13,17 +14,7 @@ class Evens(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        diff = val - self.direct_function(self.start)
-        if diff % self.direct_function(self.step) != 0:
-            return False
-        if self.step > 0 and val >= self.direct_function(self.start):
-            if self.stop is None or\
-               val < self.direct_function(self.stop):
-                return True
-        if self.step < 0 and self.direct_function(self.stop) < val \
-           <= self.direct_function(self.start):
-            return True
-        return False
+        return self.simple_contains(val)
 
     def inverse_fun(self, val):
         return val // self.VALUE
@@ -52,17 +43,7 @@ class Multiples(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        diff = val - self.direct_function(self.start)
-        if diff % self.direct_function(self.step) != 0:
-            return False
-        if self.step > 0 and val >= self.direct_function(self.start):
-            if self.stop is None or\
-               val < self.direct_function(self.stop):
-                return True
-        if self.step < 0 and self.direct_function(self.stop) < val \
-           <= self.direct_function(self.start):
-            return True
-        return False
+        return self.simple_contains(val)
 
     def inverse_fun(self, val):
         return val // self.VALUE
@@ -79,17 +60,7 @@ class Negatives(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        diff = self.direct_function(self.start) - val
-        if diff % self.step != 0:
-            return False
-        if self.step > 0 and val <= self.direct_function(self.start):
-            if self.stop is None or\
-               val > self.direct_function(self.stop):
-                return True
-        if self.step < 0 and self.direct_function(self.stop) > val \
-           >= self.direct_function(self.start):
-            return True
-        return False
+        return self.simple_contains(val)
 
     def inverse_fun(self, val):
         return -(val+1)
@@ -106,6 +77,7 @@ class Integers(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
+        # simple_contains is too simple for this case
         diff = val - self.direct_function(self.start)
         if diff % self.step != 0:
             return False
@@ -164,17 +136,7 @@ class Squares(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        diff = self.direct_function(self.inverse_fun(val)) - val
-        if diff != 0:
-            return False
-        if self.step > 0 and val >= self.direct_function(self.start):
-            if self.stop is None or\
-               val < self.direct_function(self.stop):
-                return True
-        if self.step < 0 and self.direct_function(self.stop) < val \
-           <= self.direct_function(self.start):
-            return True
-        return False
+        return self.simple_contains(val)
 
     def inverse_fun(self, val):
         # Not perfect because it is going through the floats, is there
@@ -193,17 +155,7 @@ class Wholes(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        diff = self.direct_function(self.start) - val
-        if diff % self.step != 0:
-            return False
-        if self.step > 0 and val >= self.direct_function(self.start):
-            if self.stop is None or\
-               val < self.direct_function(self.stop):
-                return True
-        if self.step < 0 and self.direct_function(self.stop) < val \
-           <= self.direct_function(self.start):
-            return True
-        return False
+        return simple_contains(val)
 
     def inverse_fun(self, val):
         return val
@@ -235,6 +187,8 @@ class Float64_tpls(Eset):
             return False
         if not 0 <= significand < 2**52:  # -1=1+2^2+...+2^51
             return False
+        # simple_contains doesn't work here, maybe this should be in
+        # fact the simple_contains and refactor everything
         diff = self.inverse_fun(val) - self.start
         if diff % self.step != 0:
             return False
