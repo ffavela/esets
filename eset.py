@@ -187,20 +187,6 @@ class Eset(abc.ABC):
 
     def simple_contains(self, val):
         """A useful complementary function for implementing __contains__"""
-        diff = val - self.direct_function(self.start)
-        if diff % self.direct_function(self.step) != 0:
-            return False
-        if self.step > 0 and val >= self.direct_function(self.start):
-            if self.stop is None or\
-               val < self.direct_function(self.stop):
-                return True
-        if self.step < 0 and self.direct_function(self.stop) < val \
-           <= self.direct_function(self.start):
-            return True
-        return False
-
-    def simple_contains2(self, val):
-        """A useful complementary function for implementing __contains__"""
         if val != self.direct_function(self.inverse_fun(val)):
             return False
         diff = self.inverse_fun(val) - self.start
