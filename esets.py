@@ -187,8 +187,6 @@ class Float64_tpls(Eset):
             return False
         if not 0 <= significand < 2**52:  # -1=1+2^2+...+2^51
             return False
-        # simple_contains doesn't work here, maybe this should be in
-        # fact the simple_contains and refactor everything
         return self.simple_contains(val)
 
     def inverse_fun(self, val):

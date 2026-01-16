@@ -203,7 +203,6 @@ class Eset(abc.ABC):
             return True
         return False
 
-
     def index(self, val):
         if val not in self:
             sliceStr = '*' if self.sliced else ''
