@@ -14,7 +14,7 @@ class Evens(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        return self.simple_contains(val)
+        return self.slice_contains(val)
 
     def inverse_fun(self, val):
         return val // self.VALUE
@@ -43,7 +43,7 @@ class Multiples(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        return self.simple_contains(val)
+        return self.slice_contains(val)
 
     def inverse_fun(self, val):
         return val // self.VALUE
@@ -60,7 +60,7 @@ class Negatives(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        return self.simple_contains(val)
+        return self.slice_contains(val)
 
     def inverse_fun(self, val):
         return -(val+1)
@@ -77,7 +77,7 @@ class Integers(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        return self.simple_contains(val)
+        return self.slice_contains(val)
 
     def inverse_fun(self, val):
         if val > 0:
@@ -102,7 +102,7 @@ class Squares(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        return self.simple_contains(val)
+        return self.slice_contains(val)
 
     def inverse_fun(self, val):
         # Not perfect because it is going through the floats, is there
@@ -121,7 +121,7 @@ class Wholes(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        return self.simple_contains(val)
+        return self.slice_contains(val)
 
     def inverse_fun(self, val):
         return val
@@ -153,7 +153,7 @@ class Float64_tpls(Eset):
             return False
         if not 0 <= significand < 2**52:  # -1=1+2^2+...+2^51
             return False
-        return self.simple_contains(val)
+        return self.slice_contains(val)
 
     def inverse_fun(self, val):
         s_bit, exponent, significand = val

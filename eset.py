@@ -185,8 +185,8 @@ class Eset(abc.ABC):
         """The used internal index given a value, the inverse"""
         return (self.inverse_fun(val) - self.start) // self.step
 
-    def simple_contains(self, val):
-        """A useful complementary function for implementing __contains__"""
+    def slice_contains(self, val):
+        """For __contains__, when slicing is involved"""
         if val != self.direct_function(self.inverse_fun(val)):
             return False
         diff = self.inverse_fun(val) - self.start

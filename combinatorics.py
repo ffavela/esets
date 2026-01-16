@@ -34,4 +34,4 @@ class Canonical_Permutator(Eset):
         if tuple(sorted(val)) != restupl:
             return False
 
-        return self.simple_contains(val)
+        return self.slice_contains(val)
