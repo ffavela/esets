@@ -11,11 +11,12 @@ class Canonical_Permutator(Eset):
                 self.VALUE = kwargs['xtra_params'][0]
             super().__init__(*args, **kwargs)
         elif len(args) == 1:
+            if not isinstance(args[0], int) or args[0] <= 0:
+                raise ValueError("Need a positive integer to initialize")
             self.VALUE = args[0]
             super().__init__(xtra_params=(self.VALUE,))
         else:
-            self.VALUE = 2  # Not sure, may be better to raise error
-            super().__init__(*args, xtra_params=(self.VALUE,))
+            raise ValueError("Need a positive integer to initialize")
 
     def direct_function(self, i):
         return lc.get_permutation(i, self.VALUE)
