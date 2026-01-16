@@ -199,6 +199,25 @@ class Eset(abc.ABC):
             return True
         return False
 
+    def simple_contains2(self, val):
+        """A useful complementary function for implementing __contains__"""
+        if val != self.direct_function(self.inverse_fun(val)):
+            return False
+        diff = self.inverse_fun(val) - self.start
+        if diff % self.step != 0:
+            return False
+        if self.stop is None:
+            if self.start <= self.inverse_fun(val):
+                return True
+            else:
+                return False
+        if self.start <= self.inverse_fun(val) < self.stop:
+            return True
+        if self.stop < self.inverse_fun(val) <= self.start:
+            return True
+        return False
+
+
     def index(self, val):
         if val not in self:
             sliceStr = '*' if self.sliced else ''

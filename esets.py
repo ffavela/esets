@@ -14,7 +14,7 @@ class Evens(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        return self.simple_contains(val)
+        return self.simple_contains2(val)
 
     def inverse_fun(self, val):
         return val // self.VALUE
@@ -43,7 +43,7 @@ class Multiples(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        return self.simple_contains(val)
+        return self.simple_contains2(val)
 
     def inverse_fun(self, val):
         return val // self.VALUE
@@ -60,7 +60,7 @@ class Negatives(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        return self.simple_contains(val)
+        return self.simple_contains2(val)
 
     def inverse_fun(self, val):
         return -(val+1)
@@ -136,7 +136,7 @@ class Squares(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        return self.simple_contains(val)
+        return self.simple_contains2(val)
 
     def inverse_fun(self, val):
         # Not perfect because it is going through the floats, is there
@@ -155,7 +155,7 @@ class Wholes(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        return simple_contains(val)
+        return self.simple_contains2(val)
 
     def inverse_fun(self, val):
         return val
@@ -189,14 +189,7 @@ class Float64_tpls(Eset):
             return False
         # simple_contains doesn't work here, maybe this should be in
         # fact the simple_contains and refactor everything
-        diff = self.inverse_fun(val) - self.start
-        if diff % self.step != 0:
-            return False
-        if self.start <= self.inverse_fun(val) < self.stop:
-            return True
-        if self.stop < self.inverse_fun(val) <= self.start:
-            return True
-        return False
+        return self.simple_contains2(val)
 
     def inverse_fun(self, val):
         s_bit, exponent, significand = val
