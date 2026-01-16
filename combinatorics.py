@@ -34,11 +34,4 @@ class Canonical_Permutator(Eset):
         if tuple(sorted(val)) != restupl:
             return False
 
-        diff = self.inverse_fun(val) - self.start
-        if diff % self.step != 0:
-            return False
-        if self.start <= self.inverse_fun(val) < self.stop:
-            return True
-        if self.stop < self.inverse_fun(val) <= self.start:
-            return True
-        return False
+        return self.simple_contains(val)
