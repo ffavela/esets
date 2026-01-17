@@ -6,7 +6,7 @@ from fractions import Fraction
 
 
 class Evens(Eset):
-    """Something that contains all positive integer evens"""
+    """Something that contains all positive Integer evens"""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.VALUE = 2
@@ -56,7 +56,7 @@ class Multiples(Eset):
 
 
 class Negatives(Eset):
-    """Something that contains the Negative Integer numbers"""
+    """Something that contains the negative Integer numbers"""
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
@@ -73,7 +73,7 @@ class Negatives(Eset):
 
 
 class Integers(Eset):
-    """Something that contains all integers"""
+    """Something that contains all Integers"""
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
@@ -94,7 +94,7 @@ class Integers(Eset):
 
 
 class Squares(Eset):
-    """Something that contains all positive integer squares"""
+    """Something that contains all positive Integer squares"""
     def __init__(self, *args, **kargs):
         super().__init__(*args, **kargs)
         self.VALUE = 2
@@ -132,8 +132,8 @@ class Wholes(Eset):
 
 
 class Float64_tpls(Eset):
-    """Something that contains all the float 64 using the IEEE 754
-    double precision format as tuples with 3 integers, naming them
+    """Something that contains all the Float 64 numbers using the IEEE
+    754 double precision format as tuples with 3 integers, naming them
     tpls
 
     """
@@ -181,7 +181,7 @@ class Float64_tpls(Eset):
 
 
 class Float64s(Eset):
-    """An Eset that contains all Floats64 (AKA doubles in some
+    """An Eset that contains all Float64s (AKA doubles in some
     languajes), this includes 1.0, 0.5, 0, -0, inf, -inf, nan, and
     -nan.
 
