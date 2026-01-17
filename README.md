@@ -333,6 +333,32 @@ Note that the negatives can be extracted like this:
 >>>
 ```
 
+### Hmmm... What about the Squares, as in Galileo's paradox?
+
+I'm way ahead of you:
+
+```
+>>> from esets import Squares
+>>> s = Squares()
+>>> s
+<esets.Squares (0, 1, 4, 9, ...)>
+>>>
+```
+
+Note that you can technically convert to a list or tuple (i.e. expand
+into memory) at any point, just be really careful when doing so,
+because you may run out of memory quickly. Converting a slice is a no
+brainer:
+
+```
+>>> S = list(s[:10])
+>>> S
+[0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+>>>
+```
+
+Converting the entire set... just don't ;-)
+
 ### All this looks way to academic. Is there more? Something more applied?
 
 Yep and it may pay off big time. But we'll leave it here for now.
