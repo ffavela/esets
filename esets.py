@@ -4,6 +4,7 @@ import struct
 import sys
 from fractions import Fraction
 
+
 class Evens(Eset):
     """Something that contains all positive integer evens"""
     def __init__(self, *args, **kwargs):
@@ -13,17 +14,7 @@ class Evens(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        diff = val - self.direct_function(self.start)
-        if diff % self.direct_function(self.step) != 0:
-            return False
-        if self.step > 0 and val >= self.direct_function(self.start):
-            if self.stop is None or\
-               val < self.direct_function(self.stop):
-                return True
-        if self.step < 0 and self.direct_function(self.stop) < val \
-           <= self.direct_function(self.start):
-            return True
-        return False
+        return self.slice_contains(val)
 
     def inverse_fun(self, val):
         return val // self.VALUE
@@ -31,8 +22,8 @@ class Evens(Eset):
     def direct_function(self, i):
         return i * self.VALUE
 
-    def stop_init(self, stop=None):
-        return stop
+    def stop_init(self):
+        return None
 
 
 class Multiples(Eset):
@@ -52,17 +43,7 @@ class Multiples(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        diff = val - self.direct_function(self.start)
-        if diff % self.direct_function(self.step) != 0:
-            return False
-        if self.step > 0 and val >= self.direct_function(self.start):
-            if self.stop is None or\
-               val < self.direct_function(self.stop):
-                return True
-        if self.step < 0 and self.direct_function(self.stop) < val \
-           <= self.direct_function(self.start):
-            return True
-        return False
+        return self.slice_contains(val)
 
     def inverse_fun(self, val):
         return val // self.VALUE
@@ -70,8 +51,8 @@ class Multiples(Eset):
     def direct_function(self, i):
         return i * self.VALUE
 
-    def stop_init(self, stop=None):
-        return stop
+    def stop_init(self):
+        return None
 
 
 class Negatives(Eset):
@@ -79,17 +60,7 @@ class Negatives(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        diff = self.direct_function(self.start) - val
-        if diff % self.step != 0:
-            return False
-        if self.step > 0 and val <= self.direct_function(self.start):
-            if self.stop is None or\
-               val > self.direct_function(self.stop):
-                return True
-        if self.step < 0 and self.direct_function(self.stop) > val \
-           >= self.direct_function(self.start):
-            return True
-        return False
+        return self.slice_contains(val)
 
     def inverse_fun(self, val):
         return -(val+1)
@@ -97,8 +68,8 @@ class Negatives(Eset):
     def direct_function(self, i):
         return -(i+1)
 
-    def stop_init(self, stop=None):
-        return stop
+    def stop_init(self):
+        return None
 
 
 class Integers(Eset):
@@ -106,40 +77,7 @@ class Integers(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        diff = val - self.direct_function(self.start)
-        if diff % self.step != 0:
-            return False
-        if self.step > 0:
-            if abs(val) > abs(self.direct_function(self.start)):
-                if self.stop is None:
-                    return True
-                if abs(val) < abs(self.direct_function(self.stop)):
-                    return True
-                else:  # the abs == case for stop
-                    if val < self.direct_function(self.stop):
-                        return False
-                    else:
-                        return True
-            if abs(val) == abs(self.direct_function(self.start)):
-                if val > self.direct_function(self.start):
-                    return False
-                else:
-                    return True
-        if self.step < 0:
-            if abs(self.direct_function(self.stop)) <\
-               abs(val) < abs(self.direct_function(self.start)):
-                return True
-            if abs(self.direct_function(self.stop)) == abs(val):
-                if val < self.direct_function(self.stop):
-                    return True
-                else:
-                    return False
-            if abs(val) == abs(self.direct_function(self.start)):
-                if val < self.direct_function(self.start):
-                    return False
-                else:
-                    return True
-        return False
+        return self.slice_contains(val)
 
     def inverse_fun(self, val):
         if val > 0:
@@ -151,8 +89,8 @@ class Integers(Eset):
     def direct_function(self, i):
         return (-1)**(i+1) * ((i+1)//2)
 
-    def stop_init(self, stop=None):
-        return stop
+    def stop_init(self):
+        return None
 
 
 class Squares(Eset):
@@ -164,17 +102,7 @@ class Squares(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        diff = self.direct_function(self.inverse_fun(val)) - val
-        if diff != 0:
-            return False
-        if self.step > 0 and val >= self.direct_function(self.start):
-            if self.stop is None or\
-               val < self.direct_function(self.stop):
-                return True
-        if self.step < 0 and self.direct_function(self.stop) < val \
-           <= self.direct_function(self.start):
-            return True
-        return False
+        return self.slice_contains(val)
 
     def inverse_fun(self, val):
         return isqrt(val)
@@ -182,8 +110,8 @@ class Squares(Eset):
     def direct_function(self, i):
         return i ** self.VALUE
 
-    def stop_init(self, stop=None):
-        return stop
+    def stop_init(self):
+        return None
 
 
 class Wholes(Eset):
@@ -191,17 +119,7 @@ class Wholes(Eset):
     def __contains__(self, val):
         if not isinstance(val, int):
             return False
-        diff = self.direct_function(self.start) - val
-        if diff % self.step != 0:
-            return False
-        if self.step > 0 and val >= self.direct_function(self.start):
-            if self.stop is None or\
-               val < self.direct_function(self.stop):
-                return True
-        if self.step < 0 and self.direct_function(self.stop) < val \
-           <= self.direct_function(self.start):
-            return True
-        return False
+        return self.slice_contains(val)
 
     def inverse_fun(self, val):
         return val
@@ -209,8 +127,8 @@ class Wholes(Eset):
     def direct_function(self, i):
         return i
 
-    def stop_init(self, stop=None):
-        return stop
+    def stop_init(self):
+        return None
 
 
 class Float64_tpls(Eset):
@@ -233,14 +151,7 @@ class Float64_tpls(Eset):
             return False
         if not 0 <= significand < 2**52:  # -1=1+2^2+...+2^51
             return False
-        diff = self.inverse_fun(val) - self.start
-        if diff % self.step != 0:
-            return False
-        if self.start <= self.inverse_fun(val) < self.stop:
-            return True
-        if self.stop < self.inverse_fun(val) <= self.start:
-            return True
-        return False
+        return self.slice_contains(val)
 
     def inverse_fun(self, val):
         s_bit, exponent, significand = val
@@ -265,7 +176,7 @@ class Float64_tpls(Eset):
         exponent, significand = self.get_e_s(v)
         return (s_bit, exponent, significand)
 
-    def stop_init(self, stop=None):
+    def stop_init(self):
         return 2**64  # -1 == 1 + 2^1 + 2^2 + ... + 2^63
 
 
@@ -303,7 +214,7 @@ class Float64s(Eset):
             self.f64tpls = f64tpls[:minus_nan_tpl_idx+1]
             super().__init__(*args, xtra_params=(self.f64tpls,))
 
-    def stop_init(self, stop=None):
+    def stop_init(self):
         """This happens to be the same as
         f64tpls[:f64tpls.index((1, 2047, 1))+1].len() ==
         2*(2**63-2**52+2) == 2*(2**63-1-(2**52-1)+2) Note that the
