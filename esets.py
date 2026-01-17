@@ -1,5 +1,5 @@
 from eset import Eset
-from math import sqrt, copysign
+from math import isqrt, copysign
 import struct
 import sys
 from fractions import Fraction
@@ -156,7 +156,7 @@ class Integers(Eset):
 
 
 class Squares(Eset):
-    """Something that contains all squares"""
+    """Something that contains all positive integer squares"""
     def __init__(self, *args, **kargs):
         super().__init__(*args, **kargs)
         self.VALUE = 2
@@ -177,9 +177,7 @@ class Squares(Eset):
         return False
 
     def inverse_fun(self, val):
-        # Not perfect because it is going through the floats, is there
-        # a better way?
-        return int(sqrt(val))
+        return isqrt(val)
 
     def direct_function(self, i):
         return i ** self.VALUE
