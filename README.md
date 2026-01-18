@@ -439,9 +439,8 @@ bit floats.
 
 ## TODO:
 
-* Expand this introduction.
 * Describe how to create and `eset`.
-* Implement other esets (rationals?, floating points?)
+* Implement other esets.
 * Start development with combinators, permutators and other ones.
 * How do these compare with lists, tuples, sets etc.?
 * Compare with itertools (once the above is ready).
