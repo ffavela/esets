@@ -234,8 +234,14 @@ class Eset(abc.ABC):
         """A format function intended to be used with the repr"""
         tstr = str(v)
         if isinstance(v, int):
-            if len(tstr) > 10:
-                return tstr[:5]+'...'+tstr[-5:]
+            start_idx = 0
+            if v < 0:
+                start_idx = 1
+            if len(tstr) > 15:
+                exp_str = 'e+' + str(len(tstr)-1-start_idx)
+                tstr = tstr[:start_idx+1] + '.' + \
+                    tstr[start_idx+1:5+start_idx] + '...' + \
+                    tstr[-5:] + exp_str
         return tstr
 
     def __repr__(self):
