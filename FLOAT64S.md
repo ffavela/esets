@@ -147,7 +147,7 @@ floats.
 Yeah, that is actually:
 
 ```
->>> 2*(2**63-2**52+2) == 18437736874454810628
+>>> 2*(2**63-2**52+2) == 18437736874454810628 == f64s.len()
 True
 >>>
 ```
@@ -359,8 +359,8 @@ We can simply get a slice starting from the first approximation:
 ```
 
 Also define the stop index to be the next number in the least
-significant digit retulting in 2.718282, saving that eset into a variable
-called sliver:
+significant digit retulting in 2.718282, saving that eset into a
+variable called `sliver`:
 
 ```
 >>> sliver = pf64s[pf64s.index(2.718281):pf64s.index(2.718282)]
@@ -378,7 +378,7 @@ We can even get the len:
 ```
 
 A lot of 64 bit floats on that "small" slice. Let's search for the
-index on that sliver variable of the value of `e` directly from the
+index on that `sliver` variable of the value of `e` directly from the
 math library.
 
 ```
