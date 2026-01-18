@@ -27,7 +27,7 @@ class Eset(abc.ABC):
         self.sliced = sliced
         self.raw_repr = raw_repr
         self.repr_start_max = 4
-        self.repr_end_max = 2
+        self.repr_end_max = 4
         self.xtra_params = xtra_params
 
     def step_function(self, i: int) -> int:
