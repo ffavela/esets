@@ -218,8 +218,8 @@ like an `inf` or a `nan`) multiplied by something greater than 1 is
 the same number!
 
 That doesn't happen with the Real numbers, on that case it doesn't
-even make sense to even concieve the first number after zero. It just
-doesn't exist. And if you would grab any Real number (exluding zero)
+even make sense to even conceive the first number after zero. It just
+doesn't exist. And if you would grab any Real number (excluding zero)
 none would satisfy the above relationship. Also for any `n` say 1000,
 the average of 2 consecutive positive floats satisfy:
 
@@ -231,7 +231,7 @@ True
 ```
 
 Note that we are using the `==` which is normally a big no NO when
-dealing with floats. But is is ok, we know what we are doing (I
+dealing with floats. But it is ok, we know what we are doing (I
 think...).
 
 We could look into more weirdness in how floats behave, but let's move
