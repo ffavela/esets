@@ -1,6 +1,6 @@
 import abc
 import sys
-import decimal
+
 
 class Eset(abc.ABC):
     def __init__(self, start=0, stop=None, step=1,
@@ -232,12 +232,11 @@ class Eset(abc.ABC):
 
     def format_funct(self, v):
         """A format function intended to be used with the repr"""
-        tmp_str = str(v)
+        tstr = str(v)
         if isinstance(v, int):
-            if len(tmp_str) > 10:
-                d = decimal.Decimal(v)
-                tmp_str = format(d, '.6e')
-        return tmp_str
+            if len(tstr) > 10:
+                return tstr[:5]+'...'+tstr[-5:]
+        return tstr
 
     def __repr__(self):
         ff = self.format_funct
