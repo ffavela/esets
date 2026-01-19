@@ -416,7 +416,7 @@ We can actually do a:
 I'm deliberately not printing that last line but the eset can take
 it. The point is, **esets** can somewhat tame these kinds of
 problems. There is a format function if you want to get a sense of it
-(it is the one used to the repr):
+(it is the one used on the repr):
 
 ```
 >>> w.format_funct(factorial(10**4))
