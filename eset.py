@@ -2,7 +2,7 @@ import abc
 import sys
 
 
-class Eset(abc.ABC):
+class BEset(abc.ABC):
     def __init__(self, start=0, stop=None, step=1,
                  raw_repr=False, sliced=False,
                  xtra_params=()):
@@ -161,14 +161,6 @@ class Eset(abc.ABC):
         raise ValueError('Need a slice or an integer')
 
     @abc.abstractmethod
-    def __contains__(self, val):
-        """Conditions to check if value belongs to the eset."""
-
-    @abc.abstractmethod
-    def inverse_fun(self, val):
-        """The index to return given a value, the inverse function"""
-
-    @abc.abstractmethod
     def direct_function(self, i):
         """The value to return given an index"""
 
@@ -180,10 +172,6 @@ class Eset(abc.ABC):
     def internal_direct_function(self, i):
         """The used internal value given an index"""
         return self.direct_function(self.start + i * self.step)
-
-    def internal_inverse_fun(self, val):
-        """The used internal index given a value, the inverse"""
-        return (self.inverse_fun(val) - self.start) // self.step
 
     def slice_contains(self, val):
         """For __contains__, when slicing is involved"""
@@ -202,14 +190,6 @@ class Eset(abc.ABC):
         if self.stop < self.inverse_fun(val) <= self.start:
             return True
         return False
-
-    def index(self, val):
-        if val not in self:
-            sliceStr = '*' if self.sliced else ''
-            cls = type(self)
-            msg = f'{val!r} not in {cls.__name__}'+sliceStr
-            raise ValueError(msg)
-        return self.internal_inverse_fun(val)
 
     def iter_condition(self, i):
         if self.stop is None:
@@ -283,3 +263,25 @@ class Eset(abc.ABC):
                 f'self.repr_start_max = {self.repr_start_max},\n' +\
                 f'self.repr_end_max = {self.repr_end_max},\n' +\
                 f'self.xtra_params = {self.xtra_params}'
+
+
+class Eset(BEset):
+    @abc.abstractmethod
+    def __contains__(self, val):
+        """Conditions to check if value belongs to the eset."""
+
+    @abc.abstractmethod
+    def inverse_fun(self, val):
+        """The index to return given a value, the inverse function"""
+
+    def internal_inverse_fun(self, val):
+        """The used internal index given a value, the inverse"""
+        return (self.inverse_fun(val) - self.start) // self.step
+
+    def index(self, val):
+        if val not in self:
+            sliceStr = '*' if self.sliced else ''
+            cls = type(self)
+            msg = f'{val!r} not in {cls.__name__}'+sliceStr
+            raise ValueError(msg)
+        return self.internal_inverse_fun(val)
