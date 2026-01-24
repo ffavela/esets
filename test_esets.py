@@ -1,3 +1,4 @@
+import doctest
 import esets
 import pytest
 
@@ -24,3 +25,9 @@ def test_wholes():
     w = esets.Wholes()
     assert 42 in w
     assert 3.14 not in w
+
+
+def test_doctests():
+    doctest.testfile("docTest.txt")
+    doctest.testfile("README.md")
+    doctest.testfile("FLOAT64S.md")
