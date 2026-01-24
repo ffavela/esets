@@ -3,6 +3,7 @@ import sys
 
 
 class BEset(abc.ABC):
+    """A blind eset, useful believe it or not"""
     def __init__(self, start=0, stop=None, step=1,
                  raw_repr=False, sliced=False,
                  xtra_params=()):
@@ -266,6 +267,7 @@ class BEset(abc.ABC):
 
 
 class Eset(BEset):
+    """With contains and index it can see"""
     @abc.abstractmethod
     def __contains__(self, val):
         """Conditions to check if value belongs to the eset."""
