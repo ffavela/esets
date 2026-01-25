@@ -170,27 +170,10 @@ class BEset(abc.ABC):
         """Should return the stop value for the eset, it can be either
         a positive integer or a None (in case it is an Infinite eset)
         """
+
     def internal_direct_function(self, i):
         """The used internal value given an index"""
         return self.direct_function(self.start + i * self.step)
-
-    def slice_contains(self, val):
-        """For __contains__, when slicing is involved"""
-        if val != self.direct_function(self.inverse_fun(val)):
-            return False
-        diff = self.inverse_fun(val) - self.start
-        if diff % self.step != 0:
-            return False
-        if self.stop is None:
-            if self.start <= self.inverse_fun(val):
-                return True
-            else:
-                return False
-        if self.start <= self.inverse_fun(val) < self.stop:
-            return True
-        if self.stop < self.inverse_fun(val) <= self.start:
-            return True
-        return False
 
     def iter_condition(self, i):
         if self.stop is None:
@@ -279,6 +262,24 @@ class Eset(BEset):
     def internal_inverse_fun(self, val):
         """The used internal index given a value, the inverse"""
         return (self.inverse_fun(val) - self.start) // self.step
+
+    def slice_contains(self, val):
+        """For __contains__, when slicing is involved"""
+        if val != self.direct_function(self.inverse_fun(val)):
+            return False
+        diff = self.inverse_fun(val) - self.start
+        if diff % self.step != 0:
+            return False
+        if self.stop is None:
+            if self.start <= self.inverse_fun(val):
+                return True
+            else:
+                return False
+        if self.start <= self.inverse_fun(val) < self.stop:
+            return True
+        if self.stop < self.inverse_fun(val) <= self.start:
+            return True
+        return False
 
     def index(self, val):
         if val not in self:
