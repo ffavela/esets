@@ -31,6 +31,12 @@ class BEset(abc.ABC):
         self.repr_end_max = 4
         self.xtra_params = xtra_params
 
+    # Explicitly disabling contains because for many besets using an
+    # un-optimized contains is effectively the same as not supporting
+    # it and I don't want to create false expectations here.
+    def __contains__(self, item):
+        raise TypeError("Membership check explicitly disabled on besets")
+
     def step_function(self, i: int) -> int:
         """A simple step function"""
         if i == 0:
