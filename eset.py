@@ -13,6 +13,8 @@ class BEset(abc.ABC):
             start = 0
         if not isinstance(step, int):
             raise ValueError('Values need to be integers.')
+        if step == 0:
+            raise ValueError('slice step cannot be zero')
         if stop is not None:
             if not isinstance(stop, int):
                 raise ValueError('Values need to be integers.')

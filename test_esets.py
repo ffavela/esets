@@ -1,7 +1,7 @@
 import doctest
 import esets
 import pytest
-
+import random
 
 def test_evens():
     e = esets.Evens()
@@ -31,3 +31,20 @@ def test_doctests():
     doctest.testfile("docTest.txt")
     doctest.testfile("README.md")
     doctest.testfile("FLOAT64S.md")
+
+def test_random_EvensList():
+    e = esets.Evens()
+    rsign = lambda: random.choice((1, -1))
+    smallest=10
+    rval = lambda x: random.randint(0, x*3//2) * rsign()
+    ranI = random.randint(smallest, 100)
+    for r in range(100):
+        testList = [2*i for i in range(ranI)]
+        listLen = len(testList)
+        le = e[:listLen]
+        assert list(le) == testList
+        rstart = rval(listLen)
+        rstop = rval(listLen)
+        rstep = rval(listLen)
+        assert list(le[rstart:rstop:rstep]) == \
+            testList[rstart:rstop:rstep]
