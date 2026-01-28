@@ -1036,6 +1036,23 @@ It simply outputs the same list. Now for esets:
 >>> ee[:5000]
 <esets.Evens* (0, 2, 4, 6, ..., 12, 14, 16, 18)>
 
+For the case of having a step == 0 we have
+
+>>> ee[2:5:0]
+Traceback (most recent call last):
+...
+ValueError: slice step cannot be zero
+
+The case where start is equal to the len and step < 0:
+
+>>> len(ee)
+10
+>>> ee[len(ee)::-2]
+<esets.Evens* (18, 14, 10, 6, 2)>
+>>> ee[len(ee)::-1]
+<esets.Evens* (18, 16, 14, 12, ..., 6, 4, 2, 0)>
+
+
 Now some tests for the other esets, there is much more than Evens
 
 >>> from esets import Integers

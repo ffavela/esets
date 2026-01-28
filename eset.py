@@ -61,6 +61,8 @@ class BEset(abc.ABC):
     def __getitem__(self, key):
         enum_error = 'Cannot enumerate backward from infinity'
         if isinstance(key, slice):
+            if key.step == 0:
+                raise ValueError('slice step cannot be zero')
             kstep = key.step
             if key.step is None:
                 step = self.step
@@ -109,7 +111,7 @@ class BEset(abc.ABC):
                         # 0 < kstart < self.len()
                         kstart += self.len()
                 # The next satisfies kstart > 0 too
-                elif flip and kstart > self.len():
+                elif flip and kstart >= self.len():
                     kstart = self.len() - 1
                 # If despite of trying it is still negative
                 if not flip and kstart < 0:

@@ -3,6 +3,7 @@ import esets
 import pytest
 import random
 
+
 def test_evens():
     e = esets.Evens()
     assert 8 in e
@@ -32,13 +33,14 @@ def test_doctests():
     doctest.testfile("README.md")
     doctest.testfile("FLOAT64S.md")
 
+
 def test_random_EvensList():
     e = esets.Evens()
     rsign = lambda: random.choice((1, -1))
-    smallest=10
+    smallest = 10
     rval = lambda x: random.randint(0, x*3//2) * rsign()
     ranI = random.randint(smallest, 100)
-    for r in range(100):
+    for r in range(1000):
         testList = [2*i for i in range(ranI)]
         listLen = len(testList)
         le = e[:listLen]
@@ -46,5 +48,9 @@ def test_random_EvensList():
         rstart = rval(listLen)
         rstop = rval(listLen)
         rstep = rval(listLen)
-        assert list(le[rstart:rstop:rstep]) == \
-            testList[rstart:rstop:rstep]
+        if rstep != 0:
+            assert list(le[rstart:rstop:rstep]) == \
+                testList[rstart:rstop:rstep]
+        else:
+            with pytest.raises(ValueError):
+                le[rstart:rstop:rstep]
