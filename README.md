@@ -16,7 +16,7 @@ there is no need to store the entirety of the data on memory. Despite
 this you may access the data via indexing, and operations such as
 slicing are accessible.
 
-### But don't indices relate to locations in memory in sequences?
+### But don't indices relate to locations in memory for sequences?
 
 For the most part yes, the same way as in dictionaries the keys also
 relate to locations in memory. But at the end of the day a
