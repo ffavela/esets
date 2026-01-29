@@ -20,6 +20,19 @@ def test_evens():
         len(e)
     with pytest.raises(ValueError, match='Aleph_0 infinite'):
         len(e)
+    slice_err = 'slice indices must be integers or None'
+    with pytest.raises(TypeError, match=slice_err):
+        e['frank'::]
+    with pytest.raises(TypeError, match=slice_err):
+        e[:'fermi':]
+    with pytest.raises(TypeError, match=slice_err):
+        e[::'feynman']
+    with pytest.raises(TypeError, match=slice_err):
+        e['some':'error':'raised']
+    with pytest.raises(ValueError, match='slice step cannot be zero'):
+        e[::0]
+    with pytest.raises(TypeError, match='Need a slice or an integer'):
+        e['frank']
 
 
 def test_wholes():

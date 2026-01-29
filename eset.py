@@ -61,6 +61,15 @@ class BEset(abc.ABC):
     def __getitem__(self, key):
         enum_error = 'Cannot enumerate backward from infinity'
         if isinstance(key, slice):
+            if key.start is not None:
+                if not isinstance(key.start, int):
+                    raise TypeError('slice indices must be integers or None')
+            if key.stop is not None:
+                if not isinstance(key.stop, int):
+                    raise TypeError('slice indices must be integers or None')
+            if key.step is not None:
+                if not isinstance(key.step, int):
+                    raise TypeError('slice indices must be integers or None')
             if key.step == 0:
                 raise ValueError('slice step cannot be zero')
             kstep = key.step
@@ -169,7 +178,7 @@ class BEset(abc.ABC):
                 if self.stop is None or i < self.len():
                     return self.internal_direct_function(i)
                 raise IndexError('eset index out of range')
-        raise ValueError('Need a slice or an integer')
+        raise TypeError('Need a slice or an integer')
 
     @abc.abstractmethod
     def direct_function(self, i):
