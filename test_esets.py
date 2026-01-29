@@ -54,10 +54,3 @@ def test_random_EvensList():
         else:
             with pytest.raises(ValueError):
                 le[rstart:rstop:rstep]
-
-
-def test_fail_example():
-    a = 3
-    b = 4
-    c = a + b
-    assert a == c, "this should fail"
