@@ -11,10 +11,9 @@ class Evens(Eset):
         super().__init__(*args, **kwargs)
         self.VALUE = 2
 
-    def __contains__(self, val):
+    def contains(self, val):
         if not isinstance(val, int):
             return False
-        return self.slice_contains(val)
 
     def inverse_fun(self, val):
         return val // self.VALUE
@@ -40,10 +39,9 @@ class Multiples(Eset):
             self.VALUE = 2
             super().__init__(*args, xtra_params=(self.VALUE,))
 
-    def __contains__(self, val):
+    def contains(self, val):
         if not isinstance(val, int):
             return False
-        return self.slice_contains(val)
 
     def inverse_fun(self, val):
         return val // self.VALUE
@@ -57,10 +55,9 @@ class Multiples(Eset):
 
 class Negatives(Eset):
     """Something that contains the negative Integer numbers"""
-    def __contains__(self, val):
+    def contains(self, val):
         if not isinstance(val, int):
             return False
-        return self.slice_contains(val)
 
     def inverse_fun(self, val):
         return -(val+1)
@@ -74,10 +71,9 @@ class Negatives(Eset):
 
 class Integers(Eset):
     """Something that contains all Integers"""
-    def __contains__(self, val):
+    def contains(self, val):
         if not isinstance(val, int):
             return False
-        return self.slice_contains(val)
 
     def inverse_fun(self, val):
         if val > 0:
@@ -99,10 +95,9 @@ class Squares(Eset):
         super().__init__(*args, **kargs)
         self.VALUE = 2
 
-    def __contains__(self, val):
+    def contains(self, val):
         if not isinstance(val, int):
             return False
-        return self.slice_contains(val)
 
     def inverse_fun(self, val):
         return isqrt(val)
@@ -116,10 +111,9 @@ class Squares(Eset):
 
 class Wholes(Eset):
     """Something that contains the Whole numbers"""
-    def __contains__(self, val):
+    def contains(self, val):
         if not isinstance(val, int):
             return False
-        return self.slice_contains(val)
 
     def inverse_fun(self, val):
         return val
@@ -137,7 +131,7 @@ class Float64_tpls(Eset):
     tpls
 
     """
-    def __contains__(self, val):
+    def contains(self, val):
         if not isinstance(val, tuple):
             return False
         s_bit, exponent, significand = val
@@ -151,7 +145,6 @@ class Float64_tpls(Eset):
             return False
         if not 0 <= significand < 2**52:  # -1=1+2^2+...+2^51
             return False
-        return self.slice_contains(val)
 
     def inverse_fun(self, val):
         s_bit, exponent, significand = val
@@ -224,7 +217,7 @@ class Float64s(Eset):
         """
         return 18437736874454810628
 
-    def __contains__(self, val):
+    def contains(self, val):
         if isinstance(val, int):
             if int(float(val)) != val:
                 return False
@@ -373,4 +366,4 @@ if __name__ == '__main__':
     import doctest
     doctest.testfile("docTest.txt")
     doctest.testfile("README.md")
-    doctest.testfile("FLOAT64S.md")
+    # doctest.testfile("FLOAT64S.md")

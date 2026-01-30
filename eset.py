@@ -272,9 +272,14 @@ class BEset(abc.ABC):
 
 class Eset(BEset):
     """With contains and index it can see"""
-    @abc.abstractmethod
     def __contains__(self, val):
-        """Conditions to check if value belongs to the eset."""
+        if self.contains(val) is False:
+            return False
+        return self.slice_contains(val)
+
+    @abc.abstractmethod
+    def contains(self, val):
+        """Basic conditions to check if value belongs to the eset."""
 
     @abc.abstractmethod
     def inverse_fun(self, val):
