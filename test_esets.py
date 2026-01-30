@@ -33,6 +33,8 @@ def test_evens():
         e[::0]
     with pytest.raises(TypeError, match='Need a slice or an integer'):
         e['frank']
+    with pytest.raises(TypeError, match='Values need to be integers.'):
+        esets.Evens('frank')
 
 
 def test_wholes():

@@ -11,13 +11,15 @@ class BEset(abc.ABC):
             stop = self.stop_init()
         if start is None:
             start = 0
+        if not isinstance(start, int):
+            raise TypeError('Values need to be integers.')
         if not isinstance(step, int):
-            raise ValueError('Values need to be integers.')
+            raise TypeError('Values need to be integers.')
         if step == 0:
             raise ValueError('slice step cannot be zero')
         if stop is not None:
             if not isinstance(stop, int):
-                raise ValueError('Values need to be integers.')
+                raise TypeError('Values need to be integers.')
         if start < 0 and stop is None:
             raise ValueError('No last value exists.')
         if stop is not None:
@@ -283,7 +285,11 @@ class Eset(BEset):
         return (self.inverse_fun(val) - self.start) // self.step
 
     def slice_contains(self, val):
-        """For __contains__, when slicing is involved"""
+        """For __contains__, when slicing is involved. It also
+        performs an identity check, meaning that the direct function applied
+        to the inverse has to be the same as not applying any
+        operation to a value.
+        """
         if val != self.direct_function(self.inverse_fun(val)):
             return False
         diff = self.inverse_fun(val) - self.start
