@@ -275,6 +275,8 @@ class Eset(BEset):
     def __contains__(self, val):
         if self.contains(val) is False:
             return False
+        if self.id_contains(val) is False:
+            return False
         return self.slice_contains(val)
 
     @abc.abstractmethod
@@ -289,14 +291,18 @@ class Eset(BEset):
         """The used internal index given a value, the inverse"""
         return (self.inverse_fun(val) - self.start) // self.step
 
-    def slice_contains(self, val):
-        """For __contains__, when slicing is involved. It also
-        performs an identity check, meaning that the direct function applied
-        to the inverse has to be the same as not applying any
-        operation to a value.
+    def id_contains(self, val):
+        """A check called by __contains__, It performs an identity
+        check, meaning that the direct function applied to the inverse
+        has to be the same as not applying any operation to a value. A
+        kind of trivial check but really important for many cases.
+
         """
         if val != self.direct_function(self.inverse_fun(val)):
             return False
+
+    def slice_contains(self, val):
+        """For __contains__, when slicing is involved."""
         diff = self.inverse_fun(val) - self.start
         if diff % self.step != 0:
             return False
