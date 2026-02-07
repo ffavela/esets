@@ -69,3 +69,37 @@ def test_random_EvensList():
         else:
             with pytest.raises(ValueError):
                 le[rstart:rstop:rstep]
+
+def test_random_EvensRepr():
+    e = esets.Evens()
+    ff = e.format_funct
+    max_val = e.repr_start_max  # 4
+    end_max = e.repr_end_max  # 4
+    rsign = lambda: random.choice((1, -1))
+    smallest = 10
+    rval = lambda x: random.randint(0, x*3//2) * rsign()
+    ranI = random.randint(smallest, 100)
+    for r in range(1000):
+        testList = [2*i for i in range(ranI)]
+        listLen = len(testList)
+        le = e[:listLen]
+        assert list(le) == testList
+        rstart = rval(listLen)
+        rstop = rval(listLen)
+        rstep = rval(listLen)
+        if rstep != 0:
+            tlen = len(testList[rstart:rstop:rstep])
+            testListSliced = testList[rstart:rstop:rstep]
+            reprKernel = '(' +\
+                ', '.join([ff(v) for v in testListSliced[:max_val]]) +\
+                '...' +\
+                ', '.join([ff(v) for v in testListSliced[end_max:]]) + ')'
+            if max_val + end_max >= tlen:
+                reprKernel = str(tuple(testListSliced))
+                if len(testListSliced) == 1:
+                    reprKernel = f'({testListSliced[0]})'
+                expectedRepr = f'<esets.Evens* {reprKernel}>'
+                assert expectedRepr == str(le[rstart:rstop:rstep])
+        else:
+            with pytest.raises(ValueError):
+                le[rstart:rstop:rstep]
