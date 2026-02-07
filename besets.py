@@ -1,4 +1,5 @@
 from eset import BEset
+import hashlib
 
 
 class BEvens(BEset):
@@ -9,6 +10,18 @@ class BEvens(BEset):
 
     def direct_function(self, i):
         return i * self.VALUE
+
+    def stop_init(self):
+        return None
+
+
+class BWholesSHA256s(BEset):
+    """A blind eset of SHA256s of the Whole numbers. It uses ascii
+    encoding since only decimal numbers are expected.
+
+    """
+    def direct_function(self, i):
+        return hashlib.sha256(str(i).encode('ascii')).hexdigest()
 
     def stop_init(self):
         return None
