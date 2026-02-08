@@ -7,7 +7,7 @@ class BEset(abc.ABC):
     def __init__(self, start=0, stop=None, step=1,
                  raw_repr=False, sliced=False,
                  xtra_params=()):
-        if not sliced:
+        if not sliced and stop is None:
             stop = self.stop_init()
         if start is None:
             start = 0
@@ -26,6 +26,10 @@ class BEset(abc.ABC):
             if stop < start and step > 0 \
                or stop > start and step < 0:
                 raise ValueError('Invalid initialization state.')
+        else:
+            if step < 0:
+                raise ValueError('Invalid initialization state.')
+
         self.start = start
         self.step = step
         self.stop = stop

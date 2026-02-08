@@ -70,6 +70,7 @@ def test_random_EvensList():
             with pytest.raises(ValueError):
                 le[rstart:rstop:rstep]
 
+
 def test_random_EvensRepr():
     e = esets.Evens()
     ff = e.format_funct
@@ -103,3 +104,18 @@ def test_random_EvensRepr():
         else:
             with pytest.raises(ValueError):
                 le[rstart:rstop:rstep]
+
+
+def test_classEvens():
+    result = str(esets.Evens(start=0, stop=10, step=1, raw_repr=False,
+                             sliced=False, xtra_params=()))
+    expected = '<esets.Evens (0, 2, 4, 6, ..., 12, 14, 16, 18)>'
+    assert result == expected
+    result = str(esets.Evens(start=0, stop=None, step=1, raw_repr=False,
+                             sliced=False, xtra_params=()))
+    expected = '<esets.Evens (0, 2, 4, 6, ...)>'
+    assert result == expected
+    with pytest.raises(ValueError,
+                       match='Invalid initialization state.'):
+        esets.Evens(start=0, stop=None, step=-1, raw_repr=False,
+                    sliced=True, xtra_params=())
