@@ -328,3 +328,40 @@ class Eset(BEset):
             msg = f'{val!r} not in {cls.__name__}'+sliceStr
             raise ValueError(msg)
         return self.internal_inverse_fun(val)
+
+
+class EMap(Eset):
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs:
+            if len(kwargs['xtra_params']) != 0:
+                self.direct = kwargs['xtra_params'][0]
+                self.inverse = kwargs['xtra_params'][1]
+                self.contains = kwargs['xtra_params'][2]
+                self.base_eset = kwargs['xtra_params'][3]
+            super().__init__(*args, **kwargs)
+        elif len(args) == 4:
+            self.direct = args[0]
+            self.inverse = args[1]
+            self.contains = args[2]
+            self.base_eset = args[3]
+            super().__init__(xtra_params=(self.direct, self.inverse,
+                                          self.contains,
+                                          self.base_eset))
+        else:
+            raise ValueError("Invalid amount of arguments")
+            # super().__init__(*args, xtra_params=(self.VALUE,))
+
+    def contains(self, val):
+        return self.contains(val)
+
+    def inverse_fun(self, val):
+        return self.inverse(val)
+
+    def direct_function(self, i):
+        return self.direct(i)
+
+    def stop_init(self):
+        try:
+            return self.base_eset.len()
+        except ValueError:
+            return None
