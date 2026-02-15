@@ -39,6 +39,12 @@ class Multiples(Eset):
             self.VALUE = 2
             super().__init__(*args, xtra_params=(self.VALUE,))
 
+        if not isinstance(self.VALUE, int):
+            raise ValueError("VALUE has to be an integer")
+
+        if self.VALUE == 0:
+            raise ValueError("VALUE cannot be zero")
+
     def contains(self, val):
         if not isinstance(val, int):
             return False
@@ -373,16 +379,14 @@ class IntArithProg(Eset):
         elif len(args) == 2:
             self.COEF = args[0]
             self.CONS = args[1]
+            if not isinstance(self.COEF, int) or\
+               not isinstance(self.CONS, int):
+                raise ValueError("Values need to be integers")
+            if self.COEF == 0:
+                raise ValueError("COEF cannot be zero")
             super().__init__(xtra_params=(self.COEF, self.CONS))
         else:
             raise ValueError("Not enough arguments to initialize")
-
-        if not isinstance(self.COEF, int) or\
-           not isinstance(self.CONS, int):
-            raise ValueError("Values need to be integers")
-
-        if self.COEF == 0:
-            raise ValueError("COEF cannot be zero")
 
     def contains(self, val):
         if not isinstance(val, int):
