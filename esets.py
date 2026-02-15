@@ -362,6 +362,41 @@ class Float64s(Eset):
         return f"{v:.17g}"
 
 
+class IntArithProg(Eset):
+    """An integer arithmetic progression eset"""
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs:
+            if len(kwargs['xtra_params']) != 0:
+                self.COEF = kwargs['xtra_params'][0]
+                self.CONS = kwargs['xtra_params'][1]
+            super().__init__(*args, **kwargs)
+        elif len(args) == 2:
+            self.COEF = args[0]
+            self.CONS = args[1]
+            super().__init__(xtra_params=(self.COEF, self.CONS))
+        else:
+            raise ValueError("Not enough arguments to initialize")
+
+        if not isinstance(self.COEF, int) or\
+           not isinstance(self.CONS, int):
+            raise ValueError("Values need to be integers")
+
+        if self.COEF == 0:
+            raise ValueError("COEF cannot be zero")
+
+    def contains(self, val):
+        if not isinstance(val, int):
+            return False
+
+    def direct_function(self, i):
+        return i * self.COEF + self.CONS
+
+    def inverse_fun(self, val):
+        return (val - self.CONS) // self.COEF
+
+    def stop_init(self):
+        return None
+
 if __name__ == '__main__':
     import doctest
     doctest.testfile("docTest.txt")
