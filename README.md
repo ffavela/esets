@@ -340,6 +340,23 @@ Note that the negatives can be extracted like this:
 >>>
 ```
 
+### How about arithmetic progressions
+
+No sweat:
+
+```python
+>>> from esets import IntArithProg
+>>> IntArithProg(5,4)
+<esets.IntArithProg (4, 9, 14, 19, ...)>
+>>> IntArithProg(-4,10)
+<esets.IntArithProg (10, 6, 2, -2, ...)>
+>>> IntArithProg(-4,10)[:10**4]
+<esets.IntArithProg* (10, 6, 2, -2, ..., -39974, -39978, -39982, -39986)>
+>>> IntArithProg(-4,10)[:10**4][::-5]
+<esets.IntArithProg* (-39986, -39966, -39946, -39926, ..., -66, -46, -26, -6)>
+>>>
+```
+
 ### Hmmm... What about the Squares, as in Galileo's paradox?
 
 I'm way ahead of you:
