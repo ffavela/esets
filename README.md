@@ -64,7 +64,7 @@ exists (infinite) can take very little.
 
 Sure it can be used like that:
 
-```
+```python
 >>> from esets import Evens
 >>> 2 in Evens()
 True
@@ -81,7 +81,7 @@ Likely, but if you can spare a bit of time please read on. As you may
 start to foresee it is a bit more than an is_even library. Let's first
 assign `Evens()` to a variable and check out what is in there:
 
-```
+```python
 >>> e = Evens()
 >>> e
 <esets.Evens (0, 2, 4, 6, ...)>
@@ -92,7 +92,7 @@ Here the ellipsis (`...`) at the end means that the sequence goes on
 forever. Any positive integer is there, as long as in can be stored in
 memory we can check it e.g.:
 
-```
+```python
 >>> a=4732868736587936587436587346587356843765438756438756823764823746238764283764237846238746238746237842378672385687235623746238764238746873246
 >>> a in e
 True
@@ -105,7 +105,7 @@ False
 
 About that:
 
-```
+```python
 >>> len(e)
 Traceback (most recent call last):
 ...
@@ -122,7 +122,7 @@ In the spirit of Georg Cantor's work we are simply establishing a
 relationship between the Even numbers and the Whole numbers (0, 1, 2,
 ...) where the later serve as our indices.
 
-```
+```python
 >>> for i in range(5):
 ...     print(i, e[i])
 ...
@@ -136,7 +136,7 @@ relationship between the Even numbers and the Whole numbers (0, 1, 2,
 
 In fact the following is also valid:
 
-```
+```python
 >>> for i,v in enumerate(e[:5]):
 ...     print(i, v)
 ...
@@ -153,7 +153,7 @@ In fact the following is also valid:
 So far yes, this will not generally be the case. Similarly for the reverse
 we can use dividing by two:
 
-```
+```python
 >>> e.index(42)
 21
 >>>
@@ -165,7 +165,7 @@ At first glance yes. But kindly note that even for this trivial
 example some non-trivial operations are happening behind the
 hood. Check out the following:
 
-```
+```python
 >>> e[:10**10:3][::-5]
 <esets.Evens* (19999999998, 19999999968, 19999999938, 19999999908, ..., 108, 78, 48, 18)>
 >>> for i, v in enumerate(e[:10**10:3][::-5][:4]):
@@ -190,7 +190,7 @@ place.
 Let's be a bit more ambitious say a slice using a googol (`10**100`)
 on the Evens **eset**:
 
-```
+```python
 >>> e[3:10**100]
 <esets.Evens* (6, 8, 10, 12, ..., 1.9999...99992e+100, 1.9999...99994e+100, 1.9999...99996e+100, 1.9999...99998e+100)>
 >>>
@@ -205,7 +205,7 @@ expansion and the multiplicative power of ten factor.
 
 So naturally here:
 
-```
+```python
 >>> 4 in e[3:10**100]
 False
 >>> 6 in e[3:10**100]
@@ -229,7 +229,7 @@ I know, it is amazing.
 
 Ah yeah, about that...:
 
-```
+```python
 >>> len(e[3:10**100])
 Traceback (most recent call last):
 ...
@@ -240,7 +240,7 @@ NotImplementedError: __len__ is limited use obj.len() instead
 I hear you it should output some huge number fairly close to
 `10**100`. We can work around that, as suggested by the error message:
 
-```
+```python
 >>> e[3:10**100].len()
 9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999997
 >>>
@@ -261,7 +261,7 @@ entire address space that variable can point to.
 The sys.maxsize is the maximum value for the dunder __len__ method,
 anything higher like the following (normally `maxsize == 2**63-1`):
 
-```
+```python
 >>> import sys
 >>> len(e[:sys.maxsize+1])
 Traceback (most recent call last):
@@ -282,7 +282,7 @@ be a way around it any time soon.
 Sure, let's try the Wholes **eset** which is essentially the Whole
 numbers set.
 
-```
+```python
 >>> from esets import Wholes
 >>> w = Wholes()
 >>> w
@@ -293,7 +293,7 @@ numbers set.
 We can actually get the same values as the Evens, by performing a
 slice with a step of 2:
 
-```
+```python
 >>> w[::2]
 <esets.Wholes* (0, 2, 4, 6, ...)>
 >>>
@@ -302,7 +302,7 @@ slice with a step of 2:
 Other multiples can actually be obtained from this, say multiples of
 7:
 
-```
+```python
 >>> w[::7]
 <esets.Wholes* (0, 7, 14, 21, ...)>
 >>>
@@ -312,7 +312,7 @@ Other multiples can actually be obtained from this, say multiples of
 
 I thought you'd never ask:
 
-```
+```python
 >>> from esets import Multiples
 >>> m = Multiples(7)
 >>> m
@@ -324,7 +324,7 @@ I thought you'd never ask:
 
 Here you go:
 
-```
+```python
 >>> from esets import Integers
 >>> i = Integers()
 >>> i
@@ -334,7 +334,7 @@ Here you go:
 
 Note that the negatives can be extracted like this:
 
-```
+```python
 >>> i[2::2]
 <esets.Integers* (-1, -2, -3, -4, ...)>
 >>>
@@ -344,7 +344,7 @@ Note that the negatives can be extracted like this:
 
 I'm way ahead of you:
 
-```
+```python
 >>> from esets import Squares
 >>> s = Squares()
 >>> s
@@ -357,7 +357,7 @@ into memory) at any point, just be really careful when doing so,
 because you may run out of memory quickly. Converting a slice is a no
 brainer:
 
-```
+```python
 >>> S = list(s[:10])
 >>> S
 [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
@@ -378,7 +378,7 @@ from zero is completely wrong (even if it is an error of
 
 Consider the following:
 
-```
+```python
 >>> import sys
 >>> from math import factorial
 >>> h=factorial(10**4)
@@ -405,7 +405,7 @@ there it is actually off by about a googol to the six power
 
 We can actually do a:
 
-```
+```python
 >>> from esets import Wholes
 >>> w = Wholes()
 >>> w[:h] #doctest:+ELLIPSIS
@@ -418,7 +418,7 @@ it. The point is, **esets** can somewhat tame these kinds of
 problems. There is a format function if you want to get a sense of it
 (it is the one used on the repr):
 
-```
+```python
 >>> w.format_funct(factorial(10**4))
 '2.8462...00000e+35659'
 >>>
@@ -426,7 +426,7 @@ problems. There is a format function if you want to get a sense of it
 
 Do note that:
 
-```
+```python
 >>> w[:h].len() == h
 True
 >>>
@@ -435,7 +435,7 @@ True
 That number (`h`) when storing it may look like a relatively small
 file (about 16kB):
 
-```
+```python
 >>> sys.getsizeof(factorial(10000))
 15820
 >>>

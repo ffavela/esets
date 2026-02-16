@@ -69,7 +69,7 @@ Via an eset of course ;-)
 There is already an implementation of this so you can simply run the
 following:
 
-```
+```python
 >>> from esets import Float64s
 >>> f64s = Float64s()
 >>> f64s
@@ -86,7 +86,7 @@ floats.
 Correct, but it is a float. IEEE 754 specifies also `0`, `-0` (as odd
 as it may look), `inf`, `-inf`, `nan`, `-nan`.
 
-```
+```python
 >>> f64s[-6:]
 <esets.Float64s (1.7976931348623157e+308, -1.7976931348623157e+308, inf, -inf, nan, -nan)>
 >>>
@@ -97,7 +97,7 @@ representation, it is a tuple that has 3 values that represent as
 integers the sign, exponent and significand. This tuple is called tpl
 and we can also see the respective binary representation:
 
-```
+```python
 >>> f64s.float2tpl(0)
 (0, 0, 0)
 >>> f64s.float2bintpl(0)
@@ -130,7 +130,7 @@ only 2 are the accepted values for our Float64s eset.
 
 As seen on the README file:
 
-```
+```python
 >>> len(f64s)
 Traceback (most recent call last):
 ...
@@ -140,7 +140,7 @@ NotImplementedError: __len__ is limited use obj.len() instead
 
 But we can use:
 
-```
+```python
 >>> f64s.len()
 18437736874454810628
 >>>
@@ -149,7 +149,7 @@ But we can use:
 Using this we can calculate the number of bytes required to store
 them, 64 bits are 8 bytes, so:
 
-```
+```python
 >>> f64s.len()*8 # Bytes
 147501894995638485024
 >>> f64s.len()*8//10**18 # Exabytes
@@ -169,7 +169,7 @@ floats.
 
 Yeah, that is actually:
 
-```
+```python
 >>> 2*(2**63-2**52+2) == 18437736874454810628 == f64s.len()
 True
 >>>
@@ -178,7 +178,7 @@ True
 The Float64s eset is actually built on top a tpl version called
 Float64_tpls:
 
-```
+```python
 >>> from esets import Float64_tpls
 >>> f64tpls = Float64_tpls()
 >>> f64tpls
@@ -189,7 +189,7 @@ Float64_tpls:
 so we can simply get the index of the `-nan` plus one to get that
 precise number too:
 
-```
+```python
 >>> f64tpls[:f64tpls.index((1, 2047, 1))+1].len()
 18437736874454810628
 >>>
@@ -202,7 +202,7 @@ alternating positive and negative values, so we can extract them via a
 simple slice with a step of two. Something similar can also be done
 with the negatives but using the start as 1:
 
-```
+```python
 >>> pf64s = f64s[::2]
 >>> pf64s
 <esets.Float64s (0, 4.9406564584124654e-324, 9.8813129168249309e-324, 1.4821969375237396e-323, ..., 1.7976931348623155e+308, 1.7976931348623157e+308, inf, nan)>
@@ -214,7 +214,7 @@ with the negatives but using the start as 1:
 
 And as expected their lens are half of the total:
 
-```
+```python
 >>> pf64s.len()
 9218868437227405314
 >>> nf64s.len()
@@ -230,7 +230,7 @@ Not that I can think of right now. This is also just an academic
 exploration. But it does start to show some weird aspects about
 floats. Take the first float after zero and multiply it by 1.4, it turns out that:
 
-```
+```python
 >>> 1.4 * pf64s[1] == pf64s[1]
 True
 >>>
@@ -246,7 +246,7 @@ doesn't exist. And if you would grab any Real number (excluding zero)
 none would satisfy the above relationship. Also for any `n` say 1000,
 the average of 2 consecutive positive floats satisfy:
 
-```
+```python
 >>> n = 1000
 >>> (pf64s[n]+pf64s[n+1])/2 == pf64s[n]
 True
@@ -275,7 +275,7 @@ for all intended purposes we are safe.
 Let's explore some other properties. An eset has the `__contains__`
 method so we can use the `in` operation:
 
-```
+```python
 >>> 0.0 in pf64s
 True
 >>> 0.0 in pf64s[1:]
@@ -287,7 +287,7 @@ False
 
 That ^ is kind of dumb I know but worth showing it also:
 
-```
+```python
 >>> float('inf') in pf64s
 True
 >>> float('nan') in pf64s
@@ -303,7 +303,7 @@ True
 
 It maybe more clear seeing the following:
 
-```
+```python
 >>> 0.2 in pf64s # Still odd, I'll explain below
 True
 >>>
@@ -311,7 +311,7 @@ True
 
 Let's print it with 17 digits to better explain:
 
-```
+```python
 >>> format(0.2, '.17g')
 '0.20000000000000001'
 >>>
@@ -327,7 +327,7 @@ expected. But in this particular case we need to highlight it, Real
 values are rounded to the nearest float. And on the aforementioned
 `pi` approximation:
 
-```
+```python
 >>> format(3.121592, '.17g')
 '3.1215920000000001'
 >>>
@@ -343,7 +343,7 @@ particular issues but the main interest is the Float64s eset.
 Coming back to the 0.2 (1/5) case, we can make a fairer check if we
 use fractions, which is accepted by the `__contains__` method so:
 
-```
+```python
 >>> from fractions import Fraction
 >>> Fraction(1, 5) in pf64s
 False
@@ -357,7 +357,7 @@ appropriate.
 
 Note index method is actually able to get the integer value of any float:
 
-```
+```python
 >>> pf64s.index(2.718281)
 4613303443449361558
 >>>
@@ -367,7 +367,7 @@ That number is an approximation of e. And for the positive floats,
 that corresponds to the 4613303443449361558 positive float. The next
 one is:
 
-```
+```python
 >>> pf64s[pf64s.index(2.718281)+1]
 2.7182810000000006
 >>>
@@ -375,7 +375,7 @@ one is:
 
 We can simply get a slice starting from the first approximation:
 
-```
+```python
 >>> pf64s[pf64s.index(2.718281):]
 <esets.Float64s (2.7182810000000002, 2.7182810000000006, 2.7182810000000011, 2.7182810000000015, ..., 1.7976931348623155e+308, 1.7976931348623157e+308, inf, nan)>
 >>>
@@ -385,7 +385,7 @@ Also define the stop index to be the next number in the least
 significant digit retulting in 2.718282, saving that eset into a
 variable called `sliver`:
 
-```
+```python
 >>> sliver = pf64s[pf64s.index(2.718281):pf64s.index(2.718282)]
 >>> sliver
 <esets.Float64s (2.7182810000000002, 2.7182810000000006, 2.7182810000000011, 2.7182810000000015, ..., 2.7182819999999981, 2.7182819999999985, 2.718281999999999, 2.7182819999999994)>
@@ -394,7 +394,7 @@ variable called `sliver`:
 
 We can even get the len:
 
-```
+```python
 >>> sliver.len()
 2251799813
 >>>
@@ -404,7 +404,7 @@ A lot of 64 bit floats on that "small" slice. Let's search for the
 index on that `sliver` variable of the value of `e` directly from the
 math library.
 
-```
+```python
 >>> from math import e
 >>> e
 2.718281828459045
@@ -415,7 +415,7 @@ math library.
 
 So as expected:
 
-```
+```python
 >>> sliver[1865523923]
 2.718281828459045
 >>>
@@ -431,7 +431,7 @@ values.
 
 Let's make a comparison between 2 floats say:
 
-```
+```python
 >>> x = 4503599627370496.0
 >>> y = 4503599627370496.5
 >>> math.isclose(x, y)
@@ -442,7 +442,7 @@ True
 So yeah they are relatively close we can see that, however please note
 the following:
 
-```
+```python
 >>> x == y
 True
 >>>
@@ -451,7 +451,7 @@ True
 Which makes not sense, they are clearly different right?! Well it
 turns out that this is not the case turns out that:
 
-```
+```python
 >>> x == float(2**52)
 True
 >>>
@@ -460,7 +460,7 @@ True
 And as we saw previously on this text, there is no way to express a
 decimal part from here on. Just for accentuating this further:
 
-```
+```python
 >>> float(2**52) == float(2**52) + 0.5
 True
 >>>
@@ -566,7 +566,7 @@ That is actually straightforward we simply find the index of the 1.0
 and add one to that index and then take the difference between the
 pf64s float on that value and 1.0:
 
-```
+```python
 >>> pf64s[pf64s.index(1.0)+1]-1.0
 2.220446049250313e-16
 >>>
@@ -576,7 +576,7 @@ No need to do a while loop just a simple substraction once we have the
 desired index. However, we can actually generalize quite easely to an
 epsilon function defined on almost all the floats like the following:
 
-```
+```python
 >>> def epsilon(x: float) -> float:
 ...     pf64s = Float64s()[::2]
 ...     x = abs(x) # Focusing on the positive floats
@@ -613,7 +613,7 @@ not actually uniform (see next section), it may be clearer to
 partition the positive floats in the index space and sampling every
 `10**13` floats (yes every ten trillion) so:
 
-```
+```python
 >>> fsample = pf64s[::10**13]
 >>> fsample
 <esets.Float64s (0, 4.9406564584124654e-311, 9.8813129168249309e-311, 1.4821969375237396e-310, ..., 1.7900216780780885e+308, 1.7920175183876232e+308, 1.7940133586971579e+308, 1.7960091990066926e+308)>
@@ -628,7 +628,7 @@ sense on how `epsilon` behaves throughout the floats.
 
 Also, note the following:
 
-```
+```python
 >>> pf64s[-5:]
 <esets.Float64s (1.7976931348623153e+308, 1.7976931348623155e+308, 1.7976931348623157e+308, inf, nan)>
 >>>
@@ -646,7 +646,7 @@ So the significand (the fractional part of the float64) has 52 bits,
  any number higher than this (`2**52`) cannot have a fractional part
  that is only integers:
 
-```
+```python
 >>> pf64s.float2bintpl(2**52-1)
 ('0', '10000110010', '1111111111111111111111111111111111111111111111111110')
 >>> pf64s.float2bintpl(2**52)
@@ -660,7 +660,7 @@ So the significand (the fractional part of the float64) has 52 bits,
 
 Or:
 
-```
+```python
 >>> pf64s[pf64s.index(2**52)]
 4503599627370496.0
 >>> pf64s[pf64s.index(2**52)+1]
@@ -674,7 +674,7 @@ Or:
 
 This goes all the way until `2**53`:
 
-```
+```python
 >>> pf64s[pf64s.index(2**52):pf64s.index(2**53)]
 <esets.Float64s (4503599627370496, 4503599627370497, 4503599627370498, 4503599627370499, ..., 9007199254740988, 9007199254740989, 9007199254740990, 9007199254740991)>
 >>>
@@ -682,7 +682,7 @@ This goes all the way until `2**53`:
 
 Notice the lack of decimal values, actually:
 
-```
+```python
 >>> 4503599627370496.5 in  pf64s[pf64s.index(2**52):pf64s.index(2**53)]
 True
 >>> (Fraction(4503599627370496)+Fraction(1/2)) in  pf64s[pf64s.index(2**52):pf64s.index(2**53)]
@@ -697,7 +697,7 @@ Fractions come to the rescue.
 
 Exactly between `2**53` and `2**54` values start jumping in 2s:
 
-```
+```python
 >>> pf64s[pf64s.index(2**53):pf64s.index(2**54)]
 <esets.Float64s (9007199254740992, 9007199254740994, 9007199254740996, 9007199254740998, ..., 18014398509481976, 18014398509481978, 18014398509481980, 18014398509481982)>
 >>>
@@ -705,7 +705,7 @@ Exactly between `2**53` and `2**54` values start jumping in 2s:
 
 So:
 
-```
+```python
 >>> 9007199254740993 in pf64s[pf64s.index(2**53):pf64s.index(2**54)]
 False
 >>>
@@ -713,7 +713,7 @@ False
 
 Also between `2**54` and `2**55` values start jumping in 4s:
 
-```
+```python
 >>> pf64s[pf64s.index(2**54):pf64s.index(2**55)]
 <esets.Float64s (18014398509481984, 18014398509481988, 18014398509481992, 18014398509481996, ..., 36028797018963952, 36028797018963956, 36028797018963960, 36028797018963964)>
 >>>
@@ -725,7 +725,7 @@ So the first subnormal (the exponent bits are zero) is zero and the
 last has all ones on the significand that is `2**52-1`, so looking and
 the pf64s:
 
-```
+```python
 >>> pf64s.tpl2bintpl((0, 0, 2**52-1))
 ('0', '00000000000', '1111111111111111111111111111111111111111111111111111')
 >>> pf64s[:pf64s.f64tpls.index((0, 0, 2**52-1))+1]
@@ -735,7 +735,7 @@ the pf64s:
 
 The amount of positive subnormals are:
 
-```
+```python
 >>> pf64s[:pf64s.f64tpls.index((0, 0, 2**52-1))+1].len()
 4503599627370496
 >>>
@@ -743,7 +743,7 @@ The amount of positive subnormals are:
 
 And the total (including the negatives) is:
 
-```
+```python
 >>> f64s[:f64s.f64tpls.index((1, 0, 2**52-1))+1].len()
 9007199254740992
 >>>
@@ -751,7 +751,7 @@ And the total (including the negatives) is:
 
 The total storage capacity to store these is:
 
-```
+```python
 >>> f64s[:f64s.f64tpls.index((1, 0, 2**52-1))+1].len()//8//10**12 # Terabytes
 1125
 >>> f64s[:f64s.f64tpls.index((1, 0, 2**52-1))+1].len()//8//2**40 # Tebibytes
