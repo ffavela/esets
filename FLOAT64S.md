@@ -432,14 +432,14 @@ values.
 Let's make a comparison between 2 floats say:
 
 ```
->>> x=4503599627370496.0
->>> y=4503599627370496.5
+>>> x = 4503599627370496.0
+>>> y = 4503599627370496.5
 >>> math.isclose(x, y)
 True
 >>>
 ```
 
-So yeah they are relatively close we can see that, however please not
+So yeah they are relatively close we can see that, however please note
 the following:
 
 ```
@@ -488,9 +488,9 @@ And to make it obvious:
 1.0
 ```
 
-So 2 values that differ by one, not by 0.5, not by ten to the minus
-something, they differ by one. If I call `math.isclose` will it return
-`True` or `False`? Let's find out:
+So just 2 values that differ by one, not by 0.5, not by ten to the
+minus something, they differ by one. If I call `math.isclose`, will it
+return `True` or `False`? Let's find out:
 
 ```python
 >>> math.isclose(x, y)
@@ -532,9 +532,9 @@ know when they stop being relevant because they are getting rounded
 off.
 
 We note that `math.isclose` scales and we can turn it off quite easily
-by setting `rel_tol` to zero and `abs_tol` to a desired value (say 0.5
-given the minimum resolution we desire for our grid. Using this we
-finally get:
+by setting `rel_tol` to zero and `abs_tol` to a desired value (say
+0.5) given the minimum resolution we desire for our grid. Using this
+we finally get:
 
 ```python
 >>> math.isclose(x, y, rel_tol=0, abs_tol=0.5)
