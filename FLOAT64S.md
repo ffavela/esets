@@ -1,6 +1,29 @@
 # Float64s eset
 
-An eset case study
+An eset case study. Floats are of great importance specifically for
+scientific computing, despite initial push backs from people like John
+von Neumann (just one of the smartests humans who has ever lived, so
+no pressure...) the floating point standard has prevailed.
+
+Thanks to the work of brilliant engineers like Bill Kahan, a lot of
+work from scientists and engineers was possible. The standard has
+proven is usefullness just by the sheer amount of time and people that
+have used it not to mention the amount of critical systems that rely
+on it. It is supported at the hardware level so calculations are
+really fast.
+
+I'm writing this section out of admiration for the standard, and while
+I am really opinionated regarding concepts like the "Real" numbers as
+you may read further ahead. I think floats are an honest approach to
+represent non integer numbers considering the physical constraints we
+face with digital computers. Kindly note that I may highlight various
+rough edges, but that is because this (eset) approach makes it really
+easy to visibilize them, and for me this only adds to the
+impressiveness of the standard that it can work so well.
+
+Yes there may be a need for other case studies like John L. Gustafson
+'s Unums which may come in the future. But for now, a 64 bit float
+eset is the main topic.
 
 ### So in other words a list of floats?
 
@@ -21,7 +44,7 @@ precision, but that doesn't change the fact that we can't store a
 single one on a digital binary (or ternary or whichever base)
 computer. The Real numbers are a mathematical concept but (in my
 opinion) it is an unfortunate naming convention, it tags them as in
-every sense of the word as real, the noun is comonly also interpreted
+every sense of the word as real, the noun is commonly also interpreted
 as an adjective. You can still call them Real, but at least on this
 text mentally remove the "real" tag to avoid any confussion.
 
@@ -398,7 +421,146 @@ So as expected:
 >>>
 ```
 
+### Why not simply use `math.isclose` and be happy?... Duh!!
+
+Fair point, when comparing floats it is generally a bad idea to use
+`==` whereas `math.isclose` should be the way to go. But this is an
+exploration of the standard where we want to highlight some of the
+limitations it has and also emphasize the granularity of the possible
+values.
+
+Let's make a comparison between 2 floats say:
+
+```
+>>> x=4503599627370496.0
+>>> y=4503599627370496.5
+>>> math.isclose(x, y)
+True
+>>>
+```
+
+So yeah they are relatively close we can see that, however please not
+the following:
+
+```
+>>> x == y
+True
+>>>
+```
+
+Which makes not sense, they are clearly different right?! Well it
+turns out that this is not the case turns out that:
+
+```
+>>> x == float(2**52)
+True
+>>>
+```
+
+And as we saw previously on this text, there is no way to express a
+decimal part from here on. Just for accentuating this further:
+
+```
+>>> float(2**52) == float(2**52) + 0.5
+True
+>>>
+```
+
+So what happened is that `y` was simply rounded down to `x` before we
+invoked `math.isclose`, so yes technically a number is always close to
+itself so it returned `True`. Note that for this case using `==` for
+floats actually clarifies what is happening while `math.isclose`
+doesn't.
+
+Note that the very next value is (see previously for the why):
+
+```python
+>>> y = x + 1
+>>> x == y
+False
+>>>
+```
+
+And to make it obvious:
+
+```python
+>>> y - x
+1.0
+```
+
+So 2 values that differ by one, not by 0.5, not by ten to the minus
+something, they differ by one. If I call `math.isclose` will it return
+`True` or `False`? Let's find out:
+
+```python
+>>> math.isclose(x, y)
+True
+>>>
+```
+
+Now this may or may not be what you expected, but the fact that I got
+different answers when asking is a bit of an issue.
+
+### Ok but you can tweak `math.isclose`
+
+Indeed, from the documentation
+[math.isclose](https://docs.python.org/3/library/math.html#math.isclose)
+and the corresponding [PEP 485](https://peps.python.org/pep-0485/) we
+see that these is how it can be called in its general form:
+
+
+```python
+math.isclose(a, b, *, rel_tol=1e-09, abs_tol=0.0)
+```
+
+So there it is, it uses a `rel_tol` (relative tolerance) which is
+something that scales with the size of the numbers.
+
+If there are no errors, then the function behaves as:
+
+```python
+abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+```
+
+The `abs_tol` (absolute tolerance) is usually relevant for comparing
+values close to zero (source; I just googled it).
+
+This behavior may turn into an unpleasant surprize when working with a
+grid or a quadtree with fixed bin sizes where some bins are far away
+or perhaps you are performing additions and it may be important to
+know when they stop being relevant because they are getting rounded
+off.
+
+We note that `math.isclose` scales and we can turn it off quite easily
+by setting `rel_tol` to zero and `abs_tol` to a desired value (say 0.5
+given the minimum resolution we desire for our grid. Using this we
+finally get:
+
+```python
+>>> math.isclose(x, y, rel_tol=0, abs_tol=0.5)
+False
+>>>
+```
+
+That is, for our hypothetical grid, we can't resolve that far away we
+should handle it appropriately else our computations will spit out
+silly results.
+
+We can visualise the float values quite easily by using slicing on the
+positive floats eset:
+
+```python
+>>> pf64s[pf64s.index(float(2**52)):pf64s.index(float(2**53))]
+<esets.Float64s (4503599627370496, 4503599627370497, 4503599627370498, 4503599627370499, ..., 9007199254740988, 9007199254740989, 9007199254740990, 9007199254740991)>
+>>>
+```
+
+It kind of begs the question about the nature of the epsilon wether it
+could be defined in a more general useful form.
+
 ### What about the epsilon?
+
+Thank you for asking.
 
 That is actually straightforward we simply find the index of the 1.0
 and add one to that index and then take the difference between the
