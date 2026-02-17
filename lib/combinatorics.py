@@ -12,7 +12,7 @@ def get_permutation(val: int, size: int) -> tuple[int] | None:
             retlist.append(reslist[0])
             return retlist
 
-        fact_val = factorial(len(reslist)-1)
+        fact_val = factorial(len(reslist) - 1)
         div, mod = divmod(resval, fact_val)
 
         val = reslist.pop(div)
@@ -35,7 +35,7 @@ def get_permutation_number(nat_perm: tuple[int]) -> int | None:
         if len(perm) == 1:
             return 0
 
-        fnum = factorial(len(perm)-1)
+        fnum = factorial(len(perm) - 1)
         val = reslist.index(perm[0])
         reslist.pop(val)
 

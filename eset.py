@@ -4,9 +4,16 @@ import sys
 
 class BEset(abc.ABC):
     """A blind eset, useful believe it or not"""
-    def __init__(self, start=0, stop=None, step=1,
-                 raw_repr=False, sliced=False,
-                 xtra_params=()):
+
+    def __init__(
+        self,
+        start=0,
+        stop=None,
+        step=1,
+        raw_repr=False,
+        sliced=False,
+        xtra_params=(),
+    ):
         if not sliced and stop is None:
             stop = self.stop_init()
         if start is None:
@@ -23,8 +30,7 @@ class BEset(abc.ABC):
         if start < 0 and stop is None:
             raise ValueError('No last value exists.')
         if stop is not None:
-            if stop < start and step > 0 \
-               or stop > start and step < 0:
+            if stop < start and step > 0 or stop > start and step < 0:
                 raise ValueError('Invalid initialization state.')
         else:
             if step < 0:
@@ -43,7 +49,7 @@ class BEset(abc.ABC):
     # un-optimized contains is effectively the same as not supporting
     # it and I don't want to create false expectations here.
     def __contains__(self, item):
-        raise TypeError("Membership check explicitly disabled on besets")
+        raise TypeError('Membership check explicitly disabled on besets')
 
     def step_function(self, i: int) -> int:
         """A simple step function"""
@@ -60,8 +66,9 @@ class BEset(abc.ABC):
     def len(self):
         if self.stop is not None:
             delta = abs(self.stop - self.start)
-            return self.step_function(delta % self.step) +\
-                delta // abs(self.step)
+            return self.step_function(delta % self.step) + delta // abs(
+                self.step
+            )
         raise ValueError('Aleph_0 infinite')
 
     def __getitem__(self, key):
@@ -104,9 +111,12 @@ class BEset(abc.ABC):
                 elif flip and kstop >= self.len():
                     kstop = self.len() - 1
                 s_stop = self.start + kstop * self.step
-                if self.stop is not None and\
-                   s_stop > self.stop and \
-                   step > 0 and not flip:
+                if (
+                    self.stop is not None
+                    and s_stop > self.stop
+                    and step > 0
+                    and not flip
+                ):
                     s_stop = self.stop
 
             if s_stop is None and step < 0:
@@ -146,30 +156,40 @@ class BEset(abc.ABC):
                 start = s_start
                 stop = s_stop
             else:
-                if (s_stop < s_start and step > 0
-                   or s_stop > s_start and step < 0)\
-                   and (key.start is not None or
-                        key.stop is not None):
+                if (
+                    s_stop < s_start
+                    and step > 0
+                    or s_stop > s_start
+                    and step < 0
+                ) and (key.start is not None or key.stop is not None):
                     delta = 0
                 else:
                     delta = abs(s_stop - s_start)
 
-                len_raw = delta // abs(self.step) +\
-                    self.step_function(delta % self.step)
-                len_step = len_raw // abs(kstep) +\
-                    self.step_function(len_raw % kstep)
+                len_raw = delta // abs(self.step) + self.step_function(
+                    delta % self.step
+                )
+                len_step = len_raw // abs(kstep) + self.step_function(
+                    len_raw % kstep
+                )
 
                 start = s_start
                 stop = start + len_step * step
 
             if flip:
                 if self.step < 0:  # step > 0
-                    start, stop = s_stop-self.step, s_start-self.step
+                    start, stop = s_stop - self.step, s_start - self.step
 
             sliced = True
             cls = type(self)
-            return cls(start, stop, step, self.raw_repr,
-                       sliced, xtra_params=self.xtra_params)
+            return cls(
+                start,
+                stop,
+                step,
+                self.raw_repr,
+                sliced,
+                xtra_params=self.xtra_params,
+            )
 
         if isinstance(key, int):
             i = int(key)
@@ -216,8 +236,11 @@ class BEset(abc.ABC):
         # Hey it works!... ok?! If there are performance issues down
         # the line, for some reason... cause it is mostly for the
         # repr, we'll come back to this.
-        return cls[cls.index('.')+1:cls.index('.') +
-                   cls[cls.index('.'):].index("'")]
+        return cls[
+            cls.index('.')
+            + 1 : cls.index('.')
+            + cls[cls.index('.') :].index("'")
+        ]
 
     def format_funct(self, v):
         """A format function intended to be used with the repr"""
@@ -227,10 +250,15 @@ class BEset(abc.ABC):
             if v < 0:
                 start_idx = 1
             if len(tstr) > 15:
-                exp_str = 'e+' + str(len(tstr)-1-start_idx)
-                tstr = tstr[:start_idx+1] + '.' + \
-                    tstr[start_idx+1:5+start_idx] + '...' + \
-                    tstr[-5:] + exp_str
+                exp_str = 'e+' + str(len(tstr) - 1 - start_idx)
+                tstr = (
+                    tstr[: start_idx + 1]
+                    + '.'
+                    + tstr[start_idx + 1 : 5 + start_idx]
+                    + '...'
+                    + tstr[-5:]
+                    + exp_str
+                )
         return tstr
 
     def __repr__(self):
@@ -262,20 +290,23 @@ class BEset(abc.ABC):
             rstr += tail_str
             sliceStr = '*' if self.sliced else ''
             ccls = self.clean_class_name()
-            return f'<esets.{ccls}'+sliceStr+f' ({rstr})>'
+            return f'<esets.{ccls}' + sliceStr + f' ({rstr})>'
         else:
-            return f'self.start = {self.start},\n' +\
-                f'self.stop = {self.stop},\n' +\
-                f'self.step = {self.step},\n' +\
-                f'self.sliced = {self.sliced},\n' +\
-                f'self.raw_repr = {self.raw_repr},\n' +\
-                f'self.repr_start_max = {self.repr_start_max},\n' +\
-                f'self.repr_end_max = {self.repr_end_max},\n' +\
-                f'self.xtra_params = {self.xtra_params}'
+            return (
+                f'self.start = {self.start},\n'
+                + f'self.stop = {self.stop},\n'
+                + f'self.step = {self.step},\n'
+                + f'self.sliced = {self.sliced},\n'
+                + f'self.raw_repr = {self.raw_repr},\n'
+                + f'self.repr_start_max = {self.repr_start_max},\n'
+                + f'self.repr_end_max = {self.repr_end_max},\n'
+                + f'self.xtra_params = {self.xtra_params}'
+            )
 
 
 class Eset(BEset):
     """With contains and index it can see"""
+
     def __contains__(self, val):
         if self.contains(val) is False:
             return False
@@ -325,7 +356,7 @@ class Eset(BEset):
         if val not in self:
             sliceStr = '*' if self.sliced else ''
             cls = type(self)
-            msg = f'{val!r} not in {cls.__name__}'+sliceStr
+            msg = f'{val!r} not in {cls.__name__}' + sliceStr
             raise ValueError(msg)
         return self.internal_inverse_fun(val)
 
@@ -344,11 +375,16 @@ class EMap(Eset):
             self.inverse = args[1]
             self.contains = args[2]
             self.base_eset = args[3]
-            super().__init__(xtra_params=(self.direct, self.inverse,
-                                          self.contains,
-                                          self.base_eset))
+            super().__init__(
+                xtra_params=(
+                    self.direct,
+                    self.inverse,
+                    self.contains,
+                    self.base_eset,
+                )
+            )
         else:
-            raise ValueError("Invalid amount of arguments")
+            raise ValueError('Invalid amount of arguments')
             # super().__init__(*args, xtra_params=(self.VALUE,))
 
     def contains(self, val):

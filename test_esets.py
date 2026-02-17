@@ -7,12 +7,12 @@ import random
 def test_evens():
     e = esets.Evens()
     assert 8 in e
-    assert 2**(10**5) in e
+    assert 2 ** (10**5) in e
     assert 5 not in e
     assert 2.5 not in e
     assert e.index(1234343243242342340) == 617171621621171170
     assert -6 not in e
-    assert e.index(2*10**100) == 10**100
+    assert e.index(2 * 10**100) == 10**100
     assert e[1] == 2
     assert e[10] == 20
     assert e[617171621621171170] == 1234343243242342340
@@ -44,14 +44,14 @@ def test_wholes():
 
 
 def test_doctests():
-    doctest.testfile("docTest.txt")
-    doctest.testfile("README.md")
-    doctest.testfile("FLOAT64S.md")
+    doctest.testfile('docTest.txt')
+    doctest.testfile('README.md')
+    doctest.testfile('FLOAT64S.md')
 
 
 def rval(x):
     rsign = lambda: random.choice((1, -1))
-    init_val = random.randint(-1, x*3//2)
+    init_val = random.randint(-1, x * 3 // 2)
     if init_val == -1:
         return None
     return init_val * rsign()
@@ -62,7 +62,7 @@ def test_random_EvensList():
     smallest = 10
     ranI = random.randint(smallest, 100)
     for r in range(1500):
-        testList = [2*i for i in range(ranI)]
+        testList = [2 * i for i in range(ranI)]
         listLen = len(testList)
         le = e[:listLen]
         assert list(le) == testList
@@ -70,8 +70,7 @@ def test_random_EvensList():
         rstop = rval(listLen)
         rstep = rval(listLen)
         if rstep != 0:
-            assert list(le[rstart:rstop:rstep]) == \
-                testList[rstart:rstop:rstep]
+            assert list(le[rstart:rstop:rstep]) == testList[rstart:rstop:rstep]
         else:
             with pytest.raises(ValueError):
                 le[rstart:rstop:rstep]
@@ -85,7 +84,7 @@ def test_random_EvensRepr():
     smallest = 10
     ranI = random.randint(smallest, 100)
     for r in range(1500):
-        testList = [2*i for i in range(ranI)]
+        testList = [2 * i for i in range(ranI)]
         listLen = len(testList)
         le = e[:listLen]
         assert list(le) == testList
@@ -95,10 +94,13 @@ def test_random_EvensRepr():
         if rstep != 0:
             tlen = len(testList[rstart:rstop:rstep])
             testListSliced = testList[rstart:rstop:rstep]
-            reprKernel = '(' +\
-                ', '.join([ff(v) for v in testListSliced[:max_val]]) +\
-                '...' +\
-                ', '.join([ff(v) for v in testListSliced[end_max:]]) + ')'
+            reprKernel = (
+                '('
+                + ', '.join([ff(v) for v in testListSliced[:max_val]])
+                + '...'
+                + ', '.join([ff(v) for v in testListSliced[end_max:]])
+                + ')'
+            )
             if max_val + end_max >= tlen:
                 reprKernel = str(tuple(testListSliced))
                 if len(testListSliced) == 1:
@@ -111,15 +113,36 @@ def test_random_EvensRepr():
 
 
 def test_classEvens():
-    result = str(esets.Evens(start=0, stop=10, step=1, raw_repr=False,
-                             sliced=False, xtra_params=()))
+    result = str(
+        esets.Evens(
+            start=0,
+            stop=10,
+            step=1,
+            raw_repr=False,
+            sliced=False,
+            xtra_params=(),
+        )
+    )
     expected = '<esets.Evens (0, 2, 4, 6, ..., 12, 14, 16, 18)>'
     assert result == expected
-    result = str(esets.Evens(start=0, stop=None, step=1, raw_repr=False,
-                             sliced=False, xtra_params=()))
+    result = str(
+        esets.Evens(
+            start=0,
+            stop=None,
+            step=1,
+            raw_repr=False,
+            sliced=False,
+            xtra_params=(),
+        )
+    )
     expected = '<esets.Evens (0, 2, 4, 6, ...)>'
     assert result == expected
-    with pytest.raises(ValueError,
-                       match='Invalid initialization state.'):
-        esets.Evens(start=0, stop=None, step=-1, raw_repr=False,
-                    sliced=True, xtra_params=())
+    with pytest.raises(ValueError, match='Invalid initialization state.'):
+        esets.Evens(
+            start=0,
+            stop=None,
+            step=-1,
+            raw_repr=False,
+            sliced=True,
+            xtra_params=(),
+        )

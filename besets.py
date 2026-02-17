@@ -4,6 +4,7 @@ import hashlib
 
 class BEvens(BEset):
     """A blind eset for evens"""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.VALUE = 2
@@ -20,6 +21,7 @@ class BWholesSHA256s(BEset):
     encoding since only decimal numbers are expected.
 
     """
+
     def direct_function(self, i):
         return hashlib.sha256(str(i).encode('ascii')).hexdigest()
 
