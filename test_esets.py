@@ -49,13 +49,19 @@ def test_doctests():
     doctest.testfile("FLOAT64S.md")
 
 
+def rval(x):
+    rsign = lambda: random.choice((1, -1))
+    init_val = random.randint(-1, x*3//2)
+    if init_val == -1:
+        return None
+    return init_val * rsign()
+
+
 def test_random_EvensList():
     e = esets.Evens()
-    rsign = lambda: random.choice((1, -1))
     smallest = 10
-    rval = lambda x: random.randint(0, x*3//2) * rsign()
     ranI = random.randint(smallest, 100)
-    for r in range(1000):
+    for r in range(1500):
         testList = [2*i for i in range(ranI)]
         listLen = len(testList)
         le = e[:listLen]
@@ -76,11 +82,9 @@ def test_random_EvensRepr():
     ff = e.format_funct
     max_val = e.repr_start_max  # 4
     end_max = e.repr_end_max  # 4
-    rsign = lambda: random.choice((1, -1))
     smallest = 10
-    rval = lambda x: random.randint(0, x*3//2) * rsign()
     ranI = random.randint(smallest, 100)
-    for r in range(1000):
+    for r in range(1500):
         testList = [2*i for i in range(ranI)]
         listLen = len(testList)
         le = e[:listLen]
