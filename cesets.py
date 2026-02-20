@@ -1,5 +1,5 @@
 from eset import Eset
-import lib.combinatorics as lc
+import lib.ecombinatorics as ecomb
 from math import factorial
 
 
@@ -20,10 +20,10 @@ class Canonical_Permutator(Eset):
             raise ValueError('Need a positive integer to initialize')
 
     def direct_function(self, i):
-        return lc.get_permutation(i, self.VALUE)
+        return ecomb.get_permutation(i, self.VALUE)
 
     def inverse_fun(self, val):
-        return lc.get_permutation_number(val)
+        return ecomb.get_permutation_number(val)
 
     def stop_init(self):
         return factorial(self.VALUE)
