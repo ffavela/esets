@@ -281,10 +281,7 @@ class Float64s(Eset):
             binstr[n_sign : n_exponent + n_sign],
             binstr[n_exponent + n_sign :],
         )
-        if (
-            bin_tpl[1] == n_exponent * '1'
-            and bin_tpl[2] != n_significand * '0'
-        ):
+        if bin_tpl[1] == n_exponent * '1' and bin_tpl[2] != n_significand * '0':
             # The nan case using my convention. It is cooler, ok not
             # really I just took a poor decision early on cause I
             # didn't know any better and now I'm too afraid to start
@@ -396,9 +393,7 @@ class IntArithProg(Eset):
         elif len(args) == 2:
             self.COEF = args[0]
             self.CONS = args[1]
-            if not isinstance(self.COEF, int) or not isinstance(
-                self.CONS, int
-            ):
+            if not isinstance(self.COEF, int) or not isinstance(self.CONS, int):
                 raise ValueError('Values need to be integers')
             if self.COEF == 0:
                 raise ValueError('COEF cannot be zero')

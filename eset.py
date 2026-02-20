@@ -66,9 +66,7 @@ class BEset(abc.ABC):
     def len(self):
         if self.stop is not None:
             delta = abs(self.stop - self.start)
-            return self.step_function(delta % self.step) + delta // abs(
-                self.step
-            )
+            return self.step_function(delta % self.step) + delta // abs(self.step)
         raise ValueError('Aleph_0 infinite')
 
     def __getitem__(self, key):
@@ -157,10 +155,7 @@ class BEset(abc.ABC):
                 stop = s_stop
             else:
                 if (
-                    s_stop < s_start
-                    and step > 0
-                    or s_stop > s_start
-                    and step < 0
+                    s_stop < s_start and step > 0 or s_stop > s_start and step < 0
                 ) and (key.start is not None or key.stop is not None):
                     delta = 0
                 else:
@@ -169,9 +164,7 @@ class BEset(abc.ABC):
                 len_raw = delta // abs(self.step) + self.step_function(
                     delta % self.step
                 )
-                len_step = len_raw // abs(kstep) + self.step_function(
-                    len_raw % kstep
-                )
+                len_step = len_raw // abs(kstep) + self.step_function(len_raw % kstep)
 
                 start = s_start
                 stop = start + len_step * step
@@ -237,9 +230,7 @@ class BEset(abc.ABC):
         # the line, for some reason... cause it is mostly for the
         # repr, we'll come back to this.
         return cls[
-            cls.index('.')
-            + 1 : cls.index('.')
-            + cls[cls.index('.') :].index("'")
+            cls.index('.') + 1 : cls.index('.') + cls[cls.index('.') :].index("'")
         ]
 
     def format_funct(self, v):
