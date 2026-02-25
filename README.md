@@ -14,7 +14,8 @@ Something where the structure is in memory but not the data. The data
 is directly generated from the structure as soon as it is needed so
 there is no need to store the entirety of the data on memory. Despite
 this you may access the data via indexing, and operations such as
-slicing are accessible.
+slicing are accessible. Note that most eset implementations are random
+access see FUTURE_SECTION_HERE for details.
 
 ### But don't indices relate to locations in memory for sequences?
 
