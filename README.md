@@ -17,6 +17,18 @@ this you may access the data via indexing, and operations such as
 slicing are accessible. Note that most eset implementations are random
 access see FUTURE_SECTION_HERE for details.
 
+### Python already has sets, why create another implementation?
+
+A python set is an unordered collection of unique elements. They
+support common set operations such as union and intersection and can
+be counted (supports `len`). An `eset` doesn't support the common set
+operations, it does support `len` (see further for caveats) and
+despite ordering being normally ignored here it plays a central
+role. This `set` implementation (`eset`) sacrifices all those common
+`set` operations in favor of enumeration. This unlocks slicing on them
+and the capability of defining extremely large or even infinite
+`esets`.
+
 ### But don't indices relate to locations in memory for sequences?
 
 For the most part yes, the same way as in dictionaries the keys also
