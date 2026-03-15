@@ -1148,3 +1148,23 @@ Looks good, BTW it should touch the last one, and yes starts at
 [-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12, -13, -14]
 >>> [v for v in range(-1, -15, -1)][:10]
 [-1, -2, -3, -4, -5, -6, -7, -8, -9, -10]
+
+Now let's try out EMaps (alpha), with the intention of creating an
+Evens eset essentially from a mapping from the Whole numbers
+
+>>> from eset import EMap
+>>> from esets import Wholes
+>>> e = EMap(lambda i: 2*i, lambda v: v//2, lambda v: False if not isinstance(v, int)\
+ else None, Wholes())
+>>> e
+<esets.EMap (0, 2, 4, 6, ...)>
+
+Note that it is recognized as an esets.EMap not an esets.Evens, but
+the end result is basically the same.
+
+And it behaves as expected under slicing
+
+>>> e[10:20]
+<esets.EMap* (20, 22, 24, 26, ..., 32, 34, 36, 38)>
+>>> e[10:20][::-3]
+<esets.EMap* (38, 32, 26, 20)>
