@@ -1168,3 +1168,30 @@ And it behaves as expected under slicing
 <esets.EMap* (20, 22, 24, 26, ..., 32, 34, 36, 38)>
 >>> e[10:20][::-3]
 <esets.EMap* (38, 32, 26, 20)>
+
+Here is another EMap for the multiples of 3:
+
+>>> t = EMap(lambda i: 3*i, lambda v: v//3, lambda v: False if not isinstance(v, \
+int) else None, Wholes())
+>>> t
+<esets.EMap (0, 3, 6, 9, ...)>
+>>> t[123:321]
+<esets.EMap* (369, 372, 375, 378, ..., 951, 954, 957, 960)>
+>>> t[123:321][::-3]
+<esets.EMap* (960, 951, 942, 933, ..., 402, 393, 384, 375)>
+
+Trying out bsets (blind esets), that is a bset that lacks an index()
+method but it is perfectly slicesable and supports indexing. Here is
+an example using the Whole numbers where a sha256 (ascii encoded) has
+function is used.
+
+>>> from besets import BWholesSHA256s
+>>> bWS = BWholesSHA256s()
+>>> bWS
+<esets.BWholesSHA256s (5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9, 6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b, d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35, 4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce, ...)>
+>>> bWS[:100]
+<esets.BWholesSHA256s* (5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9, 6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b, d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35, 4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce, ..., 7b1a278f5abe8e9da907fc9c29dfd432d60dc76e17b0fabab659d2a508bc65c4, d6d824abba4afde81129c71dea75b8100e96338da5f416d2f69088f1960cb091, 29db0c6782dbd5000559ef4d9e953e300e2b479eed26d887ef3f92b921c06a67, 8c1f1046219ddd216a023f792356ddf127fce372a72ec9b4cdac989ee5b0b455)>
+>>> bWS[:100][::-1]
+<esets.BWholesSHA256s* (8c1f1046219ddd216a023f792356ddf127fce372a72ec9b4cdac989ee5b0b455, 29db0c6782dbd5000559ef4d9e953e300e2b479eed26d887ef3f92b921c06a67, d6d824abba4afde81129c71dea75b8100e96338da5f416d2f69088f1960cb091, 7b1a278f5abe8e9da907fc9c29dfd432d60dc76e17b0fabab659d2a508bc65c4, ..., 4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce, d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35, 6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b, 5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9)>
+>>> bWS[99]
+'8c1f1046219ddd216a023f792356ddf127fce372a72ec9b4cdac989ee5b0b455'
