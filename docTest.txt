@@ -1052,6 +1052,16 @@ The case where start is equal to the len and step < 0:
 >>> ee[len(ee)::-1]
 <esets.Evens* (18, 16, 14, 12, ..., 6, 4, 2, 0)>
 
+Testing our without the intermediate var:
+
+>>> Evens()
+<esets.Evens (0, 2, 4, 6, ...)>
+>>> Evens()[3:20]
+<esets.Evens* (6, 8, 10, 12, ..., 32, 34, 36, 38)>
+>>> Evens()[3:20][::-3]
+<esets.Evens* (38, 32, 26, 20, 14, 8)>
+>>> Evens()[3:20][::-3][::2]
+<esets.Evens* (38, 26, 14)>
 
 Now some tests for the other esets, there is much more than Evens
 
