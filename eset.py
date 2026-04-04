@@ -310,12 +310,12 @@ class Eset(BEset):
         """Basic conditions to check if value belongs to the eset."""
 
     @abc.abstractmethod
-    def inverse_fun(self, val):
+    def inverse_function(self, val):
         """The index to return given a value, the inverse function"""
 
-    def internal_inverse_fun(self, val):
+    def internal_inverse_function(self, val):
         """The used internal index given a value, the inverse"""
-        return (self.inverse_fun(val) - self.start) // self.step
+        return (self.inverse_function(val) - self.start) // self.step
 
     def id_contains(self, val):
         """A check called by __contains__, It performs an identity
@@ -324,22 +324,22 @@ class Eset(BEset):
         kind of trivial check but really important for many cases.
 
         """
-        if val != self.direct_function(self.inverse_fun(val)):
+        if val != self.direct_function(self.inverse_function(val)):
             return False
 
     def slice_contains(self, val):
         """For __contains__, when slicing is involved."""
-        diff = self.inverse_fun(val) - self.start
+        diff = self.inverse_function(val) - self.start
         if diff % self.step != 0:
             return False
         if self.stop is None:
-            if self.start <= self.inverse_fun(val):
+            if self.start <= self.inverse_function(val):
                 return True
             else:
                 return False
-        if self.start <= self.inverse_fun(val) < self.stop:
+        if self.start <= self.inverse_function(val) < self.stop:
             return True
-        if self.stop < self.inverse_fun(val) <= self.start:
+        if self.stop < self.inverse_function(val) <= self.start:
             return True
         return False
 
@@ -349,7 +349,7 @@ class Eset(BEset):
             cls = type(self)
             msg = f'{val!r} not in {cls.__name__}' + sliceStr
             raise ValueError(msg)
-        return self.internal_inverse_fun(val)
+        return self.internal_inverse_function(val)
 
 
 class EMap(Eset):
@@ -381,7 +381,7 @@ class EMap(Eset):
     def contains(self, val):
         return self.contains(val)
 
-    def inverse_fun(self, val):
+    def inverse_function(self, val):
         return self.inverse(val)
 
     def direct_function(self, i):

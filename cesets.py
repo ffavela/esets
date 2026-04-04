@@ -22,7 +22,7 @@ class Canonical_Permutator(Eset):
     def direct_function(self, i):
         return ecomb.get_permutation(i, self.VALUE)
 
-    def inverse_fun(self, val):
+    def inverse_function(self, val):
         return ecomb.get_permutation_number(val)
 
     def stop_init(self):

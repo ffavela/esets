@@ -16,7 +16,7 @@ class Evens(Eset):
         if not isinstance(val, int):
             return False
 
-    def inverse_fun(self, val):
+    def inverse_function(self, val):
         return val // self.VALUE
 
     def direct_function(self, i):
@@ -51,7 +51,7 @@ class Multiples(Eset):
         if not isinstance(val, int):
             return False
 
-    def inverse_fun(self, val):
+    def inverse_function(self, val):
         return val // self.VALUE
 
     def direct_function(self, i):
@@ -68,7 +68,7 @@ class Negatives(Eset):
         if not isinstance(val, int):
             return False
 
-    def inverse_fun(self, val):
+    def inverse_function(self, val):
         return -(val + 1)
 
     def direct_function(self, i):
@@ -85,7 +85,7 @@ class Integers(Eset):
         if not isinstance(val, int):
             return False
 
-    def inverse_fun(self, val):
+    def inverse_function(self, val):
         if val > 0:
             x = 2 * val - 1
         else:
@@ -110,7 +110,7 @@ class Squares(Eset):
         if not isinstance(val, int):
             return False
 
-    def inverse_fun(self, val):
+    def inverse_function(self, val):
         return isqrt(val)
 
     def direct_function(self, i):
@@ -127,7 +127,7 @@ class Wholes(Eset):
         if not isinstance(val, int):
             return False
 
-    def inverse_fun(self, val):
+    def inverse_function(self, val):
         return val
 
     def direct_function(self, i):
@@ -161,7 +161,7 @@ class Float64_tpls(Eset):
         if not 0 <= significand < 2**52:  # -1=1+2^2+...+2^51
             return False
 
-    def inverse_fun(self, val):
+    def inverse_function(self, val):
         s_bit, exponent, significand = val
         i = 2 * (exponent * 2**52 + significand)
         if s_bit:
@@ -343,7 +343,7 @@ class Float64s(Eset):
 
         return float_value
 
-    def inverse_fun(self, fVal):
+    def inverse_function(self, fVal):
         bintpl = self.float2bintpl(fVal)
         tpl = self.bintpl2tpl(bintpl)
         return self.f64tpls.index(tpl)
@@ -408,7 +408,7 @@ class IntArithProg(Eset):
     def direct_function(self, i):
         return i * self.COEF + self.CONS
 
-    def inverse_fun(self, val):
+    def inverse_function(self, val):
         return (val - self.CONS) // self.COEF
 
     def stop_init(self):
