@@ -28,7 +28,7 @@ class Canonical_Permutator(Eset):
     def stop_init(self):
         return factorial(self.VALUE)
 
-    def __contains__(self, val):
+    def contains(self, val):
         if not isinstance(val, tuple):
             return False
 
