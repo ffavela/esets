@@ -392,3 +392,70 @@ class EMap(Eset):
             return self.base_eset.len()
         except ValueError:
             return None
+
+
+class EABCMixinFactory(abc.ABC):
+    # This should act on an object not a class, figure out if the
+    # current logic works or if it needs to be refactored.
+    @classmethod
+    def create_ABC_mixin(cls, eset_obj):
+        if not isinstance(eset_obj, type) or not issubclass(eset_obj, Eset):
+            raise ValueError(f"{eset_obj} is not a subclass of Eset")
+        else:
+
+            class EMixinABC(eset_obj):
+                def __init__(self, *args, **kwargs):
+                    if not self.init_check():  # Improve this
+                        raise NotImplementedError("Some error")
+
+                    if 'xtra_params' in kwargs:
+                        if len(kwargs['xtra_params']) != 0:
+                            self.cls_obj = kwargs['xtra_params'][0]
+                        super().__init__(*args, **kwargs)
+                    elif len(args) == 1:
+                        self.cls_obj = args[0]
+                        super().__init__(xtra_params=(self.cls_obj,))
+                    else:
+                        self.cls_obj = eset_obj
+                        super().__init__(*args, xtra_params=(self.cls_obj,))
+
+                def stop_init(self):
+                    try:
+                        return self.cls_obj.len()
+                    except ValueError:
+                        return None  # Aleph_0 infinite case
+
+                # Unsure of the format/form this may change
+                @abc.abstractmethod
+                def init_check(self) -> bool:
+                    """A check used by __init__"""
+
+                @abc.abstractmethod
+                def inverse_function(self, fVal):
+                    """To be defined too"""
+
+                @abc.abstractmethod
+                def direct_function(self, i):
+                    """To be defined too"""
+
+                def contains(self, val):
+                    """TBD"""
+                    if not self.contains_mixin_check(val):
+                        return False
+
+                    # The delegation part
+
+                    # It looks like I need to define a transformation
+                    # function that converts values that self has to
+                    # something that eset_obj understands, then use
+                    # the eset_obj contains function.
+
+                @abc.abstractmethod
+                def contains_mixin_check(self, val):
+                    """Some checks needed by contains before
+                    delegating"""
+
+                def len(self):
+                    return eset_obj.len()  # delegating to the eset_obj
+
+            return EMixinABC
