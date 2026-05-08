@@ -362,7 +362,7 @@ class Float64s(Eset):
 
     def __getitem__(self, key):
         """Delegating __getitem__ to the eset object f64tpls and
-        creating another Float64 eset with it.
+        creating another Float64s eset with it.
 
         """
         if isinstance(key, slice):
