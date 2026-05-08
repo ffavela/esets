@@ -399,8 +399,8 @@ class EABCMixinFactory(abc.ABC):
     # current logic works or if it needs to be refactored.
     @classmethod
     def create_ABC_mixin(cls, eset_obj):
-        if not isinstance(eset_obj, type) or not issubclass(eset_obj, Eset):
-            raise ValueError(f"{eset_obj} is not a subclass of Eset")
+        if not isinstance(eset_obj, type):
+            raise ValueError(f"{eset_obj} is not an Eset instance")
         else:
 
             class EMixinABC(eset_obj):
@@ -410,18 +410,18 @@ class EABCMixinFactory(abc.ABC):
 
                     if 'xtra_params' in kwargs:
                         if len(kwargs['xtra_params']) != 0:
-                            self.cls_obj = kwargs['xtra_params'][0]
+                            self.eset_obj = kwargs['xtra_params'][0]
                         super().__init__(*args, **kwargs)
                     elif len(args) == 1:
-                        self.cls_obj = args[0]
-                        super().__init__(xtra_params=(self.cls_obj,))
+                        self.eset_obj = args[0]
+                        super().__init__(xtra_params=(self.eset_obj,))
                     else:
-                        self.cls_obj = eset_obj
-                        super().__init__(*args, xtra_params=(self.cls_obj,))
+                        self.eset_obj = eset_obj
+                        super().__init__(*args, xtra_params=(self.eset_obj,))
 
                 def stop_init(self):
                     try:
-                        return self.cls_obj.len()
+                        return self.eset_obj.len()
                     except ValueError:
                         return None  # Aleph_0 infinite case
 
@@ -432,7 +432,7 @@ class EABCMixinFactory(abc.ABC):
 
                 @abc.abstractmethod
                 def inverse_function(self, fVal):
-                    """To be defined too"""
+                    """To be defined"""
 
                 @abc.abstractmethod
                 def direct_function(self, i):
@@ -444,11 +444,21 @@ class EABCMixinFactory(abc.ABC):
                         return False
 
                     # The delegation part
+                    eset_obj_val = self.get_eset_obj_val(val)
+                    return eset_obj_val in self.eset_obj
 
-                    # It looks like I need to define a transformation
-                    # function that converts values that self has to
-                    # something that eset_obj understands, then use
-                    # the eset_obj contains function.
+                @abd.abstractmethod
+                def eset_obj_val(self, val):
+                    """The function that establishes a relationship
+                    between val and the corresponding one from
+                    eset_obj"""
+
+                @abd.abstractmethod
+                def get_mix_val(self, val):
+                    """The inverse relationship between val and the
+                    corresponding one from eset_obj
+
+                    """
 
                 @abc.abstractmethod
                 def contains_mixin_check(self, val):
@@ -457,5 +467,17 @@ class EABCMixinFactory(abc.ABC):
 
                 def len(self):
                     return eset_obj.len()  # delegating to the eset_obj
+
+                def ___len___(self):
+                    return self.eset_obj.__len__()
+
+                def __getitem__(self, key):
+                    """Delegating __getitem__ to the eset_obj"""
+                    if isinstance(key, slice):
+                        return EMixinABC(xtra_params=(self.eset_obj[key],))
+                    elif isinstance(key, int):
+                        mix_val = self.get_mix_val(eset_obj[key])
+                        return mix_val
+                    raise ValueError('Need a slice or an integer')
 
             return EMixinABC
