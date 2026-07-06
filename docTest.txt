@@ -1266,6 +1266,57 @@ len is clearly limited for this let's use the non standard len here:
 Ladies an gentlemen ^ is an example of combinatorial explosion. And we
 are only warming up.
 
+Time for a classic: Fluent Python's FrenchDeck (chapter 1). A
+namedtuple Card, and a class that only bothers with __len__ and
+__getitem__ -- no __iter__ needed, Python falls back to the sequence
+protocol for iteration:
+
+>>> import collections
+>>> Card = collections.namedtuple('Card', ['rank', 'suit'])
+>>> class FrenchDeck:
+...     ranks = [str(n) for n in range(2, 11)] + list('JQKA')
+...     suits = 'spades diamonds clubs hearts'.split()
+...     def __init__(self):
+...         self._cards = [Card(rank, suit) for suit in self.suits
+...                                          for rank in self.ranks]
+...     def __len__(self):
+...         return len(self._cards)
+...     def __getitem__(self, position):
+...         return self._cards[position]
+...
+>>> deck = FrenchDeck()
+>>> len(deck)
+52
+>>> deck[0]
+Card(rank='2', suit='spades')
+>>> deck[-1]
+Card(rank='A', suit='hearts')
+
+52 unique, hashable cards, fed straight into Permutator (which just
+needs something it can call tuple() on, and that __getitem__ fallback
+is enough for that):
+
+>>> from cesets import Permutator
+>>> shuffles = Permutator(deck)
+>>> shuffles.len() == cp52.len()
+True
+
+Permutation #0 is the deck exactly as dealt, and the very last one is
+the deck fully reversed, mirroring cp52's own first and last entries:
+
+>>> shuffles[0] == tuple(deck)
+True
+>>> shuffles[-1] == tuple(reversed(deck))
+True
+
+And addressing a single shuffle out of that ~8*10**67 sized space is
+still instant, no enumeration involved:
+
+>>> shuffles[10**20][:3]
+(Card(rank='2', suit='spades'), Card(rank='3', suit='spades'), Card(rank='4', suit='spades'))
+>>> shuffles.index(shuffles[10**20]) == 10**20
+True
+
 Canonical_Permutator only deals in positions (0, 1, 2, ...), but the
 eset factory (EABCMixinFactory) lets us wrap it into something that
 permutes actual elements instead. Permutator takes any finite
