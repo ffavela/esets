@@ -1168,8 +1168,8 @@ Evens eset essentially from a mapping from the Whole numbers
 
 >>> from eset import EMap
 >>> from esets import Wholes
->>> e = EMap(lambda i: 2*i, lambda v: v//2, lambda v: False if not isinstance(v, int)\
- else None, Wholes())
+>>> e = EMap(lambda i: 2*i, lambda v: v//2, lambda v: False if not isinstance(v, int)
+... else None, Wholes())
 >>> e
 <esets.EMap (0, 2, 4, 6, ...)>
 
@@ -1185,8 +1185,8 @@ And it behaves as expected under slicing
 
 Here is another EMap for the multiples of 3:
 
->>> t = EMap(lambda i: 3*i, lambda v: v//3, lambda v: False if not isinstance(v, \
-int) else None, Wholes())
+>>> t = EMap(lambda i: 3*i, lambda v: v//3, lambda v: False if not isinstance(v,
+... int) else None, Wholes())
 >>> t
 <esets.EMap (0, 3, 6, 9, ...)>
 >>> t[123:321]
