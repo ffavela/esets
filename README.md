@@ -486,6 +486,82 @@ Before going into outrageously large numbers, first take a look into
 the [FLOAT64S.md](FLOAT64S.md) for an eset that enumerates all the 64
 bit floats.
 
+## Prior art
+
+Is there anything like this already out there? Sort of, but nothing
+quite does what an **eset** does.
+
+* [`itertools`](https://docs.python.org/3/library/itertools.html)
+  (stdlib) gives you lazy infinite sequences (`count`, etc.) but they
+  are plain iterators: no indexing, no slicing.
+
+* [`iteration_utilities`](https://github.com/MSeifert04/iteration_utilities)
+  is the closest match on the surface. Its `Iterable`/`InfiniteIterable`
+  classes support `__getitem__` with both ints and slices, even on
+  infinite iterables, e.g. `Iterable.from_count()[:4]`. But looking at
+  how `getitem` is actually implemented
+  ([`_additional_recipes.py`](https://github.com/MSeifert04/iteration_utilities/blob/master/src/iteration_utilities/_additional_recipes.py))
+  it reduces to `itertools.islice` plus a C-level `nth` helper
+  ([`nth.c`](https://github.com/MSeifert04/iteration_utilities/blob/master/src/iteration_utilities/_iteration_utilities/nth.c))
+  whose loop is:
+
+  ```c
+  for (idx = 0; idx <= self->index || self->index < 0;) {
+      item = Py_TYPE(iterator)->tp_iternext(iterator);
+      ...
+  }
+  ```
+
+  That is, it calls `next()` on the underlying iterator `idx` times.
+  It's lazy in that it doesn't pre-materialize a list, but access is
+  still `O(n)` in the index. `Iterable.from_count()[10**100]` would
+  try to advance a counter `10**100` times rather than return
+  instantly.
+
+  An **eset** never walks anything. `internal_direct_function` is
+  pure arithmetic on the index:
+
+  ```python
+  def internal_direct_function(self, i):
+      return self.direct_function(self.start + i * self.step)
+  ```
+
+  which is why `w[3:10**100]` and `e[:10**10:3][::-5]` return
+  immediately in the examples above: slicing composes `start`/`stop`/
+  `step` algebraically into a new `eset`, it never touches an
+  underlying element. `iteration_utilities` can't do that slice in
+  finite time for a formula-defined infinite sequence with a
+  googol-sized bound; it would try to actually call `next()` that many
+  times.
+
+  | | `iteration_utilities` | `esets` |
+  |---|---|---|
+  | Indexing strategy | walk the iterator `idx` times (`next()` in a loop) | evaluate `direct_function(start + i*step)` directly |
+  | Cost of `x[10**100]` | would not finish in your lifetime | instant |
+  | What a slice produces | a new lazy *iterator* wrapping `islice` | a new `eset` with recomputed `start`/`stop`/`step`, still `O(1)`-indexable |
+  | Requires | any iterable/generator, no closed form needed | an explicit direct function + inverse function per eset |
+
+  The trade-off is real: `iteration_utilities` works on any iterable
+  or generator pipeline with no math required from the user. An
+  `eset` only works when you can supply a direct formula and its
+  inverse, but in exchange it gets true `O(1)` random access and
+  slicing at arbitrary scale, which `iteration_utilities` structurally
+  cannot offer for formula-defined infinite sequences.
+
+* [SymPy's `sympy.series.sequences`](https://docs.sympy.org/latest/modules/series/sequences.html)
+  (`SeqFormula`, `SeqPer`, etc.) are formula-defined, lazily evaluated,
+  indexable/sliceable sequences, including infinite ones. Conceptually
+  the closest relative of the direct-function idea here, though it's
+  symbolic/CAS-flavored rather than a general ABC for defining
+  arbitrary bijective esets.
+
+* The [combinatorial number system ("combinadics")](https://en.wikipedia.org/wiki/Combinatorial_number_system)
+  (also `more_itertools.nth_combination`) maps an integer index
+  directly to the *k*-th combination/permutation without generating
+  the ones before it. This is the same `O(1)`-direct-function idea
+  applied to combinatorics, and is the direction
+  [lib/ecombinatorics.py](lib/ecombinatorics.py) is heading.
+
 ## TODO:
 
 * Describe how to create and `eset`.

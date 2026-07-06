@@ -763,3 +763,76 @@ So around 1000 of these laptop harddrives, more doable than the entire
 64bit floats. But still kind of out of reach through conventional
 approaches like using lists or tuples, but definetively reachable via
 the Float64s eset B-).
+
+## Prior art
+
+Has anyone done this before? The underlying trick, yes, more than
+once. Wrapping it into an indexable/sliceable enumerated set of the
+entire float64 space, not that I could find.
+
+### The bit trick: well established
+
+Mapping an IEEE 754 bit pattern to a monotonic integer, so that
+adjacent floats get adjacent integers, keeps getting independently
+reinvented:
+
+* [IEEE 754-2008's `totalOrder`
+  predicate](https://en.wikipedia.org/wiki/IEEE_754) formally
+  specifies exactly this: a total, monotonic order over all floats,
+  including signed zeros and nans.
+
+* [Bruce Dawson's "Comparing Floating Point Numbers, 2012
+  Edition"](https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/)
+  states what he calls the "obvious-in-hindsight theorem": subtract
+  the integer representations of two same-sign floats and the
+  absolute difference equals 1 plus the number of representable
+  floats between them. That is exactly what `f64s.index(a) -
+  f64s.index(b)` gives you here, derived independently and for a
+  narrower purpose (ULP distance for float comparisons) rather than
+  as a general indexable set.
+
+* [Google Test's `FloatingPoint`
+  class](https://github.com/google/googletest/blob/main/googletest/include/gtest/internal/gtest-internal.h)
+  converts sign-and-magnitude bit patterns to a "biased"
+  representation for the same reason: computing ULP distance for
+  `AlmostEquals`, with a hardcoded `kMaxUlps` tolerance.
+
+* The [radix-sort float
+  trick](https://stereopsis.com/radix.html) (Michael Herf) flips the
+  sign bit (positive floats) or all bits (negative floats) to make
+  float bit patterns sortable as unsigned integers, the same
+  fold-and-bias idea, used to make floats radix-sortable.
+
+* Rust's `f64::total_cmp` (stable since 1.62) implements the IEEE
+  `totalOrder` predicate with essentially the same bit manipulation,
+  for use as a general-purpose total order, e.g. `sort_by(f64::total_cmp)`.
+
+* `math.nextafter`/`numpy.nextafter` give you the next or previous
+  representable float directly from libm, without going through an
+  explicit integer index: a narrower, one-step version of the same
+  "walk the float lattice" idea.
+
+### What looks new here
+
+None of the above package the trick into a general-purpose
+*enumerated set*: something you index (`pf64s[n]`), slice
+(`pf64s[a:b]`, even at conceptually googol scale), reverse-lookup
+(`.index(val)`), and check membership on (`Fraction(1, 5) in pf64s`),
+while deriving properties like the ULP epsilon or the subnormal-region
+boundaries purely from index arithmetic. The prior art above is either
+
+1. a **spec** (`totalOrder`), with no indexable-set implementation,
+2. a **single-purpose comparison utility** (gtest, Dawson's ULP-diff,
+   `nextafter`), a one-shot distance or step rather than a full
+   enumerable/sliceable object, or
+3. a **sort key transform** (radix sort trick, `total_cmp`), used to
+   order an existing collection of floats you already have, not to
+   enumerate the entire float64 space as a first-class sequence.
+
+`Float64s` looks like a legitimate, if niche, synthesis: taking the
+well known bit-fold/bias trick and wrapping it in the same `eset` ABC
+used elsewhere in this repo. That is what lets you do things like
+`pf64s[pf64s.index(2**52):pf64s.index(2**53)]` to see the
+integer-only gap region, or `fsample = pf64s[::10**13]` to sample a
+million-point grid over all positive floats, neither of which the
+prior art above supports directly over "all floats" as a set.
