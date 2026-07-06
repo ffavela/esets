@@ -19,7 +19,7 @@ class BEset(abc.ABC):
         if start is None:
             start = 0
         if not isinstance(start, int):
-            raise TypeError('Values need to be integers.')
+            raise TypeError(f'{start} Values need to be integers.')
         if not isinstance(step, int):
             raise TypeError('Values need to be integers.')
         if step == 0:
@@ -395,11 +395,9 @@ class EMap(Eset):
 
 
 class EABCMixinFactory(abc.ABC):
-    # This should act on an object not a class, figure out if the
-    # current logic works or if it needs to be refactored.
     @classmethod
     def create_ABC_mixin(cls, eset_obj):
-        if not isinstance(eset_obj, type):
+        if not isinstance(eset_obj, Eset):
             raise ValueError(f"{eset_obj} is not an Eset instance")
         else:
 
@@ -447,13 +445,13 @@ class EABCMixinFactory(abc.ABC):
                     eset_obj_val = self.get_eset_obj_val(val)
                     return eset_obj_val in self.eset_obj
 
-                @abd.abstractmethod
+                @abc.abstractmethod
                 def eset_obj_val(self, val):
                     """The function that establishes a relationship
                     between val and the corresponding one from
                     eset_obj"""
 
-                @abd.abstractmethod
+                @abc.abstractmethod
                 def get_mix_val(self, val):
                     """The inverse relationship between val and the
                     corresponding one from eset_obj

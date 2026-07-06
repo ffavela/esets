@@ -9,13 +9,14 @@ The datastructure that nobody asked for is finally here. (beta)
   of even numbers). This is possible since in essence they are lazy
   generated sequences.
 
-In a sense, this could be described like a memoryless data structure.
-Something where the structure is in memory but not the data. The data
-is directly generated from the structure as soon as it is needed so
-there is no need to store the entirety of the data on memory. Despite
-this you may access the data via indexing, and operations such as
-slicing are accessible. Note that most eset implementations are random
-access see FUTURE_SECTION_HERE for details.
+In a sense, this could be described like a memoryless data structure,
+an obvious misnomer (but not for an obvious reason).  Something where
+the structure is in memory but not the data. The data is directly
+generated from the structure as soon as it is needed so there is no
+need to store the entirety of the data on memory. Despite this you may
+access the data via indexing, and operations such as slicing are
+accessible. Note that most eset implementations are random access see
+FUTURE_SECTION_HERE for details.
 
 ### Python already has sets, why create another implementation?
 
@@ -26,8 +27,8 @@ operations, it does support `len` (see further for caveats) and
 despite ordering being normally ignored here it plays a central
 role. This `set` implementation (`eset`) sacrifices all those common
 `set` operations in favor of enumeration. This unlocks slicing on them
-and the capability of defining extremely large or even infinite
-`esets`.
+and the capability of defining in a computer extremely large or even
+infinite sets, more properly infinite `esets`.
 
 ### But don't indices relate to locations in memory for sequences?
 
@@ -250,7 +251,7 @@ NotImplementedError: __len__ is limited use obj.len() instead
 >>>
 ```
 
-I hear you it should output some huge number fairly close to
+I hear you, it should output some huge number fairly close to
 `10**100`. We can work around that, as suggested by the error message:
 
 ```python
@@ -265,11 +266,14 @@ Well, you've read this far so maybe you are a bit interested. Check
 the following [stackoverflow
 question](https://stackoverflow.com/questions/79805440/in-python-is-there-a-way-to-get-len-with-int-data-type-and-not-and-index-sized-i).
 
-TLDR: __len__ assumes that the object is stored in memory and it uses
+In sum __len__ assumes that the object is stored in memory and it uses
 this fact to have highly performant code (remember that C is used
 under python's hood) anything larger will not fit on this variable
 which makes sense cause there isn't a large enough memory to store the
 entire address space that variable can point to.
+
+TLDR: an eset supports __len__ however __len__ is doen't fully support
+an eset.
 
 The sys.maxsize is the maximum value for the dunder __len__ method,
 anything higher like the following (normally `maxsize == 2**63-1`):

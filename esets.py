@@ -1,4 +1,4 @@
-from eset import Eset
+from eset import Eset, EABCMixinFactory
 from math import isqrt, copysign
 import struct
 import sys
@@ -379,6 +379,14 @@ class Float64s(Eset):
             if sign < 0:
                 return '-nan'
         return f'{v:.17g}'
+
+
+# minus_nan_tpl_idx = Float64_tpls().index((1, 2047, 1))
+# Float64sABCMixin = EABCMixinFactory.create_ABC_mixin(
+#     Float64_tpls()[:minus_nan_tpl_idx + 1])
+
+# class Float64sMixin(Float64sABCMixin):
+#     """The Float64s but using mixins"""
 
 
 class IntArithProg(Eset):
