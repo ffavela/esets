@@ -8,8 +8,8 @@ def get_permutation(val: int, size: int) -> tuple[int] | None:
         return None
 
     def get_idx_list(resval: int, retlist: list[int]):
-        if len(reslist) == 1:
-            retlist.append(reslist[0])
+        if len(reslist) <= 1:
+            retlist.extend(reslist)
             return retlist
 
         fact_val = factorial(len(reslist) - 1)
@@ -32,7 +32,7 @@ def get_permutation_number(nat_perm: tuple[int]) -> int | None:
         return None
 
     def get_number(perm):
-        if len(perm) == 1:
+        if len(perm) <= 1:
             return 0
 
         fnum = factorial(len(perm) - 1)

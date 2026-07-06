@@ -1266,6 +1266,83 @@ len is clearly limited for this let's use the non standard len here:
 Ladies an gentlemen ^ is an example of combinatorial explosion. And we
 are only warming up.
 
+Canonical_Permutator only deals in positions (0, 1, 2, ...), but the
+eset factory (EABCMixinFactory) lets us wrap it into something that
+permutes actual elements instead. Permutator takes any finite
+sequence of unique elements and treats the sequence as given as
+permutation #0:
+
+>>> from cesets import Permutator
+>>> pizza = Permutator(['pepperoni', 'mushroom', 'onion'])
+>>> pizza
+<esets.Permutator (('pepperoni', 'mushroom', 'onion'), ('pepperoni', 'onion', 'mushroom'), ('mushroom', 'pepperoni', 'onion'), ('mushroom', 'onion', 'pepperoni'), ('onion', 'pepperoni', 'mushroom'), ('onion', 'mushroom', 'pepperoni'))>
+>>> pizza.len()
+6
+>>> pizza[0] == ('pepperoni', 'mushroom', 'onion')
+True
+>>> pizza.index(('pepperoni', 'mushroom', 'onion'))
+0
+>>> pizza[5]
+('onion', 'mushroom', 'pepperoni')
+>>> pizza.index(pizza[5])
+5
+
+Membership rejects anything that isn't a genuine rearrangement of the
+original elements, be it a repeat, a foreign element, or the wrong
+shape entirely:
+
+>>> ('mushroom', 'pepperoni', 'onion') in pizza
+True
+>>> ('mushroom', 'pepperoni', 'pepperoni') in pizza
+False
+>>> ('mushroom', 'pepperoni', 'anchovy') in pizza
+False
+>>> (1, 2, 3) in pizza
+False
+
+Elements must be unique to begin with, so the constructor is guarded:
+
+>>> Permutator(['a', 'b', 'a'])
+Traceback (most recent call last):
+...
+ValueError: Elements must be unique
+
+Any finite iterable works, a string included, and slicing keeps
+returning Permutator, not the abstract factory base:
+
+>>> hand = Permutator('abcd')
+>>> hand
+<esets.Permutator (('a', 'b', 'c', 'd'), ('a', 'b', 'd', 'c'), ('a', 'c', 'b', 'd'), ('a', 'c', 'd', 'b'), ..., ('d', 'b', 'a', 'c'), ('d', 'b', 'c', 'a'), ('d', 'c', 'a', 'b'), ('d', 'c', 'b', 'a'))>
+>>> hand.len()
+24
+>>> sl = hand[1:4]
+>>> sl
+<esets.Permutator (('a', 'b', 'd', 'c'), ('a', 'c', 'b', 'd'), ('a', 'c', 'd', 'b'))>
+>>> type(sl).__name__
+'Permutator'
+
+And it agrees with Canonical_Permutator index for index, since that's
+exactly what it delegates to under the hood:
+
+>>> cp4 = Canonical_Permutator(4)
+>>> all(hand[i] == tuple('abcd'[j] for j in cp4[i]) for i in range(24))
+True
+
+Finally, an empty sequence is valid too: 0! == 1, so there is exactly
+one permutation of nothing, the empty tuple itself:
+
+>>> empty = Permutator([])
+>>> empty
+<esets.Permutator (())>
+>>> empty.len()
+1
+>>> empty[0]
+()
+>>> () in empty
+True
+>>> empty.index(())
+0
+
 Speaking of warming up, let's cool down with something concrete: the
 Float64s eset, which enumerates every single IEEE 754 double,
 negative zero, infinities and nans included.
