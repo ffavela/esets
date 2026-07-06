@@ -764,11 +764,11 @@ So around 1000 of these laptop harddrives, more doable than the entire
 approaches like using lists or tuples, but definetively reachable via
 the Float64s eset B-).
 
-## Prior art
+## Has anyone done this before? (Prior art)
 
-Has anyone done this before? The underlying trick, yes, more than
-once. Wrapping it into an indexable/sliceable enumerated set of the
-entire float64 space, not that I could find.
+The underlying trick, yes, more than once. Wrapping it into an
+indexable/sliceable enumerated set of the entire float64 space, not
+that I could find.
 
 ### The bit trick: well established
 

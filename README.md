@@ -486,10 +486,9 @@ Before going into outrageously large numbers, first take a look into
 the [FLOAT64S.md](FLOAT64S.md) for an eset that enumerates all the 64
 bit floats.
 
-## Prior art
+## Is there anything like this already out there? (Prior art)
 
-Is there anything like this already out there? Sort of, but nothing
-quite does what an **eset** does.
+Sorxt of, but nothing quite does what an **eset** does.
 
 * [`itertools`](https://docs.python.org/3/library/itertools.html)
   (stdlib) gives you lazy infinite sequences (`count`, etc.) but they

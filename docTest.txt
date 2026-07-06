@@ -1265,3 +1265,258 @@ len is clearly limited for this let's use the non standard len here:
 
 Ladies an gentlemen ^ is an example of combinatorial explosion. And we
 are only warming up.
+
+Speaking of warming up, let's cool down with something concrete: the
+Float64s eset, which enumerates every single IEEE 754 double,
+negative zero, infinities and nans included.
+
+>>> from esets import Float64s
+>>> f64s = Float64s()
+>>> f64s
+<esets.Float64s (0, -0, 4.9406564584124654e-324, -4.9406564584124654e-324, ..., inf, -inf, nan, -nan)>
+>>> f64s[-6:]
+<esets.Float64s (1.7976931348623157e+308, -1.7976931348623157e+308, inf, -inf, nan, -nan)>
+
+float2tpl/float2bintpl expose the sign, exponent and significand as
+integers and as raw bits respectively:
+
+>>> f64s.float2tpl(0)
+(0, 0, 0)
+>>> f64s.float2bintpl(0)
+('0', '00000000000', '0000000000000000000000000000000000000000000000000000')
+>>> f64s.float2tpl(-float(0))
+(1, 0, 0)
+>>> f64s.float2bintpl(float('inf'))
+('0', '11111111111', '0000000000000000000000000000000000000000000000000000')
+>>> f64s.float2bintpl(float('-inf'))
+('1', '11111111111', '0000000000000000000000000000000000000000000000000000')
+>>> f64s.float2bintpl(float('nan'))
+('0', '11111111111', '0000000000000000000000000000000000000000000000000001')
+>>> f64s.float2bintpl(float('-nan'))
+('1', '11111111111', '0000000000000000000000000000000000000000000000000001')
+
+As always len() is off limits but .len() works fine:
+
+>>> len(f64s)
+Traceback (most recent call last):
+...
+NotImplementedError: __len__ is limited use obj.len() instead
+>>> f64s.len()
+18437736874454810628
+>>> f64s.len()*8 # Bytes
+147501894995638485024
+>>> f64s.len()*8//10**18 # Exabytes
+147
+>>> f64s.len()*8//2**60 # Exbibytes
+127
+>>> 2*(2**63-2**52+2) == f64s.len()
+True
+
+So around 147 exabytes (127 exbibytes) would be needed to store every
+single 64 bit float. Float64s is built on top of Float64_tpls, a tpl
+only version:
+
+>>> from esets import Float64_tpls
+>>> f64tpls = Float64_tpls()
+>>> f64tpls
+<esets.Float64_tpls ((0, 0, 0), (1, 0, 0), (0, 0, 1), (1, 0, 1), ..., (0, 2047, 4503599627370494), (1, 2047, 4503599627370494), (0, 2047, 4503599627370495), (1, 2047, 4503599627370495))>
+>>> f64tpls[:f64tpls.index((1, 2047, 1))+1].len() == f64s.len()
+True
+
+Positives and negatives are folded together, alternating, so a step
+of two extracts either side:
+
+>>> pf64s = f64s[::2]
+>>> nf64s = f64s[1::2]
+>>> pf64s.len() == nf64s.len() == f64s.len()//2
+True
+
+Floats are famously weird once you get up close:
+
+>>> 1.4 * pf64s[1] == pf64s[1]
+True
+>>> n = 1000
+>>> (pf64s[n] + pf64s[n+1]) / 2 == pf64s[n]
+True
+
+Membership works too, with all the usual caveats about float
+rounding:
+
+>>> 0.0 in pf64s
+True
+>>> 0.0 in pf64s[1:]
+False
+>>> -5 in pf64s
+False
+>>> float('inf') in pf64s
+True
+>>> 3.141592 in pf64s
+True
+>>> 0.2 in pf64s
+True
+>>> format(0.2, '.17g')
+'0.20000000000000001'
+>>> from fractions import Fraction
+>>> Fraction(1, 5) in pf64s
+False
+
+Kindly note that the following currently returns False instead of
+the True you would expect (nan is a member of pf64s, its repr shows
+right there in the tail). This is a known bug in Eset.id_contains
+(eset.py), which rejects a value if
+"val != direct_function(inverse_function(val))", and nan is famously
+never equal to itself, not even to its own bit-identical self. Filing
+it for a later fix rather than papering over it here:
+
+>>> float('nan') in pf64s
+False
+
+We can go the other way too, from value to index and back:
+
+>>> idx = pf64s.index(2.718281)
+>>> idx
+4613303443449361558
+>>> pf64s[idx+1]
+2.7182810000000006
+>>> sliver = pf64s[idx:pf64s.index(2.718282)]
+>>> sliver
+<esets.Float64s (2.7182810000000002, 2.7182810000000006, 2.7182810000000011, 2.7182810000000015, ..., 2.7182819999999981, 2.7182819999999985, 2.718281999999999, 2.7182819999999994)>
+>>> sliver.len()
+2251799813
+>>> from math import e
+>>> sliver.index(e)
+1865523923
+>>> sliver[sliver.index(e)] == e
+True
+
+math.isclose can lie to you in ways == doesn't:
+
+>>> import math
+>>> x = 4503599627370496.0
+>>> y = 4503599627370496.5
+>>> math.isclose(x, y)
+True
+>>> x == y
+True
+>>> x == float(2**52)
+True
+>>> y2 = x + 1
+>>> x == y2
+False
+>>> y2 - x
+1.0
+>>> math.isclose(x, y2)
+True
+>>> math.isclose(x, y2, rel_tol=0, abs_tol=0.5)
+False
+
+The machine epsilon at any point falls out of a single subtraction,
+no while loop needed:
+
+>>> pf64s[pf64s.index(1.0)+1] - 1.0
+2.220446049250313e-16
+>>> def epsilon(x):
+...     pf = Float64s()[::2]
+...     x = abs(x)
+...     if x >= pf[-3]:
+...         raise ValueError("Out of bounds")
+...     return pf[pf.index(x)+1] - x
+...
+>>> epsilon(0)
+5e-324
+>>> epsilon(1.0)
+2.220446049250313e-16
+>>> epsilon(100.0)
+1.4210854715202004e-14
+
+Sampling a million-point grid over every positive float is one slice
+away:
+
+>>> fsample = pf64s[::10**13]
+>>> fsample
+<esets.Float64s (0, 4.9406564584124654e-311, 9.8813129168249309e-311, 1.4821969375237396e-310, ..., 1.7900216780780885e+308, 1.7920175183876232e+308, 1.7940133586971579e+308, 1.7960091990066926e+308)>
+>>> fsample.len()
+921887
+
+Integers stop being exactly representable past 2**52, first jumping
+by 2s then by 4s and so on:
+
+>>> pf64s.float2bintpl(2**52-1)
+('0', '10000110010', '1111111111111111111111111111111111111111111111111110')
+>>> pf64s.float2bintpl(2**52)
+('0', '10000110011', '0000000000000000000000000000000000000000000000000000')
+>>> i52 = pf64s.index(2**52)
+>>> i53 = pf64s.index(2**53)
+>>> pf64s[i52:i53]
+<esets.Float64s (4503599627370496, 4503599627370497, 4503599627370498, 4503599627370499, ..., 9007199254740988, 9007199254740989, 9007199254740990, 9007199254740991)>
+>>> 4503599627370496.5 in pf64s[i52:i53]
+True
+>>> (Fraction(4503599627370496) + Fraction(1, 2)) in pf64s[i52:i53]
+False
+>>> i54 = pf64s.index(2**54)
+>>> pf64s[i53:i54]
+<esets.Float64s (9007199254740992, 9007199254740994, 9007199254740996, 9007199254740998, ..., 18014398509481976, 18014398509481978, 18014398509481980, 18014398509481982)>
+>>> 9007199254740993 in pf64s[i53:i54]
+False
+
+And the subnormals, all 2**52 of the positive ones, take up exactly
+half of that first doubling range:
+
+>>> sub_idx = pf64s.f64tpls.index((0, 0, 2**52-1))
+>>> pf64s[:sub_idx+1].len()
+4503599627370496
+>>> fsub_idx = f64s.f64tpls.index((1, 0, 2**52-1))
+>>> f64s[:fsub_idx+1].len()
+9007199254740992
+>>> f64s[:fsub_idx+1].len()//8//10**12 # Terabytes
+1125
+>>> f64s[:fsub_idx+1].len()//8//2**40 # Tebibytes
+1024
+
+Now here is the fun part: the eset factory (EABCMixinFactory) can
+build an equivalent to Float64s via composition instead of
+reimplementing all that bit twiddling. Float64sMixin wraps a
+Float64_tpls eset_obj and only has to translate floats to/from tpls:
+
+>>> from esets import Float64sMixin
+>>> m = Float64sMixin()
+>>> m
+<esets.Float64sMixin (0, -0, 4.9406564584124654e-324, -4.9406564584124654e-324, ..., inf, -inf, nan, -nan)>
+>>> m.len() == f64s.len()
+True
+
+Every index agrees with Float64s, nan/-nan tail included (compared
+via repr since, again, nan isn't equal to itself):
+
+>>> all(repr(f64s[i]) == repr(m[i]) for i in range(-4, 4))
+True
+
+Slicing keeps returning Float64sMixin, not the abstract factory base:
+
+>>> pm = m[::2]
+>>> type(pm).__name__
+'Float64sMixin'
+>>> pf64s.len() == pm.len()
+True
+>>> all(repr(pf64s[i]) == repr(pm[i]) for i in range(5))
+True
+>>> all(repr(pf64s[i]) == repr(pm[i]) for i in range(-2, 0))
+True
+
+Containment and reverse lookup agree too:
+
+>>> (Fraction(1, 5) in f64s) == (Fraction(1, 5) in m)
+True
+>>> f64s.index(2.718281) == m.index(2.718281)
+True
+
+And yes, the nan membership bug above isn't a Float64s quirk, it
+inherits straight from Eset.__contains__ so Float64sMixin has it too:
+
+>>> float('nan') in pm
+False
+
+Two very different implementations, one hand rolled straight from
+struct.pack, one assembled by the factory delegating to
+Float64_tpls, landing on the exact same 18437736874454810628 values,
+index for index. That is rather the whole point of the eset ABC.
