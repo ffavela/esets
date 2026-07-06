@@ -55,10 +55,81 @@ for a sign, 11 for an exponent and 52 for a significand (sometimes
 called fraction or mantissa). The exponent bits have a 1023 bias,
 i.e. the interpreted exponent is exponent-1023.
 
-All that just to say that we can store any single float and also if we
-were determined enough we could even store all of them given the
-current storage capacity of mankind that'll take a significant portion
-but it is currently possible.
+### Wait under the same logic the Rationals also have an issue
+
+Yes and no. If there is at least one member of a set that can **only**
+be represented by using an infinite amount of memory has this issue. A
+Rational number has would need an infinite amount of information when
+expressed in its decimal expansion. Granted you may say that after a
+particular decimal all the rest of the digits are (say 0) and
+therefore there is no need to store it, we could let that pass since
+at least numerically in terms of magniture it is indistinguishable
+from any other expansion that decides to use more trailing
+zeroes. Like in:
+
+```
+1/4 == 0.25 == 0.250 == 0.2500 ...
+```
+
+This is the famous termination after a finite number of digits
+argument.
+
+But what happens if the trailing number is not zero (like a
+1) the magnitude argument collapses since:
+
+```
+1/9 != 0.1 != 0.11 != 0.111 ...
+```
+
+Because (where ... mean infinite expansion of ones):
+
+```
+1/9 == 0.1111...
+```
+
+So the previous argument for the trailing zeroes plays against us since:
+
+```
+0.1   == 0.10   != 0.1...
+0.11  == 0.110  != 0.111...
+0.111 == 0.1110 != 0.1111...
+.
+.
+.
+```
+
+This is the other famous case where there same sequence of numbers
+repeats over and over. Kindly note that they are essentially the same
+case (in the former it was trailing 0s while the latter trailing 1s).
+
+There are at least 2 equivalent ways to circumvent this unrealistic
+situation and use a finite amount of information. Both require the use
+of a process in its definition:
+
+1) All Rationals have a repeated decimal expansion so we can save the
+non repeated part in a finite amount of memory. Then save the part
+that repeats (a single repetition) and then save a process that uses
+this data to get any decimal value.
+
+2) Rationals can also be described as a quotient, that is a division
+of two integer numbers. A numerator that can be an integer and a
+denomitator that can be any integer except zero. Those two values use
+a finite amount of information, the process in this case is a
+division.
+
+Note that in both cases the process or function definition can be
+stored in a finite amount of memory. Wherea's the infinite decimal
+expansion can't. Note that Irrationals such as `sqrt(2)` do not need
+an infinite amount of information to be defined. The issue only comes
+when trying to use their decimal expansion.
+
+All that just to say that we can store any single Float, because the
+elements of this set can be represented in a finite amount of memory.
+We could even ommit the use of a process for defining them!
+
+If we were determined enough we could even store all of them given the
+current storage capacity of mankind (as of writting this) that'll take
+a significant portion but it is currently possible.
 
 ### Storing all 64 bit floats is definetively a terrible idea
 

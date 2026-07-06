@@ -132,9 +132,9 @@ ValueError: Aleph_0 infinite
 Correct, we aren't. It is a lazy evaluated sequence, and discrete math
 is behind this.
 
-In the spirit of Georg Cantor's work we are simply establishing a
-relationship between the Even numbers and the Whole numbers (0, 1, 2,
-...) where the later serve as our indices.
+In the spirit of Georg Cantor's work (and Leopold Kronecker of course)
+we are simply establishing a relationship between the Even numbers and
+the Whole numbers (0, 1, 2, ...) where the later serve as our indices.
 
 ```python
 >>> for i in range(5):
@@ -488,7 +488,7 @@ bit floats.
 
 ## Is there anything like this already out there? (Prior art)
 
-Sorxt of, but nothing quite does what an **eset** does.
+Sort of, but nothing quite does what an **eset** does.
 
 * [`itertools`](https://docs.python.org/3/library/itertools.html)
   (stdlib) gives you lazy infinite sequences (`count`, etc.) but they
