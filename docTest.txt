@@ -1360,16 +1360,14 @@ True
 >>> Fraction(1, 5) in pf64s
 False
 
-Kindly note that the following currently returns False instead of
-the True you would expect (nan is a member of pf64s, its repr shows
-right there in the tail). This is a known bug in Eset.id_contains
-(eset.py), which rejects a value if
+nan is a member of pf64s too, its repr shows right there in the
+tail. Getting this right took a bit of care in Eset.id_contains
+(eset.py), which would otherwise reject any value via
 "val != direct_function(inverse_function(val))", and nan is famously
-never equal to itself, not even to its own bit-identical self. Filing
-it for a later fix rather than papering over it here:
+never equal to itself, not even to its own bit-identical round trip:
 
 >>> float('nan') in pf64s
-False
+True
 
 We can go the other way too, from value to index and back:
 
@@ -1510,11 +1508,11 @@ True
 >>> f64s.index(2.718281) == m.index(2.718281)
 True
 
-And yes, the nan membership bug above isn't a Float64s quirk, it
-inherits straight from Eset.__contains__ so Float64sMixin has it too:
+And the nan handling above isn't a Float64s quirk either, it comes
+straight from Eset.__contains__ so Float64sMixin gets it for free too:
 
 >>> float('nan') in pm
-False
+True
 
 Two very different implementations, one hand rolled straight from
 struct.pack, one assembled by the factory delegating to

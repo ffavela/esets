@@ -323,8 +323,12 @@ class Eset(BEset):
         has to be the same as not applying any operation to a value. A
         kind of trivial check but really important for many cases.
 
+        Skipped for values that don't equal themselves (like
+        float('nan')), since those can never satisfy an == comparison,
+        not even against their own bit-exact round trip.
+
         """
-        if val != self.direct_function(self.inverse_function(val)):
+        if val == val and val != self.direct_function(self.inverse_function(val)):
             return False
 
     def slice_contains(self, val):
