@@ -401,7 +401,7 @@ class EABCMixinFactory(abc.ABC):
             raise ValueError(f"{eset_obj} is not an Eset instance")
         else:
 
-            class EMixinABC(eset_obj):
+            class EMixinABC(Eset):
                 def __init__(self, *args, **kwargs):
                     if not self.init_check():  # Improve this
                         raise NotImplementedError("Some error")
@@ -442,7 +442,7 @@ class EABCMixinFactory(abc.ABC):
                         return False
 
                     # The delegation part
-                    eset_obj_val = self.get_eset_obj_val(val)
+                    eset_obj_val = self.eset_obj_val(val)
                     return eset_obj_val in self.eset_obj
 
                 @abc.abstractmethod
@@ -464,17 +464,14 @@ class EABCMixinFactory(abc.ABC):
                     delegating"""
 
                 def len(self):
-                    return eset_obj.len()  # delegating to the eset_obj
-
-                def ___len___(self):
-                    return self.eset_obj.__len__()
+                    return self.eset_obj.len()  # delegating to the eset_obj
 
                 def __getitem__(self, key):
                     """Delegating __getitem__ to the eset_obj"""
                     if isinstance(key, slice):
-                        return EMixinABC(xtra_params=(self.eset_obj[key],))
+                        return type(self)(xtra_params=(self.eset_obj[key],))
                     elif isinstance(key, int):
-                        mix_val = self.get_mix_val(eset_obj[key])
+                        mix_val = self.get_mix_val(self.eset_obj[key])
                         return mix_val
                     raise ValueError('Need a slice or an integer')
 
