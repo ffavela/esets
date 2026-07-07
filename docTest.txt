@@ -1317,6 +1317,58 @@ still instant, no enumeration involved:
 >>> shuffles.index(shuffles[10**20]) == 10**20
 True
 
+sys.getsizeof has a surprise of its own: it's shallow, only the
+object's own header and slots get counted, never what those slots
+point to. It's easy to misread that as "how much this thing holds":
+
+>>> import sys
+>>> sys.getsizeof(deck)
+48
+>>> sys.getsizeof(deck._cards)
+472
+
+deck is 48 bytes no matter how many cards it has. deck._cards is a
+separate object, and only that list's own 52 pointers get counted (52
+machine words plus list overhead), never the 52 Card objects each
+pointer refers to. Now the interesting one, shuffles itself:
+
+>>> sys.getsizeof(shuffles)
+48
+
+The exact same 48 bytes as deck, despite standing for all
+80658175170943878571660636856403766975289505440883277824000000000000
+permutations of it. shuffles.eset_obj (a Canonical_Permutator) does
+the index arithmetic and shuffles.elements holds the 52 cards, but
+neither gets copied, expanded, or even followed by getsizeof. This is
+the entire premise of eset: laziness costs nothing extra to represent,
+only to materialize.
+
+Materializing one shuffle does cost something, but only for the fresh
+tuple spine; the 52 Card objects inside it are the very same ones
+already living in deck._cards, not copies:
+
+>>> sys.getsizeof(shuffles[0])
+464
+
+And the index itself, shuffles.len(), a 70 digit integer, costs far
+less than a single materialized shuffle:
+
+>>> sys.getsizeof(shuffles.len())
+56
+
+CPython's arbitrary precision ints are stored in 30-bit "digits"
+(sys.int_info.bits_per_digit), so a number this size, 226 bits per
+.bit_length(), only needs about 8 of those; header included that's 56
+bytes total, regardless of the decimal repr running 70 digits long.
+
+That gap, 56 bytes for an index versus 464 for a materialized
+shuffle, is the whole argument for storing indices instead of hands:
+once the context is fixed (this Permutator, over this exact deck), an
+index plus a call to shuffles[idx] reconstructs the full permutation
+on demand. Logging a million dealt hands as indices instead of full
+52-card sequences is roughly an eightfold saving here, and the ratio
+only grows the heavier each element of the sequence gets.
+
 Canonical_Permutator only deals in positions (0, 1, 2, ...), but the
 eset factory (EABCMixinFactory) lets us wrap it into something that
 permutes actual elements instead. Permutator takes any finite
