@@ -1292,12 +1292,12 @@ Card(rank='2', suit='spades')
 >>> deck[-1]
 Card(rank='A', suit='hearts')
 
-52 unique, hashable cards, fed straight into Permutator (which just
+52 unique, hashable cards, fed straight into Distinct_Permutator (which just
 needs something it can call tuple() on, and that __getitem__ fallback
 is enough for that):
 
->>> from cesets import Permutator
->>> shuffles = Permutator(deck)
+>>> from cesets import Distinct_Permutator
+>>> shuffles = Distinct_Permutator(deck)
 >>> shuffles.len() == cp52.len()
 True
 
@@ -1363,7 +1363,7 @@ bytes total, regardless of the decimal repr running 70 digits long.
 
 That gap, 56 bytes for an index versus 464 for a materialized
 shuffle, is the whole argument for storing indices instead of hands:
-once the context is fixed (this Permutator, over this exact deck), an
+once the context is fixed (this Distinct_Permutator, over this exact deck), an
 index plus a call to shuffles[idx] reconstructs the full permutation
 on demand. Logging a million dealt hands as indices instead of full
 52-card sequences is roughly an eightfold saving here, and the ratio
@@ -1371,14 +1371,14 @@ only grows the heavier each element of the sequence gets.
 
 Canonical_Permutator only deals in positions (0, 1, 2, ...), but the
 eset factory (EABCMixinFactory) lets us wrap it into something that
-permutes actual elements instead. Permutator takes any finite
+permutes actual elements instead. Distinct_Permutator takes any finite
 sequence of unique elements and treats the sequence as given as
 permutation #0:
 
->>> from cesets import Permutator
->>> pizza = Permutator(['pepperoni', 'mushroom', 'onion'])
+>>> from cesets import Distinct_Permutator
+>>> pizza = Distinct_Permutator(['pepperoni', 'mushroom', 'onion'])
 >>> pizza
-<esets.Permutator (('pepperoni', 'mushroom', 'onion'), ('pepperoni', 'onion', 'mushroom'), ('mushroom', 'pepperoni', 'onion'), ('mushroom', 'onion', 'pepperoni'), ('onion', 'pepperoni', 'mushroom'), ('onion', 'mushroom', 'pepperoni'))>
+<esets.Distinct_Permutator (('pepperoni', 'mushroom', 'onion'), ('pepperoni', 'onion', 'mushroom'), ('mushroom', 'pepperoni', 'onion'), ('mushroom', 'onion', 'pepperoni'), ('onion', 'pepperoni', 'mushroom'), ('onion', 'mushroom', 'pepperoni'))>
 >>> pizza.len()
 6
 >>> pizza[0] == ('pepperoni', 'mushroom', 'onion')
@@ -1405,24 +1405,24 @@ False
 
 Elements must be unique to begin with, so the constructor is guarded:
 
->>> Permutator(['a', 'b', 'a'])
+>>> Distinct_Permutator(['a', 'b', 'a'])
 Traceback (most recent call last):
 ...
 ValueError: Elements must be unique
 
 Any finite iterable works, a string included, and slicing keeps
-returning Permutator, not the abstract factory base:
+returning Distinct_Permutator, not the abstract factory base:
 
->>> hand = Permutator('abcd')
+>>> hand = Distinct_Permutator('abcd')
 >>> hand
-<esets.Permutator (('a', 'b', 'c', 'd'), ('a', 'b', 'd', 'c'), ('a', 'c', 'b', 'd'), ('a', 'c', 'd', 'b'), ..., ('d', 'b', 'a', 'c'), ('d', 'b', 'c', 'a'), ('d', 'c', 'a', 'b'), ('d', 'c', 'b', 'a'))>
+<esets.Distinct_Permutator (('a', 'b', 'c', 'd'), ('a', 'b', 'd', 'c'), ('a', 'c', 'b', 'd'), ('a', 'c', 'd', 'b'), ..., ('d', 'b', 'a', 'c'), ('d', 'b', 'c', 'a'), ('d', 'c', 'a', 'b'), ('d', 'c', 'b', 'a'))>
 >>> hand.len()
 24
 >>> sl = hand[1:4]
 >>> sl
-<esets.Permutator (('a', 'b', 'd', 'c'), ('a', 'c', 'b', 'd'), ('a', 'c', 'd', 'b'))>
+<esets.Distinct_Permutator (('a', 'b', 'd', 'c'), ('a', 'c', 'b', 'd'), ('a', 'c', 'd', 'b'))>
 >>> type(sl).__name__
-'Permutator'
+'Distinct_Permutator'
 
 And it agrees with Canonical_Permutator index for index, since that's
 exactly what it delegates to under the hood:
@@ -1434,9 +1434,9 @@ True
 Finally, an empty sequence is valid too: 0! == 1, so there is exactly
 one permutation of nothing, the empty tuple itself:
 
->>> empty = Permutator([])
+>>> empty = Distinct_Permutator([])
 >>> empty
-<esets.Permutator (())>
+<esets.Distinct_Permutator (())>
 >>> empty.len()
 1
 >>> empty[0]

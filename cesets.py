@@ -39,10 +39,10 @@ class Canonical_Permutator(Eset):
         return self.slice_contains(val)
 
 
-PermutatorABCMixin = EABCMixinFactory.create_ABC_mixin(Canonical_Permutator(1))
+Distinct_PermutatorABCMixin = EABCMixinFactory.create_ABC_mixin(Canonical_Permutator(1))
 
 
-class Permutator(PermutatorABCMixin):
+class Distinct_Permutator(Distinct_PermutatorABCMixin):
     """An eset of every permutation of a finite sequence of unique
     elements, built via EABCMixinFactory on top of
     Canonical_Permutator: Canonical_Permutator enumerates the
