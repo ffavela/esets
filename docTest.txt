@@ -1573,6 +1573,59 @@ True
 >>> empty.index(())
 0
 
+One property of Distinct_Permutator does NOT carry over: there, the
+very last permutation is always the exact reverse of the first
+(shuffles[-1] == tuple(reversed(deck)), demonstrated earlier), because
+every element is its own class of one, so "pick the highest-priority
+remaining candidate at each step" and "read the input backwards" are
+the same operation. Once elements repeat, that stops being true in
+general:
+
+>>> p = Permutator(['a', 'x', 'y', 'a'])
+>>> p[0]
+('a', 'x', 'y', 'a')
+>>> p[0][::-1]
+('a', 'y', 'x', 'a')
+>>> p[-1]
+('y', 'x', 'a', 'a')
+
+The ranking places 'a' first at index 0 by always preferring whichever
+class still has its next occurrence at the smallest remaining original
+position; maximizing the index does the opposite, always preferring
+the largest remaining position. Those two rules are mirror images of
+each other only when each class's occurrences form one contiguous
+run. Here the two 'a's sit at opposite ends with other classes
+in between, so they stop agreeing partway through, and the last
+permutation ends up being neither the input nor its reverse.
+
+It can get more extreme: when the input is itself a palindrome (as a
+value tuple, not just in appearance), reversing it reproduces the
+exact same tuple, which index 0 has already claimed, so the last
+index is *guaranteed* to be something else, no matter how the ranking
+is designed:
+
+>>> pal = Permutator(['a', 'x', 'a'])
+>>> pal[0]
+('a', 'x', 'a')
+>>> pal[0][::-1] == pal[0]
+True
+>>> pal[-1] == pal[0]
+False
+
+None of this affects the actual guarantees: permutation #0 is always
+the input as given, the count always matches the multinomial
+coefficient, every distinguishable arrangement is produced exactly
+once, and .index() always round-trips:
+
+>>> from itertools import permutations
+>>> seen = [p[i] for i in range(p.len())]
+>>> len(set(seen)) == p.len()
+True
+>>> set(seen) == set(permutations(['a', 'x', 'y', 'a']))
+True
+>>> all(p.index(v) == i for i, v in enumerate(seen))
+True
+
 Speaking of warming up, let's cool down with something concrete: the
 Float64s eset, which enumerates every single IEEE 754 double,
 negative zero, infinities and nans included.
