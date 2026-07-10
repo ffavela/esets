@@ -2026,6 +2026,107 @@ Same shape as before: ('w', 'z') would complement to itself under
 "swap the alphabet's two ends", yet the actual reverse-index
 combination, quartet[3], is a different pair altogether.
 
+Permutator and Combinator both translate between an abstract index
+domain and an arbitrary elements sequence supplied at construction
+time. Partitioner needs no such translation: an integer partition's
+parts already are the integers, so it's a single, self-contained
+class rather than a Natural_* plus wrapper pair. Each partition of n
+is a non-increasing tuple of positive integers summing to n, the
+standard convention:
+
+>>> from cesets import Partitioner
+>>> p5 = Partitioner(5)
+>>> p5
+<esets.Partitioner ((1, 1, 1, 1, 1), (2, 1, 1, 1), (2, 2, 1), (3, 1, 1), (3, 2), (4, 1), (5,))>
+>>> p5.len()
+7
+>>> p5[0]
+(1, 1, 1, 1, 1)
+>>> p5[-1]
+(5,)
+
+Partition #0 is always n copies of 1; the largest part grows as
+slowly as possible as the index increases, ending at the single-part
+partition (n,). Unlike n! or comb(n, k), the count p(n) has no
+closed-form shortcut: it's computed via the classic memoized
+recursion partitions_count(n, m) = partitions of n using parts <= m,
+splitting on whether a part of size m gets used at all
+(partitions_count(n, m) = partitions_count(n, m-1) +
+partitions_count(n-m, m)), the same recursive shape the rest of this
+module's rank/unrank functions use for their own block sizes.
+
+Membership requires the canonical non-increasing form, positive parts
+only, and a matching sum, same "value identity matters" convention
+Natural_Combinator and Natural_Multiset_Combinator follow:
+
+>>> (3, 1, 1) in p5
+True
+>>> (1, 1, 3) in p5
+False
+>>> (3, 2) in p5
+True
+>>> (0, 5) in p5
+False
+>>> p5.index((1, 2, 2))
+Traceback (most recent call last):
+...
+ValueError: (1, 2, 2) not in Partitioner
+
+n itself must be a non-negative integer:
+
+>>> Partitioner(-1)
+Traceback (most recent call last):
+...
+ValueError: Need a non-negative integer to initialize
+>>> Partitioner(2.5)
+Traceback (most recent call last):
+...
+ValueError: Need a non-negative integer to initialize
+
+Slicing works the same way as everywhere else in this module:
+
+>>> p5[1:4]
+<esets.Partitioner* ((2, 1, 1, 1), (2, 2, 1), (3, 1, 1))>
+
+A bigger, classic reference value: p(10) = 42.
+
+>>> p10 = Partitioner(10)
+>>> p10.len()
+42
+>>> p10[0]
+(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+>>> p10[-1]
+(10,)
+
+There's no reversal caveat to document here, unlike the permutators
+and combinators: reversing a non-increasing tuple isn't even a valid
+partition in general ((3, 1, 1) reversed is (1, 1, 3), not
+non-increasing), so the question doesn't apply in the same form.
+
+And the same trivial edge case as always, n = 0: exactly one
+partition, the empty tuple:
+
+>>> p0 = Partitioner(0)
+>>> p0
+<esets.Partitioner (())>
+>>> p0.len()
+1
+>>> p0[0]
+()
+>>> () in p0
+True
+>>> p0.index(())
+0
+
+There's no alphabet-equivalent for Partitioner: an alphabet fixes an
+ordering over an arbitrary elements domain, but here the "elements"
+already are just sizes, nothing to substitute in. The object that
+would actually want that kind of elements/alphabet layer is a
+different one, a set partition (grouping n actual distinguishable
+elements into non-empty blocks, counted by Stirling numbers of the
+second kind rather than p(n)) -- a genuinely different combinatorial
+object, not a wrapper on top of this one.
+
 Speaking of warming up, let's cool down with something concrete: the
 Float64s eset, which enumerates every single IEEE 754 double,
 negative zero, infinities and nans included.

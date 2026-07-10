@@ -596,3 +596,66 @@ class Combinator(CombinatorABCMixin):
                 xtra_params=(self.eset_obj[key], self.elements, self.k, self.classes)
             )
         return super().__getitem__(key)
+
+
+class Partitioner(Eset):
+    """A basic eset that handles integer partitions: every way of
+    writing a non-negative integer n as a sum of positive integers,
+    order disregarded. Each partition is represented as a
+    non-increasing tuple of positive integers summing to n, the
+    standard convention (4 = (3, 1), not (1, 3)).
+
+    Unlike Permutator/Combinator, there's no arbitrary elements domain
+    to translate to and from here: a partition's parts already are the
+    integers, so this is a single, self-contained class, no Natural_*
+    plus wrapper split.
+
+    Partition #0 is (1, 1, ..., 1), n copies of 1; the count grows as
+    the largest part is allowed to grow, ending at partition -1, the
+    single-part partition (n,). The count itself, p(n), has no
+    closed-form shortcut the way n! or comb(n, k) do; it's computed by
+    the classic memoized recursion partitions_count(n, m) = partitions
+    of n using parts <= m, splitting on whether a part of size m is
+    used at all.
+
+    There's no alphabet-equivalent for this class: an alphabet fixes
+    an ordering over an arbitrary elements domain, but a partition's
+    "elements" are already just sizes. The analogous higher-level
+    object, partitioning n actual distinguishable elements into
+    non-empty groups (Stirling numbers of the second kind / Bell
+    numbers), is a genuinely different combinatorial object and would
+    need its own class, not a wrapper on top of this one.
+    """
+
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs:
+            if len(kwargs['xtra_params']) != 0:
+                self.N = kwargs['xtra_params'][0]
+            super().__init__(*args, **kwargs)
+        elif len(args) == 1:
+            if not isinstance(args[0], int) or args[0] < 0:
+                raise ValueError('Need a non-negative integer to initialize')
+            self.N = args[0]
+            super().__init__(xtra_params=(self.N,))
+        else:
+            raise ValueError('Need a non-negative integer to initialize')
+
+    def direct_function(self, i):
+        return ecomb.get_partition(i, self.N)
+
+    def inverse_function(self, val):
+        return ecomb.get_partition_number(val, self.N)
+
+    def stop_init(self):
+        return ecomb.partitions_count(self.N, self.N)
+
+    def contains(self, val):
+        if not isinstance(val, tuple):
+            return False
+        if any(not isinstance(p, int) or p <= 0 for p in val):
+            return False
+        if sum(val) != self.N:
+            return False
+        if list(val) != sorted(val, reverse=True):
+            return False
+        return self.slice_contains(val)

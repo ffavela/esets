@@ -263,3 +263,67 @@ def get_multiset_combination_number(
         return block + locate(classes, remaining_k, class_id, seq, t - 1, actual)
 
     return rank(multiplicities, len(combination), 0, list(combination))
+
+
+def partitions_count(n: int, m: int) -> int:
+    memo: dict[tuple[int, int], int] = {}
+
+    def f(n: int, m: int) -> int:
+        if m > n:
+            m = n
+        key = (n, m)
+        if key in memo:
+            return memo[key]
+        if n == 0:
+            result = 1
+        elif m == 0:
+            result = 0
+        else:
+            result = f(n, m - 1) + f(n - m, m)
+        memo[key] = result
+        return result
+
+    return f(n, m)
+
+
+def get_partition(val: int, n: int) -> tuple[int] | None:
+    total = partitions_count(n, n)
+    if val >= total or val < 0:
+        return None
+
+    def place(resval: int, n: int, m: int, retlist: list[int]) -> list[int]:
+        if n == 0:
+            return retlist
+        return try_first(resval, n, m, retlist, 1)
+
+    def try_first(
+        resval: int, n: int, m: int, retlist: list[int], first: int
+    ) -> list[int]:
+        block = partitions_count(n - first, first)
+        if resval < block:
+            return place(resval, n - first, first, retlist + [first])
+        return try_first(resval - block, n, m, retlist, first + 1)
+
+    return tuple(place(val, n, n, []))
+
+
+def get_partition_number(partition: tuple[int], n: int) -> int | None:
+    if sum(partition) != n:
+        return None
+    if any(p <= 0 for p in partition):
+        return None
+    if list(partition) != sorted(partition, reverse=True):
+        return None
+
+    def rank(n: int, seq: list[int]) -> int:
+        if not seq:
+            return 0
+        return locate(n, seq, 1)
+
+    def locate(n: int, seq: list[int], candidate: int) -> int:
+        block = partitions_count(n - candidate, candidate)
+        if candidate == seq[0]:
+            return rank(n - candidate, seq[1:])
+        return block + locate(n, seq, candidate + 1)
+
+    return rank(n, list(partition))
