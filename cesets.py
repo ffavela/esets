@@ -3,7 +3,7 @@ import lib.ecombinatorics as ecomb
 from math import factorial
 
 
-class Canonical_Permutator(Eset):
+class Natural_Permutator(Eset):
     """A basic eset that handles permutations without repetition"""
 
     def __init__(self, *args, **kwargs):
@@ -39,13 +39,13 @@ class Canonical_Permutator(Eset):
         return self.slice_contains(val)
 
 
-Distinct_PermutatorABCMixin = EABCMixinFactory.create_ABC_mixin(Canonical_Permutator(1))
+Distinct_PermutatorABCMixin = EABCMixinFactory.create_ABC_mixin(Natural_Permutator(1))
 
 
 class Distinct_Permutator(Distinct_PermutatorABCMixin):
     """An eset of every permutation of a finite sequence of unique
     elements, built via EABCMixinFactory on top of
-    Canonical_Permutator: Canonical_Permutator enumerates the
+    Natural_Permutator: Natural_Permutator enumerates the
     positions, this class only translates between positions and the
     elements it was given. The sequence as given is permutation #0.
     An empty sequence is valid too and yields the single trivial
@@ -68,7 +68,7 @@ class Distinct_Permutator(Distinct_PermutatorABCMixin):
             if len(set(elements)) != len(elements):
                 raise ValueError('Elements must be unique')
             self.elements = elements
-            super().__init__(xtra_params=(Canonical_Permutator(len(elements)),))
+            super().__init__(xtra_params=(Natural_Permutator(len(elements)),))
         else:
             raise ValueError(
                 'Need a finite sequence (list, tuple, or string) of unique elements'
@@ -90,13 +90,13 @@ class Distinct_Permutator(Distinct_PermutatorABCMixin):
         return self.eset_obj.index(self._elems_to_pos(val))
 
     def eset_obj_val(self, val):
-        """The tuple of positions (Canonical_Permutator's own
+        """The tuple of positions (Natural_Permutator's own
         vocabulary) corresponding to a tuple of elements."""
         return self._elems_to_pos(val)
 
     def get_mix_val(self, val):
         """The tuple of elements corresponding to a
-        Canonical_Permutator tuple of positions."""
+        Natural_Permutator tuple of positions."""
         return self._pos_to_elems(val)
 
     def contains_mixin_check(self, val):
