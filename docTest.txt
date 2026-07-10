@@ -1626,6 +1626,57 @@ True
 >>> all(p.index(v) == i for i, v in enumerate(seen))
 True
 
+All of the above ties permutation #0 to whatever arrangement elements
+happened to be given in. Sometimes that's backwards: two different
+shufflings of the same multiset produce two Permutator instances that,
+while covering the same arrangements, disagree on which index each one
+sits at. An optional second argument, alphabet, fixes that: it pins
+down the canonical class order explicitly instead of deriving it from
+first appearance, so the resulting enumeration depends only on the
+alphabet and the multiset, not on the input's own arrangement:
+
+>>> from cesets import Permutator
+>>> p1 = Permutator(['a', 'b', 'a'], ['c', 'b', 'a'])
+>>> p2 = Permutator(['b', 'a', 'a'], ['c', 'b', 'a'])
+>>> p1[0]
+('b', 'a', 'a')
+>>> p2[0]
+('b', 'a', 'a')
+>>> [p1[i] for i in range(p1.len())] == [p2[i] for i in range(p2.len())]
+True
+
+Same multiset, same alphabet, two differently-shuffled inputs, one
+identical enumeration. That's the trade being made: permutation #0
+stops meaning "elements as given" and starts meaning "elements sorted
+by alphabet priority" (alphabet ranks 'b' ahead of 'a' here, hence
+('b', 'a', 'a') and not ('a', 'a', 'b')), which is exactly what makes
+it arrangement-independent.
+
+The alphabet may contain extra values never used in elements, useful
+for pinning down one shared ordering meant to be reused across many
+differently-stocked Permutator instances:
+
+>>> p3 = Permutator(['a', 'b', 'a'], ['z', 'c', 'b', 'a', 'y'])
+>>> p3[0]
+('b', 'a', 'a')
+>>> p3.len()
+3
+
+But every value actually present in elements must be covered:
+
+>>> Permutator(['a', 'z'], ['a', 'b'])
+Traceback (most recent call last):
+...
+ValueError: Elements not present in alphabet: ['z']
+
+And the alphabet itself must not repeat a value, or "priority order"
+stops being well defined:
+
+>>> Permutator(['a', 'b'], ['a', 'a', 'b'])
+Traceback (most recent call last):
+...
+ValueError: Alphabet entries must be unique
+
 Speaking of warming up, let's cool down with something concrete: the
 Float64s eset, which enumerates every single IEEE 754 double,
 negative zero, infinities and nans included.

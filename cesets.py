@@ -174,6 +174,17 @@ class Permutator(PermutatorABCMixin):
     is the multinomial coefficient n!/(m1!*m2!*...*mk!) rather than
     n!, so repeated elements collapse indistinguishable rearrangements
     into a single entry instead of counting them separately.
+
+    An optional second argument, alphabet, fixes the canonical class
+    order instead of deriving it from first appearance in elements.
+    alphabet must contain every distinct value present in elements
+    (it may also contain extra, unused values); anything in elements
+    missing from alphabet raises a ValueError. Supplying an alphabet
+    changes what permutation #0 means: instead of "elements exactly as
+    given", it becomes "elements sorted by alphabet priority", which
+    is what makes the resulting enumeration depend only on the
+    alphabet and the multiset, not on the arrangement elements
+    happened to be given in.
     """
 
     def __init__(self, *args, **kwargs):
@@ -186,8 +197,24 @@ class Permutator(PermutatorABCMixin):
             self.classes = list(dict.fromkeys(elements))
             labels = tuple(self.classes.index(e) for e in elements)
             super().__init__(xtra_params=(Natural_Multiset_Permutator(labels),))
+        elif len(args) == 2:
+            elements = tuple(args[0])
+            alphabet = tuple(args[1])
+            if len(set(alphabet)) != len(alphabet):
+                raise ValueError('Alphabet entries must be unique')
+            missing = set(elements) - set(alphabet)
+            if missing:
+                raise ValueError(f'Elements not present in alphabet: {sorted(missing)}')
+            self.elements = elements
+            present = set(elements)
+            self.classes = [a for a in alphabet if a in present]
+            labels = tuple(sorted(self.classes.index(e) for e in elements))
+            super().__init__(xtra_params=(Natural_Multiset_Permutator(labels),))
         else:
-            raise ValueError('Need a finite sequence (list, tuple, or string)')
+            raise ValueError(
+                'Need a finite sequence (list, tuple, or string), optionally'
+                ' followed by an alphabet'
+            )
 
     def init_check(self):
         return True
