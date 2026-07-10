@@ -1,6 +1,6 @@
 from eset import Eset, EABCMixinFactory
 import lib.ecombinatorics as ecomb
-from math import factorial, comb
+from math import factorial, comb, perm
 from collections import Counter
 
 
@@ -659,3 +659,277 @@ class Partitioner(Eset):
         if list(val) != sorted(val, reverse=True):
             return False
         return self.slice_contains(val)
+
+
+class Natural_Arranger(Eset):
+    """A basic eset that handles arrangements without repetition: the
+    ordered ways of choosing r distinct indices from range(n), i.e.
+    nPr (n! / (n-r)!), sometimes called partial permutations or
+    r-permutations of n. Each arrangement is a tuple of r distinct
+    indices in 0..n-1; unlike Natural_Combinator, order matters here,
+    so every ordering of a given r-subset is its own distinct member,
+    the same "value identity matters" convention as Natural_Permutator.
+
+    Arrangement #0 is (0, 1, ..., r-1); ranking uses the same
+    factorial-number-system trick as Natural_Permutator, just stopped
+    after r digits instead of continuing through all n, so this class
+    reduces to Natural_Permutator exactly when r == n.
+    """
+
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs:
+            if len(kwargs['xtra_params']) != 0:
+                self.N, self.R = kwargs['xtra_params']
+            super().__init__(*args, **kwargs)
+        elif len(args) == 2:
+            n, r = args
+            if not isinstance(n, int) or n < 0 or not isinstance(r, int) or r < 0:
+                raise ValueError('Need two non-negative integers: n and r')
+            self.N, self.R = n, r
+            super().__init__(xtra_params=(self.N, self.R))
+        else:
+            raise ValueError('Need two non-negative integers: n and r')
+
+    def direct_function(self, i):
+        return ecomb.get_arrangement(i, self.N, self.R)
+
+    def inverse_function(self, val):
+        return ecomb.get_arrangement_number(val, self.N)
+
+    def stop_init(self):
+        return perm(self.N, self.R)
+
+    def contains(self, val):
+        if not isinstance(val, tuple) or len(val) != self.R:
+            return False
+        if len(set(val)) != len(val):
+            return False
+        if any(v < 0 or v >= self.N for v in val):
+            return False
+        return self.slice_contains(val)
+
+
+Distinct_ArrangerABCMixin = EABCMixinFactory.create_ABC_mixin(Natural_Arranger(1, 0))
+
+
+class Distinct_Arranger(Distinct_ArrangerABCMixin):
+    """An eset of every way to choose and arrange r elements from a
+    finite sequence of unique elements, built via EABCMixinFactory on
+    top of Natural_Arranger. Order matters, same convention as
+    Distinct_Permutator: a differently-ordered selection of the same
+    elements is a different member, not the same one.
+    """
+
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs and len(kwargs['xtra_params']) != 0:
+            eset_obj, self.elements, self.r = kwargs['xtra_params']
+            super().__init__(xtra_params=(eset_obj,))
+        elif len(args) == 2:
+            elements = tuple(args[0])
+            r = args[1]
+            if len(set(elements)) != len(elements):
+                raise ValueError('Elements must be unique')
+            if not isinstance(r, int) or r < 0:
+                raise ValueError('Need a non-negative integer r')
+            self.elements = elements
+            self.r = r
+            super().__init__(xtra_params=(Natural_Arranger(len(elements), r),))
+        else:
+            raise ValueError(
+                'Need a finite sequence (list, tuple, or string) of unique'
+                ' elements, and r'
+            )
+
+    def init_check(self):
+        return True
+
+    def _pos_to_elems(self, pos_tpl):
+        return tuple(self.elements[p] for p in pos_tpl)
+
+    def _elems_to_pos(self, val):
+        return tuple(self.elements.index(v) for v in val)
+
+    def direct_function(self, i):
+        return self._pos_to_elems(self.eset_obj[i])
+
+    def inverse_function(self, val):
+        return self.eset_obj.index(self._elems_to_pos(val))
+
+    def eset_obj_val(self, val):
+        return self._elems_to_pos(val)
+
+    def get_mix_val(self, val):
+        return self._pos_to_elems(val)
+
+    def contains_mixin_check(self, val):
+        if not isinstance(val, tuple) or len(val) != self.r:
+            return False
+        return all(v in self.elements for v in val) and len(set(val)) == len(val)
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            return type(self)(xtra_params=(self.eset_obj[key], self.elements, self.r))
+        return super().__getitem__(key)
+
+
+class Natural_Multiset_Arranger(Eset):
+    """A basic eset that handles arrangements with repetition: the
+    ordered ways of choosing r elements (canonical labels 0..m-1) from
+    a multiset with per-class capacities. Each arrangement is a tuple
+    of length r; order matters, so unlike Natural_Multiset_Combinator,
+    every ordering of a given r-element sub-multiset is its own
+    distinct member.
+
+    The count has no simple closed form the way nPr or comb(n,k) do:
+    it's computed by multiset_arrangement_count(multiplicities, r):
+    multiset_arrangement_count(L, r) = sum_x comb(r, x) *
+    multiset_arrangement_count(L[1:], r - x), deciding how many of the
+    r (still unfilled) slots the current class takes (comb(r, x) ways
+    to pick which ones, unrelated to any capacity), then recursing on
+    the rest. This is also the total across every
+    Natural_Multiset_Combinator combination of size r of that
+    combination's own multinomial coefficient, just computed directly
+    rather than by enumerating combinations first.
+
+    Ranking/unranking, though, is done one output position at a time
+    (mirroring Natural_Multiset_Permutator's place/try_candidate
+    exactly, using multiset_arrangement_count as the block size
+    instead of multinomial), not class-by-class -- which is what makes
+    arrangement #0 agree with Natural_Arranger's ordering when every
+    capacity is 1, and with Natural_Multiset_Permutator's ordering
+    when r equals the full multiset size.
+    """
+
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs:
+            if len(kwargs['xtra_params']) != 0:
+                self.MULTIPLICITIES, self.R = kwargs['xtra_params']
+            super().__init__(*args, **kwargs)
+        elif len(args) == 2:
+            multiplicities = tuple(args[0])
+            r = args[1]
+            for count in multiplicities:
+                if not isinstance(count, int) or count <= 0:
+                    raise ValueError('Multiplicities must be positive integers')
+            if not isinstance(r, int) or r < 0:
+                raise ValueError('Need a non-negative integer r')
+            self.MULTIPLICITIES, self.R = multiplicities, r
+            super().__init__(xtra_params=(self.MULTIPLICITIES, self.R))
+        else:
+            raise ValueError('Need a multiplicities tuple of positive integers, and r')
+
+    def direct_function(self, i):
+        return ecomb.get_multiset_arrangement(i, self.MULTIPLICITIES, self.R)
+
+    def inverse_function(self, val):
+        return ecomb.get_multiset_arrangement_number(val, self.MULTIPLICITIES)
+
+    def stop_init(self):
+        return ecomb.multiset_arrangement_count(self.MULTIPLICITIES, self.R)
+
+    def contains(self, val):
+        if not isinstance(val, tuple) or len(val) != self.R:
+            return False
+        counts = Counter(val)
+        if any(
+            c < 0 or c >= len(self.MULTIPLICITIES) or counts[c] > self.MULTIPLICITIES[c]
+            for c in counts
+        ):
+            return False
+        return self.slice_contains(val)
+
+
+ArrangerABCMixin = EABCMixinFactory.create_ABC_mixin(Natural_Multiset_Arranger((1,), 0))
+
+
+class Arranger(ArrangerABCMixin):
+    """An eset of every way to choose and arrange r elements from a
+    finite sequence, repeated elements allowed, built via
+    EABCMixinFactory on top of Natural_Multiset_Arranger. Order
+    matters here, same convention as Permutator: a differently-ordered
+    selection of the same content is a different member.
+
+    This is the object you'd get by taking a Combinator (choosing
+    which r elements, content only) and, for each of its results,
+    running a Permutator over that specific selection -- Arranger
+    computes the same eventual set directly (and lazily) instead of
+    going through that composition, since finding "which combination"
+    an index falls under by scanning them would defeat the point of
+    an eset.
+
+    An optional alphabet argument works exactly as it does for
+    Permutator and Combinator, fixing the canonical class order
+    instead of deriving it from first appearance in elements.
+
+    elements may also be a dict (a Counter, typically), exactly as for
+    Permutator and Combinator.
+    """
+
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs and len(kwargs['xtra_params']) != 0:
+            eset_obj, self.elements, self.r, self.classes = kwargs['xtra_params']
+            super().__init__(xtra_params=(eset_obj,))
+        elif len(args) in (2, 3):
+            elements = Permutator._expand_elements(args[0])
+            r = args[1]
+            if not isinstance(r, int) or r < 0:
+                raise ValueError('Need a non-negative integer r')
+            self.elements = elements
+            self.r = r
+            if len(args) == 3:
+                alphabet = tuple(args[2])
+                if len(set(alphabet)) != len(alphabet):
+                    raise ValueError('Alphabet entries must be unique')
+                missing = set(elements) - set(alphabet)
+                if missing:
+                    raise ValueError(
+                        f'Elements not present in alphabet: {sorted(missing)}'
+                    )
+                present = set(elements)
+                self.classes = [a for a in alphabet if a in present]
+            else:
+                self.classes = list(dict.fromkeys(elements))
+            multiplicities = tuple(Counter(elements)[c] for c in self.classes)
+            super().__init__(
+                xtra_params=(Natural_Multiset_Arranger(multiplicities, r),)
+            )
+        else:
+            raise ValueError(
+                'Need a finite sequence (list, tuple, string, or Counter), r,'
+                ' optionally followed by an alphabet'
+            )
+
+    def init_check(self):
+        return True
+
+    def _labels_to_elems(self, label_tpl):
+        return tuple(self.classes[l] for l in label_tpl)
+
+    def _elems_to_labels(self, val):
+        return tuple(self.classes.index(v) for v in val)
+
+    def direct_function(self, i):
+        return self._labels_to_elems(self.eset_obj[i])
+
+    def inverse_function(self, val):
+        return self.eset_obj.index(self._elems_to_labels(val))
+
+    def eset_obj_val(self, val):
+        return self._elems_to_labels(val)
+
+    def get_mix_val(self, val):
+        return self._labels_to_elems(val)
+
+    def contains_mixin_check(self, val):
+        if not isinstance(val, tuple) or len(val) != self.r:
+            return False
+        val_counts = Counter(val)
+        elem_counts = Counter(self.elements)
+        return all(val_counts[v] <= elem_counts.get(v, 0) for v in val_counts)
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            return type(self)(
+                xtra_params=(self.eset_obj[key], self.elements, self.r, self.classes)
+            )
+        return super().__getitem__(key)

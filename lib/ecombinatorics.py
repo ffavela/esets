@@ -1,4 +1,4 @@
-from math import factorial, comb
+from math import factorial, comb, perm
 from collections import Counter
 
 
@@ -327,3 +327,138 @@ def get_partition_number(partition: tuple[int], n: int) -> int | None:
         return block + locate(n, seq, candidate + 1)
 
     return rank(n, list(partition))
+
+
+def get_arrangement(val: int, n: int, r: int) -> tuple[int] | None:
+    total = perm(n, r)
+    if val >= total or val < 0:
+        return None
+
+    def get_idx_list(resval: int, remaining_r: int, retlist: list[int]) -> list[int]:
+        if remaining_r == 0:
+            return retlist
+        fact_val = perm(len(reslist) - 1, remaining_r - 1)
+        div, mod = divmod(resval, fact_val)
+        v = reslist.pop(div)
+        retlist.append(v)
+        return get_idx_list(mod, remaining_r - 1, retlist)
+
+    reslist = list(range(n))
+    return tuple(get_idx_list(val, r, []))
+
+
+def get_arrangement_number(arrangement: tuple[int], n: int) -> int | None:
+    r = len(arrangement)
+    if len(set(arrangement)) != r or any(v < 0 or v >= n for v in arrangement):
+        return None
+
+    reslist = list(range(n))
+
+    def get_number(arr: list[int], remaining_r: int) -> int:
+        if remaining_r == 0:
+            return 0
+        fact_val = perm(len(reslist) - 1, remaining_r - 1)
+        vi = reslist.index(arr[0])
+        reslist.pop(vi)
+        return fact_val * vi + get_number(arr[1:], remaining_r - 1)
+
+    return get_number(list(arrangement), r)
+
+
+def multiset_arrangement_count(multiplicities: tuple[int, ...], r: int) -> int:
+    memo: dict[tuple[tuple[int, ...], int], int] = {}
+
+    def g(rem: tuple[int, ...], remaining_r: int) -> int:
+        key = (rem, remaining_r)
+        if key in memo:
+            return memo[key]
+        if remaining_r == 0:
+            result = 1
+        elif not rem:
+            result = 0
+        else:
+            # Choose x occurrences of the current class, choose which x of
+            # the remaining_r open slots they take (comb), and recurse on
+            # the rest with the later classes.
+            result = sum(
+                comb(remaining_r, x) * g(rem[1:], remaining_r - x)
+                for x in range(min(rem[0], remaining_r) + 1)
+            )
+        memo[key] = result
+        return result
+
+    return g(multiplicities, r)
+
+
+def get_multiset_arrangement(
+    val: int, multiplicities: tuple[int, ...], r: int
+) -> tuple[int] | None:
+    total = multiset_arrangement_count(multiplicities, r)
+    if val >= total or val < 0:
+        return None
+
+    def place(
+        resval: int,
+        remaining_mult: tuple[int, ...],
+        remaining_r: int,
+        retlist: list[int],
+    ) -> list[int]:
+        if remaining_r == 0:
+            return retlist
+        candidates = [c for c in range(len(remaining_mult)) if remaining_mult[c] > 0]
+        return try_candidate(resval, remaining_mult, remaining_r, retlist, candidates)
+
+    def try_candidate(
+        resval: int,
+        remaining_mult: tuple[int, ...],
+        remaining_r: int,
+        retlist: list[int],
+        candidates: list[int],
+    ) -> list[int]:
+        label = candidates[0]
+        new_mult = list(remaining_mult)
+        new_mult[label] -= 1
+        rest_mult = tuple(new_mult)
+        block = multiset_arrangement_count(rest_mult, remaining_r - 1)
+        if resval < block:
+            return place(resval, rest_mult, remaining_r - 1, retlist + [label])
+        return try_candidate(
+            resval - block, remaining_mult, remaining_r, retlist, candidates[1:]
+        )
+
+    return tuple(place(val, multiplicities, r, []))
+
+
+def get_multiset_arrangement_number(
+    arrangement: tuple[int, ...], multiplicities: tuple[int, ...]
+) -> int | None:
+    r = len(arrangement)
+    counts = Counter(arrangement)
+    if any(
+        c < 0 or c >= len(multiplicities) or counts[c] > multiplicities[c]
+        for c in counts
+    ):
+        return None
+
+    def rank(remaining_mult: tuple[int, ...], remaining_r: int, seq: list[int]) -> int:
+        if not seq:
+            return 0
+        candidates = [c for c in range(len(remaining_mult)) if remaining_mult[c] > 0]
+        return locate(remaining_mult, remaining_r, seq, candidates)
+
+    def locate(
+        remaining_mult: tuple[int, ...],
+        remaining_r: int,
+        seq: list[int],
+        candidates: list[int],
+    ) -> int:
+        label = candidates[0]
+        new_mult = list(remaining_mult)
+        new_mult[label] -= 1
+        rest_mult = tuple(new_mult)
+        block = multiset_arrangement_count(rest_mult, remaining_r - 1)
+        if label == seq[0]:
+            return rank(rest_mult, remaining_r - 1, seq[1:])
+        return block + locate(remaining_mult, remaining_r, seq, candidates[1:])
+
+    return rank(multiplicities, r, list(arrangement))

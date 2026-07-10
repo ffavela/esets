@@ -2127,6 +2127,159 @@ elements into non-empty blocks, counted by Stirling numbers of the
 second kind rather than p(n)) -- a genuinely different combinatorial
 object, not a wrapper on top of this one.
 
+A Combinator chooses which r elements, ignoring order; a Permutator
+arranges every element it's given. Arranger is the object in between:
+choose r elements *and* arrange them, i.e. nPr generalized to
+multisets, sometimes called partial permutations or r-permutations of
+n. Natural_Arranger is the no-repetition base case, an ordered tuple
+of r distinct indices from range(n):
+
+>>> from cesets import Natural_Arranger
+>>> na = Natural_Arranger(4, 2)
+>>> na
+<esets.Natural_Arranger ((0, 1), (0, 2), (0, 3), (1, 0), ..., (2, 3), (3, 0), (3, 1), (3, 2))>
+>>> na.len()
+12
+>>> na[0]
+(0, 1)
+>>> na[-1]
+(3, 2)
+
+12 = 4!/(4-2)!, not comb(4,2) = 6: unlike Natural_Combinator, order
+matters here, so (1, 0) is a distinct member from (0, 1), not the
+same choice listed differently:
+
+>>> (1, 0) in na
+True
+>>> na.index((1, 0))
+3
+>>> na.index((0, 1))
+0
+
+Ranking uses the same factorial-number-system trick as
+Natural_Permutator, just stopped after r digits instead of
+continuing through all n, so Natural_Arranger reduces to
+Natural_Permutator exactly when r == n.
+
+Distinct_Arranger wraps Natural_Arranger the same way
+Distinct_Permutator wraps Natural_Permutator, translating positions
+to real, unique elements, order preserved:
+
+>>> from cesets import Distinct_Arranger
+>>> toppings = Distinct_Arranger(['pepperoni', 'mushroom', 'onion', 'anchovy'], 2)
+>>> toppings
+<esets.Distinct_Arranger (('pepperoni', 'mushroom'), ('pepperoni', 'onion'), ('pepperoni', 'anchovy'), ('mushroom', 'pepperoni'), ..., ('onion', 'anchovy'), ('anchovy', 'pepperoni'), ('anchovy', 'mushroom'), ('anchovy', 'onion'))>
+>>> toppings.len()
+12
+>>> toppings[0]
+('pepperoni', 'mushroom')
+>>> ('mushroom', 'pepperoni') in toppings
+True
+>>> toppings.index(('mushroom', 'pepperoni'))
+3
+>>> toppings.index(('pepperoni', 'mushroom'))
+0
+>>> ('mushroom', 'mushroom') in toppings
+False
+>>> sl = toppings[1:3]
+>>> sl
+<esets.Distinct_Arranger (('pepperoni', 'onion'), ('pepperoni', 'anchovy'))>
+>>> type(sl).__name__
+'Distinct_Arranger'
+
+Choosing with repetition allowed needs Natural_Multiset_Arranger,
+parametrized by a multiplicities tuple (capacities per class) and how
+many, r, to choose and arrange:
+
+>>> from cesets import Natural_Multiset_Arranger
+>>> nma = Natural_Multiset_Arranger((2, 1), 2)
+>>> nma
+<esets.Natural_Multiset_Arranger ((0, 0), (0, 1), (1, 0))>
+>>> nma.len()
+3
+
+Two of class 0, one of class 1, arranging 2 of them: (0, 0), (0, 1)
+and (1, 0), but not (1, 1) since there's only one of class 1
+available. The count has no closed form the way nPr or comb(n, k)
+do; it's computed by multiset_arrangement_count(multiplicities, r), a
+recursion that decides, for the current class, how many of the r
+still-open slots it takes (comb(r, x) ways to pick which ones) before
+recursing on the rest. Ranking/unranking, though, works one output
+position at a time, the same place/try_candidate shape
+Natural_Multiset_Permutator uses -- which is what makes arrangement
+#0 agree with Natural_Arranger's own ordering whenever every capacity
+is 1, and with Natural_Multiset_Permutator's ordering whenever r
+equals the full multiset size:
+
+>>> d4 = Distinct_Arranger('abcd', 2)
+>>> from cesets import Arranger
+>>> g4 = Arranger('abcd', 2)
+>>> list(d4) == list(g4)
+True
+>>> all(d4.index(v) == g4.index(v) for v in d4)
+True
+
+Arranger ties it all together: real elements, repeats allowed,
+choosing and arranging r of them, wrapping Natural_Multiset_Arranger
+the same way Permutator wraps Natural_Multiset_Permutator:
+
+>>> arr = Arranger(['a', 'a', 'b'], 2)
+>>> arr
+<esets.Arranger (('a', 'a'), ('a', 'b'), ('b', 'a'))>
+>>> arr.len()
+3
+>>> ('a', 'b') in arr
+True
+>>> ('b', 'a') in arr
+True
+>>> arr.index(('a', 'b'))
+1
+>>> arr.index(('b', 'a'))
+2
+>>> ('a', 'a') in arr
+True
+>>> ('b', 'b') in arr
+False
+
+Conceptually, this is the same set of results a Combinator (choosing
+which r elements) composed with a Permutator (arranging each of those
+choices) would produce -- Arranger computes it directly, in one
+lazy pass, instead of going through that composition, since finding
+"which combination" a given index falls under by scanning through
+them first would defeat the entire point of an eset:
+
+>>> from cesets import Combinator, Permutator
+>>> elems = ['x', 'x', 'y', 'z']
+>>> via_composition = set()
+>>> for c in Combinator(elems, 2):
+...     via_composition |= set(Permutator(list(c)))
+>>> via_composition == set(Arranger(elems, 2))
+True
+
+alphabet and the Counter/dict form both work exactly as they do for
+Permutator and Combinator:
+
+>>> p1 = Arranger(['a', 'b', 'a'], 2, ['c', 'b', 'a'])
+>>> p2 = Arranger(['b', 'a', 'a'], 2, ['c', 'b', 'a'])
+>>> p1[0]
+('b', 'a')
+>>> list(p1) == list(p2)
+True
+
+>>> from collections import Counter
+>>> hist = Arranger(Counter({'a': 2, 'b': 1}), 2)
+>>> hist[0]
+('a', 'a')
+>>> list(hist) == list(Arranger(['a', 'a', 'b'], 2))
+True
+
+Same trivial edge cases as always:
+
+>>> Arranger([], 0)
+<esets.Arranger (())>
+>>> Arranger(['a', 'b'], 0)[0]
+()
+
 Speaking of warming up, let's cool down with something concrete: the
 Float64s eset, which enumerates every single IEEE 754 double,
 negative zero, infinities and nans included.
