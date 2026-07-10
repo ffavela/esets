@@ -115,26 +115,48 @@ class Distinct_Permutator(Distinct_PermutatorABCMixin):
 
 class Natural_Multiset_Permutator(Eset):
     """A basic eset that handles permutations with repetition: the
-    distinguishable arrangements of a multiset. Parametrized by the
-    original sequence expressed as canonical labels (small integers
-    0..k-1 for the k distinct classes present, repeats allowed)."""
+    distinguishable arrangements of a multiset. Parametrized either by
+    the original sequence expressed as canonical labels (small
+    integers 0..k-1 for the k distinct classes present, repeats
+    allowed), or by a multiplicities tuple, one positive integer count
+    per class, optionally followed by a group_order index (default 0)
+    selecting which arrangement of the classes themselves (via
+    Natural_Permutator) to expand: multiplicities (2, 3, 1) with the
+    default group_order expands to labels (0, 0, 1, 1, 1, 2).
+
+    The two forms never collide: a valid canonical labels tuple always
+    contains 0 (its distinct values are exactly 0..k-1), while a valid
+    multiplicities tuple never does (its entries are strictly
+    positive), so a single argument is unambiguous either way.
+    """
 
     def __init__(self, *args, **kwargs):
         if 'xtra_params' in kwargs:
             if len(kwargs['xtra_params']) != 0:
                 self.LABELS = kwargs['xtra_params'][0]
             super().__init__(*args, **kwargs)
-        elif len(args) == 1:
-            labels = tuple(args[0])
-            if not ecomb.is_canonical_labels(labels):
-                raise ValueError(
-                    'Need a tuple of canonical labels: 0..k-1, repeats allowed'
+        elif len(args) in (1, 2):
+            first = tuple(args[0])
+            if len(args) == 1 and ecomb.is_canonical_labels(first):
+                self.LABELS = first
+            else:
+                multiplicities = first
+                group_order = args[1] if len(args) == 2 else 0
+                for count in multiplicities:
+                    if not isinstance(count, int) or count <= 0:
+                        raise ValueError('Multiplicities must be positive integers')
+                group_perm = Natural_Permutator(len(multiplicities))[group_order]
+                self.LABELS = tuple(
+                    class_id
+                    for class_id in group_perm
+                    for _ in range(multiplicities[class_id])
                 )
-            self.LABELS = labels
             super().__init__(xtra_params=(self.LABELS,))
         else:
             raise ValueError(
-                'Need a tuple of canonical labels: 0..k-1, repeats allowed'
+                'Need a tuple of canonical labels: 0..k-1, repeats allowed, or'
+                ' a multiplicities tuple optionally followed by a group_order'
+                ' index'
             )
 
     def direct_function(self, i):

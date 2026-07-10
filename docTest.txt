@@ -1470,17 +1470,41 @@ Natural_Permutator:
 >>> nmp[0] == (0, 0, 1)
 True
 
-Malformed label tuples, negative values, gaps, or not starting at 0,
-are rejected the same way an invalid size is for Natural_Permutator:
+Spelling out labels one by one gets tedious fast though. A
+multiplicities tuple is a shorthand: one positive integer count per
+class, expanded left to right by default:
 
->>> Natural_Multiset_Permutator((-1, 2, -1))
+>>> nmp2 = Natural_Multiset_Permutator((2, 3, 1))
+>>> nmp2.LABELS
+(0, 0, 1, 1, 1, 2)
+>>> nmp2.len()
+60
+
+The two forms never collide: a valid canonical labels tuple always
+contains 0 (its distinct values are exactly 0..k-1), a valid
+multiplicities tuple never does (its entries are strictly positive),
+so passing just one argument is unambiguous either way.
+
+An optional second argument, group_order, picks which arrangement of
+the classes themselves to expand, by indexing into
+Natural_Permutator(k) (default 0, the identity order):
+
+>>> Natural_Permutator(3)[1]
+(0, 2, 1)
+>>> Natural_Multiset_Permutator((2, 3, 1), 1).LABELS
+(0, 0, 2, 1, 1, 1)
+
+Multiplicities must be strictly positive integers, zero, negative, or
+non-integer counts are all rejected the same way:
+
+>>> Natural_Multiset_Permutator((2, 0))
 Traceback (most recent call last):
 ...
-ValueError: Need a tuple of canonical labels: 0..k-1, repeats allowed
->>> Natural_Multiset_Permutator((0, 2, 0))
+ValueError: Multiplicities must be positive integers
+>>> Natural_Multiset_Permutator((2, -1))
 Traceback (most recent call last):
 ...
-ValueError: Need a tuple of canonical labels: 0..k-1, repeats allowed
+ValueError: Multiplicities must be positive integers
 
 Natural_Permutator and Distinct_Permutator both assume every element
 is distinct: repeats are explicitly rejected. Permutator lifts that
