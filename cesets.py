@@ -1,6 +1,7 @@
 from eset import Eset, EABCMixinFactory
 import lib.ecombinatorics as ecomb
 from math import factorial
+from collections import Counter
 
 
 class Natural_Permutator(Eset):
@@ -109,4 +110,120 @@ class Distinct_Permutator(Distinct_PermutatorABCMixin):
         self.elements along when slicing."""
         if isinstance(key, slice):
             return type(self)(xtra_params=(self.eset_obj[key], self.elements))
+        return super().__getitem__(key)
+
+
+class Natural_Multiset_Permutator(Eset):
+    """A basic eset that handles permutations with repetition: the
+    distinguishable arrangements of a multiset. Parametrized by the
+    original sequence expressed as canonical labels (small integers
+    0..k-1 for the k distinct classes present, repeats allowed)."""
+
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs:
+            if len(kwargs['xtra_params']) != 0:
+                self.LABELS = kwargs['xtra_params'][0]
+            super().__init__(*args, **kwargs)
+        elif len(args) == 1:
+            labels = tuple(args[0])
+            if not ecomb.is_canonical_labels(labels):
+                raise ValueError(
+                    'Need a tuple of canonical labels: 0..k-1, repeats allowed'
+                )
+            self.LABELS = labels
+            super().__init__(xtra_params=(self.LABELS,))
+        else:
+            raise ValueError(
+                'Need a tuple of canonical labels: 0..k-1, repeats allowed'
+            )
+
+    def direct_function(self, i):
+        return ecomb.get_multiset_permutation(i, self.LABELS)
+
+    def inverse_function(self, val):
+        return ecomb.get_multiset_permutation_number(val, self.LABELS)
+
+    def stop_init(self):
+        return ecomb.multinomial(Counter(self.LABELS))
+
+    def contains(self, val):
+        if not isinstance(val, tuple):
+            return False
+
+        if Counter(val) != Counter(self.LABELS):
+            return False
+
+        return self.slice_contains(val)
+
+
+PermutatorABCMixin = EABCMixinFactory.create_ABC_mixin(
+    Natural_Multiset_Permutator((0,))
+)
+
+
+class Permutator(PermutatorABCMixin):
+    """An eset of every distinguishable permutation of a finite
+    sequence, repeated elements allowed, built via EABCMixinFactory on
+    top of Natural_Multiset_Permutator: Natural_Multiset_Permutator
+    enumerates the canonical labels, this class only translates
+    between labels and the elements it was given. The sequence as
+    given is permutation #0. An empty sequence is valid too and yields
+    the single trivial permutation, the empty tuple.
+
+    Unlike Distinct_Permutator, elements need not be unique: the count
+    is the multinomial coefficient n!/(m1!*m2!*...*mk!) rather than
+    n!, so repeated elements collapse indistinguishable rearrangements
+    into a single entry instead of counting them separately.
+    """
+
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs and len(kwargs['xtra_params']) != 0:
+            eset_obj, self.elements, self.classes = kwargs['xtra_params']
+            super().__init__(xtra_params=(eset_obj,))
+        elif len(args) == 1:
+            elements = tuple(args[0])
+            self.elements = elements
+            self.classes = list(dict.fromkeys(elements))
+            labels = tuple(self.classes.index(e) for e in elements)
+            super().__init__(xtra_params=(Natural_Multiset_Permutator(labels),))
+        else:
+            raise ValueError('Need a finite sequence (list, tuple, or string)')
+
+    def init_check(self):
+        return True
+
+    def _labels_to_elems(self, label_tpl):
+        return tuple(self.classes[l] for l in label_tpl)
+
+    def _elems_to_labels(self, val):
+        return tuple(self.classes.index(v) for v in val)
+
+    def direct_function(self, i):
+        return self._labels_to_elems(self.eset_obj[i])
+
+    def inverse_function(self, val):
+        return self.eset_obj.index(self._elems_to_labels(val))
+
+    def eset_obj_val(self, val):
+        """The tuple of canonical labels (Natural_Multiset_Permutator's
+        own vocabulary) corresponding to a tuple of elements."""
+        return self._elems_to_labels(val)
+
+    def get_mix_val(self, val):
+        """The tuple of elements corresponding to a
+        Natural_Multiset_Permutator tuple of canonical labels."""
+        return self._labels_to_elems(val)
+
+    def contains_mixin_check(self, val):
+        if not isinstance(val, tuple) or len(val) != len(self.elements):
+            return False
+        return Counter(val) == Counter(self.elements)
+
+    def __getitem__(self, key):
+        """Delegating to eset_obj like EMixinABC, but also carrying
+        self.elements/self.classes along when slicing."""
+        if isinstance(key, slice):
+            return type(self)(
+                xtra_params=(self.eset_obj[key], self.elements, self.classes)
+            )
         return super().__getitem__(key)
