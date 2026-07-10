@@ -1677,6 +1677,48 @@ Traceback (most recent call last):
 ...
 ValueError: Alphabet entries must be unique
 
+elements doesn't have to be a flat sequence either. A dict (a Counter,
+typically) works too: a histogram mapping each distinct value to its
+multiplicity, read in the dict's own iteration order in place of
+"first appearance in a sequence":
+
+>>> from collections import Counter
+>>> hist = Permutator(Counter({'a': 2, 'b': 1}))
+>>> hist[0]
+('a', 'a', 'b')
+>>> hist.len()
+3
+>>> [hist[i] for i in range(hist.len())]
+[('a', 'a', 'b'), ('a', 'b', 'a'), ('b', 'a', 'a')]
+
+Identical to spelling the same multiset out as a flat sequence:
+
+>>> [hist[i] for i in range(hist.len())] == [Permutator(['a', 'a', 'b'])[i] for i in range(3)]
+True
+
+And it composes with alphabet with no special-casing needed, since the
+histogram gets expanded into a plain tuple before any of that logic
+runs:
+
+>>> Permutator(Counter({'a': 2, 'b': 1}), ['c', 'b', 'a'])[0]
+('b', 'a', 'a')
+
+Every value in the histogram must be a positive integer; zero,
+negative, or non-integer counts all error out the same way:
+
+>>> Permutator(Counter({'a': 2, 'b': 0}))
+Traceback (most recent call last):
+...
+ValueError: Counter/dict values must be positive integers
+>>> Permutator({'a': -1})
+Traceback (most recent call last):
+...
+ValueError: Counter/dict values must be positive integers
+>>> Permutator({'a': 2.0})
+Traceback (most recent call last):
+...
+ValueError: Counter/dict values must be positive integers
+
 Speaking of warming up, let's cool down with something concrete: the
 Float64s eset, which enumerates every single IEEE 754 double,
 negative zero, infinities and nans included.

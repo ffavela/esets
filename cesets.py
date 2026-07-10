@@ -185,6 +185,14 @@ class Permutator(PermutatorABCMixin):
     is what makes the resulting enumeration depend only on the
     alphabet and the multiset, not on the arrangement elements
     happened to be given in.
+
+    elements may also be a dict (a Counter, typically): a histogram
+    mapping each distinct value to its multiplicity, walked in the
+    dict's own iteration order in place of "first appearance in a
+    sequence". Every value must be a positive integer; anything else
+    raises a ValueError. Everything downstream, alphabet included,
+    works the same either way, since the histogram is expanded into a
+    plain tuple before any of that logic runs.
     """
 
     def __init__(self, *args, **kwargs):
@@ -192,13 +200,13 @@ class Permutator(PermutatorABCMixin):
             eset_obj, self.elements, self.classes = kwargs['xtra_params']
             super().__init__(xtra_params=(eset_obj,))
         elif len(args) == 1:
-            elements = tuple(args[0])
+            elements = self._expand_elements(args[0])
             self.elements = elements
             self.classes = list(dict.fromkeys(elements))
             labels = tuple(self.classes.index(e) for e in elements)
             super().__init__(xtra_params=(Natural_Multiset_Permutator(labels),))
         elif len(args) == 2:
-            elements = tuple(args[0])
+            elements = self._expand_elements(args[0])
             alphabet = tuple(args[1])
             if len(set(alphabet)) != len(alphabet):
                 raise ValueError('Alphabet entries must be unique')
@@ -212,12 +220,21 @@ class Permutator(PermutatorABCMixin):
             super().__init__(xtra_params=(Natural_Multiset_Permutator(labels),))
         else:
             raise ValueError(
-                'Need a finite sequence (list, tuple, or string), optionally'
-                ' followed by an alphabet'
+                'Need a finite sequence (list, tuple, string, or Counter),'
+                ' optionally followed by an alphabet'
             )
 
     def init_check(self):
         return True
+
+    @staticmethod
+    def _expand_elements(source):
+        if isinstance(source, dict):
+            for count in source.values():
+                if not isinstance(count, int) or count <= 0:
+                    raise ValueError('Counter/dict values must be positive integers')
+            return tuple(key for key, count in source.items() for _ in range(count))
+        return tuple(source)
 
     def _labels_to_elems(self, label_tpl):
         return tuple(self.classes[l] for l in label_tpl)
