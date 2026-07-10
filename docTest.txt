@@ -1743,6 +1743,289 @@ Traceback (most recent call last):
 ...
 ValueError: Counter/dict values must be positive integers
 
+Permutator arranges every element of a sequence; Combinator instead
+chooses k of them, ignoring order, which needs its own family of
+esets built the same way: Natural_Combinator is the plain, no
+repetition base case, mirroring Natural_Permutator's role but for
+k-subsets of range(n) rather than full arrangements:
+
+>>> from cesets import Natural_Combinator
+>>> nc = Natural_Combinator(4, 2)
+>>> nc
+<esets.Natural_Combinator ((0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3))>
+>>> nc.len()
+6
+>>> nc[0]
+(0, 1)
+>>> nc[-1]
+(2, 3)
+
+A combination is really an unordered subset, so Combinator (and
+Distinct_Combinator below) will accept any ordering as the same
+member. Natural_Combinator itself, though, is the low-level building
+block and stays strict: only the canonical ascending tuple counts,
+same "value identity matters" convention every other Natural_* class
+in this module follows:
+
+>>> (0, 1) in nc
+True
+>>> (1, 0) in nc
+False
+>>> nc.index((3,))
+Traceback (most recent call last):
+...
+ValueError: (3,) not in Natural_Combinator
+
+Unlike Distinct_Permutator, where the very last permutation is always
+the first one reversed, there's no such guarantee here, not even for
+plain combinations without repetition. Complementing every index in a
+combination (x -> n-1-x) does turn out to match the reverse-index
+counterpart... near the ends:
+
+>>> nc[2]
+(0, 3)
+>>> tuple(sorted(4 - 1 - x for x in nc[2]))
+(0, 3)
+>>> nc[3]
+(1, 2)
+
+(0, 3) is its own complement, but the actual combination sitting at
+the mirrored index (nc[3]) is (1, 2), a different combination
+entirely. Once a combination happens to be self-complementary, the
+pairing breaks, exactly the same shape of caveat as Permutator's
+palindrome case.
+
+Natural_Combinator only deals in positions; Distinct_Combinator wraps
+it via the eset factory to choose from real, unique elements instead,
+same relationship Distinct_Permutator has to Natural_Permutator:
+
+>>> from cesets import Distinct_Combinator
+>>> toppings = Distinct_Combinator(['pepperoni', 'mushroom', 'onion', 'anchovy'], 2)
+>>> toppings
+<esets.Distinct_Combinator (('pepperoni', 'mushroom'), ('pepperoni', 'onion'), ('pepperoni', 'anchovy'), ('mushroom', 'onion'), ('mushroom', 'anchovy'), ('onion', 'anchovy'))>
+>>> toppings.len()
+6
+>>> toppings[0]
+('pepperoni', 'mushroom')
+
+Here, at this higher level, order stops mattering: any arrangement of
+a valid pair ranks and is contained the same way, since a topping
+pair is what it is regardless of the order it's listed in:
+
+>>> ('mushroom', 'pepperoni') in toppings
+True
+>>> toppings.index(('mushroom', 'pepperoni'))
+0
+>>> toppings.index(('pepperoni', 'mushroom'))
+0
+
+Anything that isn't a genuine pair from that list, repeats and
+foreign elements included, is rejected:
+
+>>> ('mushroom', 'mushroom') in toppings
+False
+>>> ('mushroom', 'kiwi') in toppings
+False
+>>> (1, 2) in toppings
+False
+
+Elements must be unique to begin with:
+
+>>> Distinct_Combinator(['a', 'a'], 1)
+Traceback (most recent call last):
+...
+ValueError: Elements must be unique
+
+Slicing keeps returning Distinct_Combinator, and it agrees with
+Natural_Combinator index for index, same as Distinct_Permutator does
+with Natural_Permutator:
+
+>>> sl = toppings[1:3]
+>>> sl
+<esets.Distinct_Combinator (('pepperoni', 'onion'), ('pepperoni', 'anchovy'))>
+>>> type(sl).__name__
+'Distinct_Combinator'
+
+And it agrees with Natural_Combinator index for index, since that's
+exactly what it delegates to under the hood:
+
+>>> nc4pick2 = Natural_Combinator(4, 2)
+>>> pool = ['pepperoni', 'mushroom', 'onion', 'anchovy']
+>>> all(toppings[i] == tuple(pool[j] for j in nc4pick2[i]) for i in range(6))
+True
+
+Choosing 0 of anything is valid too, same trivial-empty-tuple case as
+the permutators:
+
+>>> empty = Distinct_Combinator(['a', 'b', 'c'], 0)
+>>> empty
+<esets.Distinct_Combinator (())>
+>>> empty.len()
+1
+>>> empty[0]
+()
+>>> () in empty
+True
+
+Choosing with repetition allowed needs its own canonical building
+block too, the combination counterpart to
+Natural_Multiset_Permutator: Natural_Multiset_Combinator is
+parametrized by a multiplicities tuple (capacities per class) and how
+many, k, to choose. A combination is a non-decreasing tuple of
+canonical labels:
+
+>>> from cesets import Natural_Multiset_Combinator
+>>> nmc = Natural_Multiset_Combinator((2, 3, 1), 3)
+>>> nmc
+<esets.Natural_Multiset_Combinator ((0, 0, 1), (0, 0, 2), (0, 1, 1), (0, 1, 2), (1, 1, 1), (1, 1, 2))>
+>>> nmc.len()
+6
+
+Two of class 0, three of class 1, one of class 2, choosing 3 total:
+combination #0 greedily takes as many of the smallest class as
+capacity and k allow (two 0's, then one 1 to reach 3), same
+"maximize the smallest label first" convention Natural_Combinator
+uses. Counting is where this class actually borrows from mset: the
+recursion (how many ways to complete the remaining choices once x
+items are taken from the current class) is exponential without
+memoization, so, unlike multinomial() elsewhere in this file, it
+really does need mset's memoized-recursion trick (not just for style)
+plus mset's own shortcut for when capacities can't bind (k <= min of
+what's left is plain stars-and-bars, no recursion needed):
+
+>>> Natural_Multiset_Combinator((2, 0), 1)
+Traceback (most recent call last):
+...
+ValueError: Multiplicities must be positive integers
+
+Combinator ties it all together: real elements, repeats allowed,
+choosing k, wrapping Natural_Multiset_Combinator the same way
+Permutator wraps Natural_Multiset_Permutator:
+
+>>> from cesets import Combinator
+>>> c = Combinator(['a', 'a', 'b'], 2)
+>>> c
+<esets.Combinator (('a', 'a'), ('a', 'b'))>
+>>> c.len()
+2
+>>> c[0]
+('a', 'a')
+
+Only 2, not the 3 pairs of positions BANANA-style counting over
+positions would give, since choosing position 0 and 1 (both 'a') is
+indistinguishable from choosing position 0 and 2. And, as with
+Distinct_Combinator, order doesn't matter for membership or ranking:
+
+>>> ('a', 'b') in c
+True
+>>> ('b', 'a') in c
+True
+>>> c.index(('a', 'b')) == c.index(('b', 'a'))
+True
+>>> ('a', 'a') in c
+True
+>>> ('b', 'b') in c
+False
+>>> ('a', 'c') in c
+False
+
+A bigger example, choosing 3 letters from BANANA's 1 B, 3 A's, 2 N's:
+
+>>> banana = Combinator('BANANA', 3)
+>>> banana.len()
+6
+>>> banana[0]
+('B', 'A', 'A')
+>>> banana
+<esets.Combinator (('B', 'A', 'A'), ('B', 'A', 'N'), ('B', 'N', 'N'), ('A', 'A', 'A'), ('A', 'A', 'N'), ('A', 'N', 'N'))>
+
+And when every element is genuinely distinct, capacities all
+collapse to 1 and Combinator agrees with Distinct_Combinator index
+for index:
+
+>>> d4 = Distinct_Combinator('abcd', 2)
+>>> c4 = Combinator('abcd', 2)
+>>> c4.len() == d4.len()
+True
+>>> all(c4.index(v) == d4.index(v) for v in c4)
+True
+
+Same trivial empty case, both when there's nothing to choose from and
+when there's nothing to choose:
+
+>>> Combinator([], 0)
+<esets.Combinator (())>
+>>> Combinator(['a', 'b'], 0)[0]
+()
+
+An optional alphabet argument works exactly as it does for
+Permutator, fixing the canonical class order instead of deriving it
+from first appearance, so the enumeration depends only on the
+alphabet and the multiset, not on how elements happened to be given:
+
+>>> p1 = Combinator(['a', 'b', 'a'], 2, ['c', 'b', 'a'])
+>>> p2 = Combinator(['b', 'a', 'a'], 2, ['c', 'b', 'a'])
+>>> p1[0]
+('b', 'a')
+>>> p2[0]
+('b', 'a')
+>>> [p1[i] for i in range(p1.len())] == [p2[i] for i in range(p2.len())]
+True
+
+Extra alphabet entries never used in elements are fine:
+
+>>> p3 = Combinator(['a', 'b', 'a'], 2, ['z', 'c', 'b', 'a', 'y'])
+>>> p3[0]
+('b', 'a')
+>>> p3.len()
+2
+
+But every value actually present must be covered, and the alphabet
+itself must not repeat a value:
+
+>>> Combinator(['a', 'z'], 1, ['a', 'b'])
+Traceback (most recent call last):
+...
+ValueError: Elements not present in alphabet: ['z']
+>>> Combinator(['a', 'b'], 1, ['a', 'a', 'b'])
+Traceback (most recent call last):
+...
+ValueError: Alphabet entries must be unique
+
+elements may be a dict (a Counter, typically) too, walked in the
+dict's own iteration order in place of "first appearance", exactly as
+for Permutator:
+
+>>> from collections import Counter
+>>> hist = Combinator(Counter({'a': 2, 'b': 1}), 2)
+>>> hist[0]
+('a', 'a')
+>>> hist.len()
+2
+>>> [hist[i] for i in range(hist.len())] == [Combinator(['a', 'a', 'b'], 2)[i] for i in range(2)]
+True
+>>> Combinator(Counter({'a': 2, 'b': 1}), 2, ['c', 'b', 'a'])[0]
+('b', 'a')
+>>> Combinator(Counter({'a': 2, 'b': 0}), 1)
+Traceback (most recent call last):
+...
+ValueError: Counter/dict values must be positive integers
+
+The reversal caveat from Natural_Combinator carries through Combinator
+too, real elements included:
+
+>>> quartet = Combinator('wxyz', 2)
+>>> list(quartet)
+[('w', 'x'), ('w', 'y'), ('w', 'z'), ('x', 'y'), ('x', 'z'), ('y', 'z')]
+>>> quartet[2]
+('w', 'z')
+>>> quartet[3]
+('x', 'y')
+
+Same shape as before: ('w', 'z') would complement to itself under
+"swap the alphabet's two ends", yet the actual reverse-index
+combination, quartet[3], is a different pair altogether.
+
 Speaking of warming up, let's cool down with something concrete: the
 Float64s eset, which enumerates every single IEEE 754 double,
 negative zero, infinities and nans included.
