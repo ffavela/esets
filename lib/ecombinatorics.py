@@ -462,3 +462,66 @@ def get_multiset_arrangement_number(
         return block + locate(remaining_mult, remaining_r, seq, candidates[1:])
 
     return rank(multiplicities, r, list(arrangement))
+
+
+def get_subset(val: int, n: int) -> tuple[int] | None:
+    total = 2**n
+    if val >= total or val < 0:
+        return None
+
+    def try_size(resval: int, k: int) -> tuple[int]:
+        block = comb(n, k)
+        if resval < block:
+            return get_combination(resval, n, k)
+        return try_size(resval - block, k + 1)
+
+    return try_size(val, 0)
+
+
+def get_subset_number(subset: tuple[int], n: int) -> int | None:
+    combo_rank = get_combination_number(subset, n)
+    if combo_rank is None:
+        return None
+
+    def offset(size: int) -> int:
+        if size == 0:
+            return 0
+        return comb(n, size - 1) + offset(size - 1)
+
+    return offset(len(subset)) + combo_rank
+
+
+def multiset_powerset_count(multiplicities: tuple[int, ...]) -> int:
+    total = 1
+    for count in multiplicities:
+        total *= count + 1
+    return total
+
+
+def get_multiset_subset(val: int, multiplicities: tuple[int, ...]) -> tuple[int] | None:
+    total = multiset_powerset_count(multiplicities)
+    if val >= total or val < 0:
+        return None
+
+    def try_size(resval: int, k: int) -> tuple[int]:
+        block = multiset_combination_count(multiplicities, k)
+        if resval < block:
+            return get_multiset_combination(resval, multiplicities, k)
+        return try_size(resval - block, k + 1)
+
+    return try_size(val, 0)
+
+
+def get_multiset_subset_number(
+    subset: tuple[int, ...], multiplicities: tuple[int, ...]
+) -> int | None:
+    combo_rank = get_multiset_combination_number(subset, multiplicities)
+    if combo_rank is None:
+        return None
+
+    def offset(size: int) -> int:
+        if size == 0:
+            return 0
+        return multiset_combination_count(multiplicities, size - 1) + offset(size - 1)
+
+    return offset(len(subset)) + combo_rank

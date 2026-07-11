@@ -933,3 +933,262 @@ class Arranger(ArrangerABCMixin):
                 xtra_params=(self.eset_obj[key], self.elements, self.r, self.classes)
             )
         return super().__getitem__(key)
+
+
+class Natural_Powerset(Eset):
+    """A basic eset that handles the power set of range(n): every
+    subset, of every size from 0 to n, 2**n of them in total. Each
+    subset is a sorted tuple of distinct indices in 0..n-1.
+
+    Subsets are enumerated in graded order: every subset of size 0
+    first, then every subset of size 1, and so on up to size n, with
+    each size-k block internally ordered exactly as
+    Natural_Combinator(n, k) orders it (indeed, that's exactly what
+    this delegates to, using comb(n, k) to find which block an index
+    falls in). Subset #0 is always the empty tuple; the last is
+    always (0, 1, ..., n-1).
+
+    Like Natural_Combinator, value identity matters here: only the
+    canonical sorted tuple is a member. Order independence belongs to
+    Distinct_Powerset/Powerset instead.
+    """
+
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs:
+            if len(kwargs['xtra_params']) != 0:
+                self.N = kwargs['xtra_params'][0]
+            super().__init__(*args, **kwargs)
+        elif len(args) == 1:
+            if not isinstance(args[0], int) or args[0] < 0:
+                raise ValueError('Need a non-negative integer to initialize')
+            self.N = args[0]
+            super().__init__(xtra_params=(self.N,))
+        else:
+            raise ValueError('Need a non-negative integer to initialize')
+
+    def direct_function(self, i):
+        return ecomb.get_subset(i, self.N)
+
+    def inverse_function(self, val):
+        return ecomb.get_subset_number(val, self.N)
+
+    def stop_init(self):
+        return 2**self.N
+
+    def contains(self, val):
+        if not isinstance(val, tuple):
+            return False
+        if len(set(val)) != len(val):
+            return False
+        if any(v < 0 or v >= self.N for v in val):
+            return False
+        if list(val) != sorted(val):
+            return False
+        return self.slice_contains(val)
+
+
+Distinct_PowersetABCMixin = EABCMixinFactory.create_ABC_mixin(Natural_Powerset(0))
+
+
+class Distinct_Powerset(Distinct_PowersetABCMixin):
+    """An eset of every subset of a finite sequence of unique
+    elements, of every size, built via EABCMixinFactory on top of
+    Natural_Powerset. A subset is unordered, so contains()/index()
+    accept any ordering of a valid subset, the same convention
+    Distinct_Combinator uses.
+    """
+
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs and len(kwargs['xtra_params']) != 0:
+            eset_obj, self.elements = kwargs['xtra_params']
+            super().__init__(xtra_params=(eset_obj,))
+        elif len(args) == 1:
+            elements = tuple(args[0])
+            if len(set(elements)) != len(elements):
+                raise ValueError('Elements must be unique')
+            self.elements = elements
+            super().__init__(xtra_params=(Natural_Powerset(len(elements)),))
+        else:
+            raise ValueError(
+                'Need a finite sequence (list, tuple, or string) of unique elements'
+            )
+
+    def init_check(self):
+        return True
+
+    def _pos_to_elems(self, pos_tpl):
+        return tuple(self.elements[p] for p in pos_tpl)
+
+    def _elems_to_pos(self, val):
+        return tuple(sorted(self.elements.index(v) for v in val))
+
+    def direct_function(self, i):
+        return self._pos_to_elems(self.eset_obj[i])
+
+    def inverse_function(self, val):
+        return self.eset_obj.index(self._elems_to_pos(val))
+
+    def eset_obj_val(self, val):
+        return self._elems_to_pos(val)
+
+    def get_mix_val(self, val):
+        return self._pos_to_elems(val)
+
+    def id_contains(self, val):
+        if val == val and Counter(val) != Counter(
+            self.direct_function(self.inverse_function(val))
+        ):
+            return False
+
+    def contains_mixin_check(self, val):
+        if not isinstance(val, tuple):
+            return False
+        return all(v in self.elements for v in val) and len(set(val)) == len(val)
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            return type(self)(xtra_params=(self.eset_obj[key], self.elements))
+        return super().__getitem__(key)
+
+
+class Natural_Multiset_Powerset(Eset):
+    """A basic eset that handles the power set of a multiset with
+    per-class capacities: every sub-multiset, of every size, given a
+    multiplicities tuple. Each subset is a sorted tuple of canonical
+    labels.
+
+    The count needs no recursion at all, unlike every other counting
+    function in this module: each class independently contributes
+    anywhere from 0 up to its own capacity, so it's a plain mixed-radix
+    digit count, multiset_powerset_count(L) = product(c + 1 for c in
+    L) -- Natural_Powerset is the special case where every capacity is
+    1, reducing this product to 2**n.
+
+    Subsets are enumerated in graded order, exactly as Natural_Powerset
+    does: every size-0 sub-multiset first, then every size-1, and so
+    on, each size-k block ordered exactly as
+    Natural_Multiset_Combinator(multiplicities, k) orders it.
+    """
+
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs:
+            if len(kwargs['xtra_params']) != 0:
+                self.MULTIPLICITIES = kwargs['xtra_params'][0]
+            super().__init__(*args, **kwargs)
+        elif len(args) == 1:
+            multiplicities = tuple(args[0])
+            for count in multiplicities:
+                if not isinstance(count, int) or count <= 0:
+                    raise ValueError('Multiplicities must be positive integers')
+            self.MULTIPLICITIES = multiplicities
+            super().__init__(xtra_params=(self.MULTIPLICITIES,))
+        else:
+            raise ValueError('Need a multiplicities tuple of positive integers')
+
+    def direct_function(self, i):
+        return ecomb.get_multiset_subset(i, self.MULTIPLICITIES)
+
+    def inverse_function(self, val):
+        return ecomb.get_multiset_subset_number(val, self.MULTIPLICITIES)
+
+    def stop_init(self):
+        return ecomb.multiset_powerset_count(self.MULTIPLICITIES)
+
+    def contains(self, val):
+        if not isinstance(val, tuple):
+            return False
+        counts = Counter(val)
+        if any(
+            c < 0 or c >= len(self.MULTIPLICITIES) or counts[c] > self.MULTIPLICITIES[c]
+            for c in counts
+        ):
+            return False
+        if list(val) != sorted(val):
+            return False
+        return self.slice_contains(val)
+
+
+PowersetABCMixin = EABCMixinFactory.create_ABC_mixin(Natural_Multiset_Powerset((1,)))
+
+
+class Powerset(PowersetABCMixin):
+    """An eset of every sub-multiset of a finite sequence, of every
+    size, repeated elements allowed, built via EABCMixinFactory on top
+    of Natural_Multiset_Powerset the same way Combinator wraps
+    Natural_Multiset_Combinator. A subset is inherently unordered:
+    contains()/index() accept any ordering of a valid sub-multiset of
+    elements, same convention as Combinator.
+
+    An optional alphabet argument works exactly as it does for
+    Permutator/Combinator/Arranger. elements may also be a dict (a
+    Counter, typically), exactly as for the others.
+    """
+
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs and len(kwargs['xtra_params']) != 0:
+            eset_obj, self.elements, self.classes = kwargs['xtra_params']
+            super().__init__(xtra_params=(eset_obj,))
+        elif len(args) in (1, 2):
+            elements = Permutator._expand_elements(args[0])
+            self.elements = elements
+            if len(args) == 2:
+                alphabet = tuple(args[1])
+                if len(set(alphabet)) != len(alphabet):
+                    raise ValueError('Alphabet entries must be unique')
+                missing = set(elements) - set(alphabet)
+                if missing:
+                    raise ValueError(
+                        f'Elements not present in alphabet: {sorted(missing)}'
+                    )
+                present = set(elements)
+                self.classes = [a for a in alphabet if a in present]
+            else:
+                self.classes = list(dict.fromkeys(elements))
+            multiplicities = tuple(Counter(elements)[c] for c in self.classes)
+            super().__init__(xtra_params=(Natural_Multiset_Powerset(multiplicities),))
+        else:
+            raise ValueError(
+                'Need a finite sequence (list, tuple, string, or Counter),'
+                ' optionally followed by an alphabet'
+            )
+
+    def init_check(self):
+        return True
+
+    def _labels_to_elems(self, label_tpl):
+        return tuple(self.classes[l] for l in label_tpl)
+
+    def _elems_to_labels(self, val):
+        return tuple(sorted(self.classes.index(v) for v in val))
+
+    def direct_function(self, i):
+        return self._labels_to_elems(self.eset_obj[i])
+
+    def inverse_function(self, val):
+        return self.eset_obj.index(self._elems_to_labels(val))
+
+    def eset_obj_val(self, val):
+        return self._elems_to_labels(val)
+
+    def get_mix_val(self, val):
+        return self._labels_to_elems(val)
+
+    def id_contains(self, val):
+        if val == val and Counter(val) != Counter(
+            self.direct_function(self.inverse_function(val))
+        ):
+            return False
+
+    def contains_mixin_check(self, val):
+        if not isinstance(val, tuple):
+            return False
+        val_counts = Counter(val)
+        elem_counts = Counter(self.elements)
+        return all(val_counts[v] <= elem_counts.get(v, 0) for v in val_counts)
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            return type(self)(
+                xtra_params=(self.eset_obj[key], self.elements, self.classes)
+            )
+        return super().__getitem__(key)

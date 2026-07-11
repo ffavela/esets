@@ -2280,6 +2280,143 @@ Same trivial edge cases as always:
 >>> Arranger(['a', 'b'], 0)[0]
 ()
 
+Combinator chooses exactly k elements at a time. Powerset chooses any
+number at once: every subset, of every size from 0 to n, 2**n of them
+in total. Natural_Powerset is the no-repetition base case:
+
+>>> from cesets import Natural_Powerset
+>>> npo = Natural_Powerset(3)
+>>> npo
+<esets.Natural_Powerset ((), (0,), (1,), (2,), (0, 1), (0, 2), (1, 2), (0, 1, 2))>
+>>> npo.len()
+8
+>>> npo[0]
+()
+>>> npo[-1]
+(0, 1, 2)
+
+Subsets are enumerated in graded order: every size-0 subset first
+(just the empty tuple), then every size-1 subset, and so on up to
+size n -- each size-k block ordered exactly as Natural_Combinator(3,
+k) orders it, since that's literally what this delegates to (using
+comb(n, k) to work out which block a given index falls in first).
+Counting needs nothing beyond 2**n; no recursion required at all,
+unlike every other class in this module.
+
+Like Natural_Combinator, value identity matters at this level: only
+the canonical sorted tuple is a member, not any reordering of it:
+
+>>> (1, 0) in npo
+False
+>>> (0, 1) in npo
+True
+
+Distinct_Powerset wraps Natural_Powerset via the eset factory, the
+same relationship Distinct_Combinator has to Natural_Combinator, and
+a subset is unordered here too: any arrangement of a valid subset is
+accepted and ranks the same:
+
+>>> from cesets import Distinct_Powerset
+>>> toppings = Distinct_Powerset(['pepperoni', 'mushroom', 'onion'])
+>>> toppings
+<esets.Distinct_Powerset ((), ('pepperoni',), ('mushroom',), ('onion',), ('pepperoni', 'mushroom'), ('pepperoni', 'onion'), ('mushroom', 'onion'), ('pepperoni', 'mushroom', 'onion'))>
+>>> toppings.len()
+8
+>>> toppings[0]
+()
+>>> toppings[-1]
+('pepperoni', 'mushroom', 'onion')
+>>> ('mushroom', 'pepperoni') in toppings
+True
+>>> toppings.index(('mushroom', 'pepperoni')) == toppings.index(('pepperoni', 'mushroom'))
+True
+>>> sl = toppings[3:5]
+>>> sl
+<esets.Distinct_Powerset (('onion',), ('pepperoni', 'mushroom'))>
+>>> type(sl).__name__
+'Distinct_Powerset'
+
+Choosing with repetition allowed needs Natural_Multiset_Powerset,
+parametrized by just a multiplicities tuple (no r/k at all, unlike
+Natural_Multiset_Combinator/Arranger, since every size is included
+already):
+
+>>> from cesets import Natural_Multiset_Powerset
+>>> nmp = Natural_Multiset_Powerset((2, 1))
+>>> nmp
+<esets.Natural_Multiset_Powerset ((), (0,), (1,), (0, 0), (0, 1), (0, 0, 1))>
+>>> nmp.len()
+6
+
+The count needs no recursion either: each class independently
+contributes anywhere from 0 up to its own capacity, so it's a plain
+product, multiset_powerset_count(L) = product(c + 1 for c in L) --
+here (2+1)*(1+1) = 6. Natural_Powerset is the special case where
+every capacity is 1, collapsing that product down to 2**n.
+
+Powerset ties it all together: real elements, repeats allowed, every
+size at once, wrapping Natural_Multiset_Powerset the same way
+Combinator wraps Natural_Multiset_Combinator:
+
+>>> from cesets import Powerset
+>>> ps = Powerset(['a', 'a', 'b'])
+>>> ps
+<esets.Powerset ((), ('a',), ('b',), ('a', 'a'), ('a', 'b'), ('a', 'a', 'b'))>
+>>> ps.len()
+6
+>>> ('a', 'b') in ps
+True
+>>> ('b', 'a') in ps
+True
+>>> ps.index(('a', 'b')) == ps.index(('b', 'a'))
+True
+
+And when every element is genuinely distinct, Powerset agrees with
+Distinct_Powerset index for index, same as the rest of this family:
+
+>>> d4 = Distinct_Powerset('abcd')
+>>> g4 = Powerset('abcd')
+>>> list(d4) == list(g4)
+True
+
+Powerset's graded order also means it's literally the concatenation
+of Combinator(elements, k) for every k from 0 to the size of
+elements, one after another:
+
+>>> from cesets import Combinator
+>>> elems = ['x', 'x', 'y', 'z']
+>>> full = list(Powerset(elems))
+>>> regenerated = []
+>>> for k in range(len(elems) + 1):
+...     regenerated.extend(list(Combinator(elems, k)))
+>>> full == regenerated
+True
+
+alphabet and the Counter/dict form both work exactly as they do for
+Permutator, Combinator, and Arranger:
+
+>>> p1 = Powerset(['a', 'b', 'a'], ['c', 'b', 'a'])
+>>> p2 = Powerset(['b', 'a', 'a'], ['c', 'b', 'a'])
+>>> p1[0]
+()
+>>> list(p1) == list(p2)
+True
+
+>>> from collections import Counter
+>>> hist = Powerset(Counter({'a': 2, 'b': 1}))
+>>> hist.len()
+6
+>>> list(hist) == list(Powerset(['a', 'a', 'b']))
+True
+
+Same trivial edge case as always, an empty source: 2**0 == 1, so
+there's exactly one subset of nothing, the empty tuple itself:
+
+>>> Natural_Powerset(0)
+<esets.Natural_Powerset (())>
+>>> Powerset([])
+<esets.Powerset (())>
+
 Speaking of warming up, let's cool down with something concrete: the
 Float64s eset, which enumerates every single IEEE 754 double,
 negative zero, infinities and nans included.
