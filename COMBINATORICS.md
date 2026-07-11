@@ -32,16 +32,47 @@ from plain functions instead of writing a class, see `EMap` in
 
 ## A note on speed, upfront
 
-Every class here ranks and unranks directly: computing `x[i]` or
-`x.index(v)` never enumerates the terms before `i`, and its cost is
-polynomial in `n` (the size of the underlying set), never anything
-close to the size of what's being enumerated (`n!`, `2**n`, a Bell
-number, ...). That's the entire point of doing this as an eset rather
-than materializing `itertools.permutations(...)` and indexing into a
-list.
+There are two different questions hiding behind "how fast is this",
+and it's worth pulling them apart before quoting any complexity at
+all, since the answers point in opposite directions.
 
-Two caveats apply broadly, found by actually timing things rather
-than assuming:
+**Does the cost depend on which index you ask for?** No, not at all,
+and this is the part that's genuinely `O(1)`: `direct_function`/
+`inverse_function` do exactly the same amount of work whether the
+index is 0 or something within a hair of `n! - 1`. Nothing here ever
+enumerates the terms before `i` to get to `i`, which is the entire
+point of doing this as an eset rather than materializing
+`itertools.permutations(...)` and indexing into a list -- that's what
+makes `shuffles[10**20]` in docTest.txt come back instantly out of a
+`52!`-sized space rather than counting up to it. This isn't just a
+design claim; it's checkable: with `n` held fixed, timing
+`Natural_Permutator(20)[i]` for `i` at 0, in the middle, and at
+`19! - 1` (the far end of a `2.4 * 10**18`-sized space) all land within
+the same few microseconds.
+
+**Does the cost depend on `n` (the size of the sequence/integer/set
+the eset was built from)?** Yes, and that's the number this file
+actually quotes below as "Big O". `n` is fixed at construction time
+(`len(elements)` for a `Permutator`, the integer for a `Partitioner`,
+...); it isn't something a caller picks per lookup the way the index
+is. Every `O(n**2)`-and-up figure in this file is about *this* axis,
+never the index. So "random access" and "`O(1)`" are both true of
+these classes, but only along the index axis -- along the `n` axis,
+where the polynomial complexity actually lives, they behave like any
+other ranking algorithm would.
+
+The distinction matters because the simpler esets elsewhere in this
+library (`Evens`, `Wholes`, `Float64s`, ...) are `O(1)` on *both* axes
+at once: their `direct_function` is a closed-form formula with no
+separate "size" parameter to be polynomial in. The cesets have that
+extra parameter, `n`, precisely because ranking/unranking a
+combinatorial structure is real algorithmic work in a way that
+`2 * i` isn't. Everything below is about that work, not about the
+random-access property, which holds unconditionally throughout this
+whole file.
+
+Two further caveats apply broadly to the `n`-axis cost, found by
+actually timing things rather than assuming:
 
 * None of the counting helpers that need real recursion (as opposed to
   a closed form like `math.comb`) share their memo cache across sibling

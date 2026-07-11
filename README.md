@@ -666,9 +666,15 @@ Sort of, but nothing quite does what an **eset** does.
 * The [combinatorial number system ("combinadics")](https://en.wikipedia.org/wiki/Combinatorial_number_system)
   (also `more_itertools.nth_combination`) maps an integer index
   directly to the *k*-th combination/permutation without generating
-  the ones before it. This is the same `O(1)`-direct-function idea
-  applied to combinatorics, and is the direction
-  [lib/ecombinatorics.py](lib/ecombinatorics.py) is heading.
+  the ones before it. This is the same direct-function idea applied to
+  combinatorics, and is the direction
+  [lib/ecombinatorics.py](lib/ecombinatorics.py) is heading -- with one
+  caveat the `O(1)` framing above glosses over: it's `O(1)` in the
+  index, not in `n` (the size of what's being permuted/combined/...),
+  since ranking/unranking a combinatorial structure is real
+  algorithmic work in a way `2 * i` isn't. See
+  [COMBINATORICS.md](COMBINATORICS.md#a-note-on-speed-upfront) for the
+  actual complexity, which is polynomial in `n`, not constant.
 
 ## TODO:
 
