@@ -1192,3 +1192,162 @@ class Powerset(PowersetABCMixin):
                 xtra_params=(self.eset_obj[key], self.elements, self.classes)
             )
         return super().__getitem__(key)
+
+
+class Natural_Set_Partitioner(Eset):
+    """A basic eset that handles set partitions: every way of
+    grouping range(n) into non-empty, unordered, disjoint blocks whose
+    union is everything, counted by the Bell number B(n). Unlike every
+    other Natural_* class in this module, elements here are never
+    repeated or chosen from a capacity -- a set partition is
+    fundamentally about grouping distinguishable positions, so there's
+    no Distinct_/Multiset_ split, just this and Set_Partitioner.
+
+    Each partition is represented as a restricted growth string (RGS):
+    a tuple a_0..a_{n-1} where a_0 == 0 and each subsequent a_i is at
+    most one more than the running maximum of what came before --
+    the standard bijective encoding, where block labels are introduced
+    in order of first appearance. Partition #0 is (0, 0, ..., 0), one
+    block holding everything; the last is (0, 1, 2, ..., n-1), every
+    position its own singleton block.
+
+    The count has no closed form: B(n) = set_partition_count(n-1, 1),
+    a recursion on "how many ways to extend a RGS with m blocks
+    already established, for r more positions" -- at each position,
+    join one of the m existing blocks or start a new one (m+1
+    choices), recursing on the result. Ranking/unranking follows the
+    same place/try_candidate shape as the rest of this module, just
+    with m+1 candidates per position instead of a fixed alphabet.
+    """
+
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs:
+            if len(kwargs['xtra_params']) != 0:
+                self.N = kwargs['xtra_params'][0]
+            super().__init__(*args, **kwargs)
+        elif len(args) == 1:
+            if not isinstance(args[0], int) or args[0] < 0:
+                raise ValueError('Need a non-negative integer to initialize')
+            self.N = args[0]
+            super().__init__(xtra_params=(self.N,))
+        else:
+            raise ValueError('Need a non-negative integer to initialize')
+
+    def direct_function(self, i):
+        return ecomb.get_set_partition(i, self.N)
+
+    def inverse_function(self, val):
+        return ecomb.get_set_partition_number(val)
+
+    def stop_init(self):
+        return 1 if self.N == 0 else ecomb.set_partition_count(self.N - 1, 1)
+
+    def contains(self, val):
+        if not isinstance(val, tuple) or len(val) != self.N:
+            return False
+        if not ecomb.is_valid_rgs(val):
+            return False
+        return self.slice_contains(val)
+
+
+Set_PartitionerABCMixin = EABCMixinFactory.create_ABC_mixin(Natural_Set_Partitioner(0))
+
+
+class Set_Partitioner(Set_PartitionerABCMixin):
+    """An eset of every way to partition a finite sequence of unique
+    elements into non-empty, unordered groups, built via
+    EABCMixinFactory on top of Natural_Set_Partitioner: that class
+    enumerates restricted growth strings over positions, this class
+    only translates between an RGS and the actual groups of elements
+    it was given, elements sharing a label going into the same group,
+    in label order (0, 1, 2, ... -- the order those groups first
+    appear scanning elements left to right).
+
+    A set partition is unordered at two levels -- the groups
+    themselves, and the elements within each group -- so
+    contains()/index() accept any reordering of either and rank it the
+    same, normalizing by re-deriving the RGS a given grouping implies
+    (which element ends up in which position-label) rather than
+    requiring the exact grouping/ordering direct_function happens to
+    produce.
+
+    Elements must be unique, the same requirement Distinct_Permutator
+    and friends have, since a set partition is fundamentally about
+    grouping distinguishable items -- there's no meaningful analogue
+    of "repeated elements" the way Permutator/Combinator/Arranger/
+    Powerset have one, so unlike those, there's no alphabet argument
+    or Counter/dict input here either: with elements already forced
+    unique, first-appearance order is unambiguous on its own.
+    """
+
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs and len(kwargs['xtra_params']) != 0:
+            eset_obj, self.elements = kwargs['xtra_params']
+            super().__init__(xtra_params=(eset_obj,))
+        elif len(args) == 1:
+            elements = tuple(args[0])
+            if len(set(elements)) != len(elements):
+                raise ValueError('Elements must be unique')
+            self.elements = elements
+            super().__init__(xtra_params=(Natural_Set_Partitioner(len(elements)),))
+        else:
+            raise ValueError(
+                'Need a finite sequence (list, tuple, or string) of unique elements'
+            )
+
+    def init_check(self):
+        return True
+
+    def _rgs_to_blocks(self, rgs):
+        blocks = {}
+        for pos, label in enumerate(rgs):
+            blocks.setdefault(label, []).append(self.elements[pos])
+        return tuple(tuple(blocks[label]) for label in sorted(blocks))
+
+    def _elems_to_rgs(self, val):
+        elem_to_block_id = {}
+        for block_id, block in enumerate(val):
+            for e in block:
+                elem_to_block_id[e] = block_id
+        label_map = {}
+        rgs = []
+        for e in self.elements:
+            block_id = elem_to_block_id[e]
+            if block_id not in label_map:
+                label_map[block_id] = len(label_map)
+            rgs.append(label_map[block_id])
+        return tuple(rgs)
+
+    def direct_function(self, i):
+        return self._rgs_to_blocks(self.eset_obj[i])
+
+    def inverse_function(self, val):
+        return self.eset_obj.index(self._elems_to_rgs(val))
+
+    def eset_obj_val(self, val):
+        return self._elems_to_rgs(val)
+
+    def get_mix_val(self, val):
+        return self._rgs_to_blocks(val)
+
+    def id_contains(self, val):
+        canonical = self.direct_function(self.inverse_function(val))
+        if val == val and set(frozenset(b) for b in val) != set(
+            frozenset(b) for b in canonical
+        ):
+            return False
+
+    def contains_mixin_check(self, val):
+        if not isinstance(val, tuple):
+            return False
+        if not all(isinstance(b, tuple) and len(b) > 0 for b in val):
+            return False
+        all_elems = [e for b in val for e in b]
+        if len(set(all_elems)) != len(all_elems):
+            return False
+        return set(all_elems) == set(self.elements)
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            return type(self)(xtra_params=(self.eset_obj[key], self.elements))
+        return super().__getitem__(key)

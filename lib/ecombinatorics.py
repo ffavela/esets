@@ -525,3 +525,87 @@ def get_multiset_subset_number(
         return multiset_combination_count(multiplicities, size - 1) + offset(size - 1)
 
     return offset(len(subset)) + combo_rank
+
+
+def is_valid_rgs(rgs: tuple[int, ...]) -> bool:
+    """A restricted growth string: rgs[0] == 0, and each subsequent
+    entry is at most one more than the running maximum so far. Block
+    labels are introduced in order of first appearance, which is what
+    makes this the standard bijective encoding of a set partition."""
+    if not rgs:
+        return True
+    if rgs[0] != 0:
+        return False
+    running_max = 0
+    for a in rgs[1:]:
+        if a < 0 or a > running_max + 1:
+            return False
+        running_max = max(running_max, a)
+    return True
+
+
+def set_partition_count(r: int, m: int) -> int:
+    """The number of ways to extend a restricted growth string with m
+    blocks already established, for r more positions: at each of the r
+    positions, join one of the m existing blocks, or start a new one
+    (m+1 choices), recursing with the resulting block count."""
+    memo: dict[tuple[int, int], int] = {}
+
+    def T(r: int, m: int) -> int:
+        key = (r, m)
+        if key in memo:
+            return memo[key]
+        if r == 0:
+            result = 1
+        else:
+            result = m * T(r - 1, m) + T(r - 1, m + 1)
+        memo[key] = result
+        return result
+
+    return T(r, m)
+
+
+def get_set_partition(val: int, n: int) -> tuple[int] | None:
+    total = 1 if n == 0 else set_partition_count(n - 1, 1)
+    if val >= total or val < 0:
+        return None
+    if n == 0:
+        return ()
+
+    def place(resval: int, remaining: int, m: int, retlist: list[int]) -> list[int]:
+        if remaining == 0:
+            return retlist
+        return try_label(resval, remaining, m, retlist, 0)
+
+    def try_label(
+        resval: int, remaining: int, m: int, retlist: list[int], c: int
+    ) -> list[int]:
+        new_m = m + 1 if c == m else m
+        block = set_partition_count(remaining - 1, new_m)
+        if resval < block:
+            return place(resval, remaining - 1, new_m, retlist + [c])
+        return try_label(resval - block, remaining, m, retlist, c + 1)
+
+    return tuple([0] + place(val, n - 1, 1, []))
+
+
+def get_set_partition_number(rgs: tuple[int, ...]) -> int | None:
+    if not is_valid_rgs(rgs):
+        return None
+    n = len(rgs)
+    if n == 0:
+        return 0
+
+    def rank(seq: list[int], m: int) -> int:
+        if not seq:
+            return 0
+        return locate(seq, m, 0)
+
+    def locate(seq: list[int], m: int, c: int) -> int:
+        new_m = m + 1 if c == m else m
+        block = set_partition_count(len(seq) - 1, new_m)
+        if seq[0] == c:
+            return rank(seq[1:], new_m)
+        return block + locate(seq, m, c + 1)
+
+    return rank(list(rgs[1:]), 1)

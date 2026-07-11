@@ -2417,6 +2417,112 @@ there's exactly one subset of nothing, the empty tuple itself:
 >>> Powerset([])
 <esets.Powerset (())>
 
+Partitioner enumerates the ways of writing a number as a sum, order
+disregarded, no elements domain involved. Set_Partitioner is the
+object that actually needed one all along: the ways of grouping n
+*distinguishable* elements into non-empty, unordered blocks, counted
+by the Bell numbers rather than the partition function p(n).
+Natural_Set_Partitioner is the position-only base case:
+
+>>> from cesets import Natural_Set_Partitioner
+>>> nsp = Natural_Set_Partitioner(3)
+>>> nsp
+<esets.Natural_Set_Partitioner ((0, 0, 0), (0, 0, 1), (0, 1, 0), (0, 1, 1), (0, 1, 2))>
+>>> nsp.len()
+5
+
+5 = B(3), the third Bell number: 1 way to keep everyone together, 3
+ways to split off one singleton, 1 way to split into three singletons
+-- 1 + 3 + 1 = 5. Each partition is a restricted growth string (RGS):
+position 0 always starts block 0, and every later position either
+joins an existing block or starts the very next one, never skipping
+ahead. Partition #0 is (0, 0, 0), one block holding everyone:
+
+>>> nsp[0]
+(0, 0, 0)
+>>> nsp[-1]
+(0, 1, 2)
+
+(0, 1, 2) is the other extreme, every position its own block. Being
+an RGS is a real constraint, not just "any tuple of small integers":
+
+>>> (0, 1, 1) in nsp
+True
+>>> (0, 2, 1) in nsp
+False
+
+(0, 2, 1) jumps straight to label 2 before label 1 has ever appeared,
+so it doesn't correspond to any actual grouping. Counting has no
+closed form: B(n) is computed via set_partition_count(n - 1, 1), a
+recursion on "how many ways to extend an RGS with m blocks already
+established, for r more positions" -- at each position, join one of
+the m existing blocks or start a new one (m+1 choices this time,
+rather than a fixed-size alphabet), then recurse. Ranking/unranking
+follows the exact same place/try_candidate shape as everywhere else
+in this module.
+
+Set_Partitioner wraps Natural_Set_Partitioner via the eset factory,
+translating an RGS into the actual groups of elements it was given,
+elements sharing a label landing in the same group:
+
+>>> from cesets import Set_Partitioner
+>>> sp = Set_Partitioner(['a', 'b', 'c'])
+>>> sp
+<esets.Set_Partitioner ((('a', 'b', 'c'),), (('a', 'b'), ('c',)), (('a', 'c'), ('b',)), (('a',), ('b', 'c')), (('a',), ('b',), ('c',)))>
+>>> sp.len()
+5
+>>> sp[0]
+(('a', 'b', 'c'),)
+>>> sp[-1]
+(('a',), ('b',), ('c',))
+
+A set partition is unordered twice over: the groups themselves don't
+have an order, and neither do the elements within a group. contains()
+and index() accept any reshuffling of either and treat it as the same
+partition, re-deriving which RGS it corresponds to rather than
+requiring the exact grouping/ordering direct_function happens to
+produce:
+
+>>> (('b', 'c'), ('a',)) in sp
+True
+>>> sp.index((('a', 'b'), ('c',))) == sp.index((('b', 'a'), ('c',)))
+True
+
+Elements must be unique -- a set partition is fundamentally about
+grouping distinguishable items, so, unlike Permutator, Combinator,
+Arranger and Powerset, there's no repeated-elements variant, and
+correspondingly no alphabet argument or Counter/dict input: with
+elements already forced unique, first-appearance order is unambiguous
+on its own, the same reasoning that keeps Distinct_Permutator and its
+siblings alphabet-free too.
+
+>>> Set_Partitioner(['a', 'a'])
+Traceback (most recent call last):
+...
+ValueError: Elements must be unique
+
+Slicing works the same way as everywhere else:
+
+>>> sl = sp[1:3]
+>>> sl
+<esets.Set_Partitioner ((('a', 'b'), ('c',)), (('a', 'c'), ('b',)))>
+>>> type(sl).__name__
+'Set_Partitioner'
+
+A slightly bigger example, the 15 ways to partition four items (B(4)
+= 15):
+
+>>> Set_Partitioner('wxyz').len()
+15
+
+And the same trivial edge case as always: partitioning nothing has
+exactly one partition, the empty tuple of groups:
+
+>>> Natural_Set_Partitioner(0)
+<esets.Natural_Set_Partitioner (())>
+>>> Set_Partitioner([])
+<esets.Set_Partitioner (())>
+
 Speaking of warming up, let's cool down with something concrete: the
 Float64s eset, which enumerates every single IEEE 754 double,
 negative zero, infinities and nans included.
