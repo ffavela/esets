@@ -44,9 +44,11 @@ def test_wholes():
 
 
 def test_doctests():
-    doctest.testfile('docTest.txt')
-    doctest.testfile('README.md')
-    doctest.testfile('FLOAT64S.md')
+    for docfile in ('docTest.txt', 'README.md', 'FLOAT64S.md', 'COMBINATORICS.md'):
+        result = doctest.testfile(docfile, optionflags=doctest.ELLIPSIS)
+        assert (
+            result.failed == 0
+        ), f'{docfile}: {result.failed} of {result.attempted} failed'
 
 
 def rval(x):

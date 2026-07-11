@@ -16,7 +16,8 @@ generated from the structure as soon as it is needed so there is no
 need to store the entirety of the data on memory. Despite this you may
 access the data via indexing, and operations such as slicing are
 accessible. Note that most eset implementations are random access see
-FUTURE_SECTION_HERE for details.
+[BEset, Eset, and EMap: what's actually underneath](#beset-eset-and-emap-whats-actually-underneath)
+for details.
 
 ### Python already has sets, why create another implementation?
 
@@ -45,6 +46,109 @@ class (ABC) and [esets.py](esets.py) has a set of classes that derive
 from the ABC, they implement the required methods like the function
 that gets the value given an index and the corresponding inverse
 function.
+
+### BEset, Eset, and EMap: what's actually underneath?
+
+[eset.py](eset.py) actually splits that ABC in two. `BEset` (the
+"blind" eset) is the foundation: indexing, slicing, iteration, `repr`,
+the `__len__`/`.len()` split for numbers too large for `__len__` to
+return -- everything except knowing whether a given value belongs to
+it. That last part is deliberately missing: `BEset.__contains__` is
+explicitly disabled, on purpose, not merely unimplemented:
+
+```python
+>>> from eset import BEset
+>>> class BlindSquares(BEset):
+...     def direct_function(self, i):
+...         return i * i
+...     def stop_init(self):
+...         return None
+...
+>>> bs = BlindSquares()
+>>> bs
+<esets.BlindSquares (0, 1, 4, 9, ...)>
+>>> bs[5]
+25
+>>> bs[2:6]
+<esets.BlindSquares* (4, 9, 16, 25)>
+>>> 25 in bs
+Traceback (most recent call last):
+...
+TypeError: Membership check explicitly disabled on besets
+>>>
+```
+
+A `BlindSquares` can hand you the 6th square instantly and slice
+itself, but asking "is 25 a square?" is a different, harder question
+(the inverse function has to exist and actually be checked), and a
+`BEset` makes no promise about it at all.
+
+Squares are actually a bit too easy an example, though: an inverse
+(`sqrt`, rounded and checked) obviously exists, so `BlindSquares` not
+offering `contains()` reads as a choice rather than a necessity. The
+case `BEset` genuinely earns its keep is a relationship you don't know
+how to invert at all, a hash function being the textbook example:
+
+```python
+>>> import hashlib
+>>> class Sha256Hashes(BEset):
+...     def direct_function(self, i):
+...         return hashlib.sha256(str(i).encode()).hexdigest()
+...     def stop_init(self):
+...         return None
+...
+>>> sh = Sha256Hashes()
+>>> sh[0]
+'5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9'
+>>> sh[5]
+'ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d'
+>>> sh[2:4]
+<esets.Sha256Hashes* (d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35, 4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce)>
+>>> 'some digest' in sh
+Traceback (most recent call last):
+...
+TypeError: Membership check explicitly disabled on besets
+>>>
+```
+
+The i-th SHA-256 digest is instant to compute, same as a square. But
+there's no `sqrt` to reach for here: recovering `i` from a digest
+means brute-forcing candidates, there's no known shortcut, that's the
+entire point of a cryptographic hash function. `BlindSquares` chooses
+not to define `contains()`; `Sha256Hashes` simply has nothing to
+define it with. `BEset` doesn't distinguish between those two cases,
+and that's the right call: whether an inverse merely wasn't written or
+provably can't be written efficiently, the honest answer is the same
+disabled `__contains__`, not a `contains()` that silently loops
+forever or lies.
+
+`Eset` is the ABC that adds that promise on top, for the (much more
+common) case where an inverse genuinely does exist: `contains`/
+`index`/`__contains__`, built on top of `inverse_function`. Every
+concrete eset used throughout this file, `Evens` included, is an
+`Eset`, not a bare `BEset`.
+
+Writing a whole subclass is not the only way to get there, though. If
+all you need is a one-off eset from plain functions, `EMap` builds an
+`Eset` directly from a direct function, its inverse, a contains check,
+and a base eset (just for sizing, via its `.len()`):
+
+```python
+>>> from eset import EMap
+>>> from esets import Wholes
+>>> e = EMap(lambda i: 2 * i, lambda v: v // 2,
+...          lambda v: False if not isinstance(v, int) else None, Wholes())
+>>> e
+<esets.EMap (0, 2, 4, 6, ...)>
+>>> e[10:20]
+<esets.EMap* (20, 22, 24, 26, ..., 32, 34, 36, 38)>
+>>>
+```
+
+Recognized as an `EMap`, not an `Evens`, but behaving identically --
+no subclass required. See docTest.txt for a fuller walkthrough
+(including why the contains function returns `None` rather than
+`True` for a match).
 
 ### Why?
 
@@ -486,6 +590,11 @@ Before going into outrageously large numbers, first take a look into
 the [FLOAT64S.md](FLOAT64S.md) for an eset that enumerates all the 64
 bit floats.
 
+And for the combinatorial esets themselves, permutations,
+combinations, arrangements, subsets, integer partitions and set
+partitions, all addressable by index with no enumeration involved, see
+[COMBINATORICS.md](COMBINATORICS.md).
+
 ## Is there anything like this already out there? (Prior art)
 
 Sort of, but nothing quite does what an **eset** does.
@@ -565,6 +674,7 @@ Sort of, but nothing quite does what an **eset** does.
 
 * Describe how to create and `eset`.
 * Implement other esets.
-* Start development with combinators, permutators and other ones.
+* ~~Start development with combinators, permutators and other ones.~~
+  See [COMBINATORICS.md](COMBINATORICS.md).
 * How do these compare with lists, tuples, sets etc.?
 * Compare with itertools (once the above is ready).

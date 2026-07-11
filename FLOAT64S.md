@@ -503,6 +503,7 @@ values.
 Let's make a comparison between 2 floats say:
 
 ```python
+>>> import math
 >>> x = 4503599627370496.0
 >>> y = 4503599627370496.5
 >>> math.isclose(x, y)
@@ -557,6 +558,7 @@ And to make it obvious:
 ```python
 >>> y - x
 1.0
+
 ```
 
 So just 2 values that differ by one, not by 0.5, not by ten to the
