@@ -2,12 +2,12 @@
 
 An eset case study. Floats are of great importance specifically for
 scientific computing, despite initial push backs from people like John
-von Neumann (just one of the smartests humans who has ever lived, so
+von Neumann (just one of the smartest humans who has ever lived, so
 no pressure...) the floating point standard has prevailed.
 
 Thanks to the work of brilliant engineers like Bill Kahan, a lot of
 work from scientists and engineers was possible. The standard has
-proven is usefullness just by the sheer amount of time and people that
+proven its usefulness just by the sheer amount of time and people that
 have used it not to mention the amount of critical systems that rely
 on it. It is supported at the hardware level so calculations are
 really fast.
@@ -21,8 +21,8 @@ rough edges, but that is because this (eset) approach makes it really
 easy to visibilize them, and for me this only adds to the
 impressiveness of the standard that it can work so well.
 
-Yes there may be a need for other case studies like John L. Gustafson
-'s Unums which may come in the future. But for now, a 64 bit float
+Yes there may be a need for other case studies like John L. Gustafson's
+Unums which may come in the future. But for now, a 64 bit float
 eset is the main topic.
 
 ### So in other words a list of floats?
@@ -37,7 +37,7 @@ Reals aren't real, floats aren't Real, floats are real.
 ### What?!
 
 Digitally speaking, we cannot realistically store a single Real
-number. Not even with the combined cumilative storage capacity of all
+number. Not even with the combined cumulative storage capacity of all
 the history of human kind. Granted we can define them through a
 process, and perform an abstract definition, even have an arbitrary
 precision, but that doesn't change the fact that we can't store a
@@ -46,7 +46,7 @@ computer. The Real numbers are a mathematical concept but (in my
 opinion) it is an unfortunate naming convention, it tags them as in
 every sense of the word as real, the noun is commonly also interpreted
 as an adjective. You can still call them Real, but at least on this
-text mentally remove the "real" tag to avoid any confussion.
+text mentally remove the "real" tag to avoid any confusion.
 
 Sixty four bit floats on the other hand are a different story. They
 can represent up to `2**64 == 18446744073709551616 ~ 1.84e+19`
@@ -57,13 +57,13 @@ i.e. the interpreted exponent is exponent-1023.
 
 ### Wait under the same logic the Rationals also have an issue
 
-Yes and no. If there is at least one member of a set that can **only**
-be represented by using an infinite amount of memory has this issue. A
-Rational number has would need an infinite amount of information when
-expressed in its decimal expansion. Granted you may say that after a
-particular decimal all the rest of the digits are (say 0) and
+Yes and no. If a set has at least one member that can **only** be
+represented using an infinite amount of memory, then that set has this
+issue. A Rational number would need an infinite amount of information
+when expressed in its decimal expansion. Granted you may say that after
+a particular decimal all the rest of the digits are (say 0) and
 therefore there is no need to store it, we could let that pass since
-at least numerically in terms of magniture it is indistinguishable
+at least numerically in terms of magnitude it is indistinguishable
 from any other expansion that decides to use more trailing
 zeroes. Like in:
 
@@ -98,7 +98,7 @@ So the previous argument for the trailing zeroes plays against us since:
 .
 ```
 
-This is the other famous case where there same sequence of numbers
+This is the other famous case where the same sequence of numbers
 repeats over and over. Kindly note that they are essentially the same
 case (in the former it was trailing 0s while the latter trailing 1s).
 
@@ -113,25 +113,25 @@ this data to get any decimal value.
 
 2) Rationals can also be described as a quotient, that is a division
 of two integer numbers. A numerator that can be an integer and a
-denomitator that can be any integer except zero. Those two values use
+denominator that can be any integer except zero. Those two values use
 a finite amount of information, the process in this case is a
 division.
 
 Note that in both cases the process or function definition can be
-stored in a finite amount of memory. Wherea's the infinite decimal
+stored in a finite amount of memory. Whereas the infinite decimal
 expansion can't. Note that Irrationals such as `sqrt(2)` do not need
 an infinite amount of information to be defined. The issue only comes
 when trying to use their decimal expansion.
 
 All that just to say that we can store any single Float, because the
 elements of this set can be represented in a finite amount of memory.
-We could even ommit the use of a process for defining them!
+We could even omit the use of a process for defining them!
 
 If we were determined enough we could even store all of them given the
-current storage capacity of mankind (as of writting this) that'll take
+current storage capacity of mankind (as of writing this), that'll take
 a significant portion but it is currently possible.
 
-### Storing all 64 bit floats is definetively a terrible idea
+### Storing all 64 bit floats is definitively a terrible idea
 
 Agree, let's do it!!
 
@@ -192,7 +192,7 @@ and we can also see the respective binary representation:
 >>>
 ```
 
-The IEEE is a bit vage regarding the nans, there can be many more than
+The IEEE is a bit vague regarding the nans, there can be many more than
 the 2 we've presented and the default base values can be
 different. For this implementation and for the sake of simplicity,
 only 2 are the accepted values for our Float64s eset.
@@ -231,7 +231,7 @@ them, 64 bits are 8 bytes, so:
 
 ```
 
-So we need 147 exabites of a bit more precisely 127 exbibytes. A quick
+So we need 147 exabytes, or a bit more precisely, 127 exbibytes. A quick
 comparison, a laptop hard drive has around 1TB, 1EB ~ `10**6` TB. So
 around 100 million of these would be required to store all the 64 bit
 floats.
@@ -307,12 +307,12 @@ True
 >>>
 ```
 
-That is a numer greater than zero (also that is not something weird
+That is a number greater than zero (also that is not something weird
 like an `inf` or a `nan`) multiplied by something greater than 1 is
 the same number!
 
-That doesn't happen with the Real numbers, on that case it doesn't
-even make sense to even conceive the first number after zero. It just
+That doesn't happen with the Real numbers, in that case it doesn't
+even make sense to conceive of the first number after zero. It just
 doesn't exist. And if you would grab any Real number (excluding zero)
 none would satisfy the above relationship. Also for any `n` say 1000,
 the average of 2 consecutive positive floats satisfy:
@@ -339,7 +339,7 @@ for many intended purposes.
 
 Yeah there is a but.
 
-But for the case of enumerating rounding off stuff can give completely
+But for the case of enumerating, rounding-off can give completely
 different results. Granted floats aren't used for that normally, so
 for all intended purposes we are safe.
 
@@ -372,7 +372,7 @@ True
 
 ### Elaborate on the odd part on the pi approx.
 
-It maybe more clear seeing the following:
+It may be more clear seeing the following:
 
 ```python
 >>> 0.2 in pf64s # Still odd, I'll explain below
@@ -392,7 +392,7 @@ Yep ^, 0.2 (a.k.a 1/5) cannot be properly represented in
 binary. Python seems to be cheating here, our value is converted to a
 float i.e. 0.2 turns into a 0.20000000000000001 and then it says yeah
 that float value I just converted to (not the one you actually asked about)
-is present. This would happen on other programming languajes by the
+is present. This would happen on other programming languages by the
 way, that conversion is done under the hood and is actually
 expected. But in this particular case we need to highlight it, Real
 values are rounded to the nearest float. And on the aforementioned
@@ -453,7 +453,7 @@ We can simply get a slice starting from the first approximation:
 ```
 
 Also define the stop index to be the next number in the least
-significant digit retulting in 2.718282, saving that eset into a
+significant digit resulting in 2.718282, saving that eset into a
 variable called `sliver`:
 
 ```python
@@ -520,8 +520,8 @@ True
 >>>
 ```
 
-Which makes not sense, they are clearly different right?! Well it
-turns out that this is not the case turns out that:
+Which makes no sense, they are clearly different right?! Well, it
+turns out that:
 
 ```python
 >>> x == float(2**52)
@@ -579,7 +579,7 @@ different answers when asking is a bit of an issue.
 Indeed, from the documentation
 [math.isclose](https://docs.python.org/3/library/math.html#math.isclose)
 and the corresponding [PEP 485](https://peps.python.org/pep-0485/) we
-see that these is how it can be called in its general form:
+see that this is how it can be called in its general form:
 
 
 ```python
@@ -598,7 +598,7 @@ abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 The `abs_tol` (absolute tolerance) is usually relevant for comparing
 values close to zero (source; I just googled it).
 
-This behavior may turn into an unpleasant surprize when working with a
+This behavior may turn into an unpleasant surprise when working with a
 grid or a quadtree with fixed bin sizes where some bins are far away
 or perhaps you are performing additions and it may be important to
 know when they stop being relevant because they are getting rounded
@@ -615,9 +615,9 @@ False
 >>>
 ```
 
-That is, for our hypothetical grid, we can't resolve that far away we
-should handle it appropriately else our computations will spit out
-silly results.
+That is, for our hypothetical grid, we can't resolve values that far
+apart; we should handle that appropriately, or our computations will
+spit out silly results.
 
 We can visualise the float values quite easily by using slicing on the
 positive floats eset:
@@ -628,8 +628,8 @@ positive floats eset:
 >>>
 ```
 
-It kind of begs the question about the nature of the epsilon wether it
-could be defined in a more general useful form.
+It kind of begs the question about the nature of the epsilon, whether
+it could be defined in a more general useful form.
 
 ### What about the epsilon?
 
@@ -645,8 +645,8 @@ pf64s float on that value and 1.0:
 >>>
 ```
 
-No need to do a while loop just a simple substraction once we have the
-desired index. However, we can actually generalize quite easely to an
+No need to do a while loop, just a simple subtraction once we have the
+desired index. However, we can actually generalize quite easily to an
 epsilon function defined on almost all the floats like the following:
 
 ```python
@@ -716,8 +716,8 @@ Yes, but there are integer holes there too.
 ### Where? How can they be found?
 
 So the significand (the fractional part of the float64) has 52 bits,
- any number higher than this (`2**52`) cannot have a fractional part
- that is only integers:
+any number higher than this (`2**52`) can no longer represent
+fractional values -- only integers:
 
 ```python
 >>> pf64s.float2bintpl(2**52-1)
@@ -792,10 +792,10 @@ Also between `2**54` and `2**55` values start jumping in 4s:
 >>>
 ```
 
-### Were do subnormals (a.k.a. denormals) fall here?
+### Where do subnormals (a.k.a. denormals) fall here?
 
 So the first subnormal (the exponent bits are zero) is zero and the
-last has all ones on the significand that is `2**52-1`, so looking and
+last has all ones on the significand that is `2**52-1`, so looking at
 the pf64s:
 
 ```python
@@ -834,7 +834,7 @@ The total storage capacity to store these is:
 
 So around 1000 of these laptop harddrives, more doable than the entire
 64bit floats. But still kind of out of reach through conventional
-approaches like using lists or tuples, but definetively reachable via
+approaches like using lists or tuples, but definitively reachable via
 the Float64s eset B-).
 
 ## Has anyone done this before? (Prior art)

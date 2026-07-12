@@ -3,9 +3,10 @@
 This is the eset case study for combinatorics: [esets/cesets.py](esets/cesets.py)
 and [esets/ecombinatorics.py](esets/ecombinatorics.py), collectively the
 "cesets". Where the rest of this library enumerates numbers,
-these enumerate permutations, combinations, arrangements, subsets,
-integer partitions, and set partitions, each one addressable by a
-single index with no enumeration of anything that comes before it.
+these enumerate permutations, derangements, combinations, arrangements,
+subsets, integer partitions, compositions, set partitions, and
+Cartesian products, each one addressable by a single index with no
+enumeration of anything that comes before it.
 
 Two acknowledgements before diving in. The multiset-counting ideas
 behind several of these classes, particularly the memoized recursive
@@ -132,7 +133,7 @@ steps does an `O(n)` list operation). `Natural_Multiset_Permutator`/
 multinomial coefficient for the remaining labels gets recomputed at
 every step rather than cached across steps.
 
-## Natural_Derangement: permutations with no fixed point
+## Distinct_Derangement: permutations with no fixed point
 
 A restriction of `Natural_Permutator`: permutations of `range(n)`
 where no position holds its own index, counted by the subfactorial

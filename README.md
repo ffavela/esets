@@ -41,7 +41,7 @@ operation gives directly the answer. You may imagine it as fetching
 the data from a meta memory space, or in a more honest sense from a
 fake memory space.
 
-In a bit more technical sense, [esets/eset.py](https://github.com/ffavela/esets/blob/main/esets/eset.py) is and abstract base
+In a bit more technical sense, [esets/eset.py](https://github.com/ffavela/esets/blob/main/esets/eset.py) is an abstract base
 class (ABC) and [esets/numeric.py](https://github.com/ffavela/esets/blob/main/esets/numeric.py) has a set of classes that derive
 from the ABC, they implement the required methods like the function
 that gets the value given an index and the corresponding inverse
@@ -58,8 +58,8 @@ David he responded:
 > It is easy. You just chip away the stone that doesn’t look like
 > David.
 
-This is of course a sarcastic response, chipping away stuff is were
-the difficulty is. Anydoby can describe a block of marble no matter
+This is of course a sarcastic response, chipping away stuff is where
+the difficulty is. Anybody can describe a block of marble no matter
 the size, it is a humbling experience that someone had the talent,
 determination and character to pull that off and turn that marble
 block into David.
@@ -67,7 +67,7 @@ block into David.
 To put it into the `eset` perspective, mathematically it is easier to
 describe and enumerate the entire infinite set of Whole numbers than
 the chipped away subset of twin prime numbers or the odd perfect
-numbers, even if this later one may actually turn out to be finite or
+numbers, even if this latter one may actually turn out to be finite or
 even empty.
 
 Note also that it is easier to describe the evens than to describe the
@@ -104,7 +104,7 @@ assign `Evens()` to a variable and check out what is in there:
 ```
 
 Here the ellipsis (`...`) at the end means that the sequence goes on
-forever. Any positive integer is there, as long as in can be stored in
+forever. Any positive integer is there, as long as it can be stored in
 memory we can check it e.g.:
 
 ```python
@@ -116,7 +116,7 @@ False
 >>>
 ```
 
-### So what about it's len?
+### So what about its len?
 
 About that:
 
@@ -193,10 +193,10 @@ hood. Check out the following:
 >>>
 ```
 
-It behaves just like if there was some list (an inmutable one) that
-has all the elements and "complex" slices are performed on it. So not
+It behaves just like if there was some list (an immutable one) that
+has all the elements and "complex" slices are performed on it. So no,
 it is not just divide by two to get the index. There is some fancy
-math footwork performed behind the scenes by the **eset** to acchieve
+math footwork performed behind the scenes by the **eset** to achieve
 this.
 
 Note the `*` in `esets.Evens*`, that implies that there was a slice in
@@ -214,7 +214,7 @@ on the Evens **eset**:
 Note that when using a repr if the elements are integers and above a
 certain threshold of size (like 15 chars but don't quote me on that
 cause it may change), then a special notation is involved using a
-decimal point a an ellipsis, the very last digits of the decimal
+decimal point, an ellipsis, the very last digits of the decimal
 expansion and the multiplicative power of ten factor.
 
 
@@ -269,11 +269,11 @@ question](https://stackoverflow.com/questions/79805440/in-python-is-there-a-way-
 
 In sum __len__ assumes that the object is stored in memory and it uses
 this fact to have highly performant code (remember that C is used
-under python's hood) anything larger will not fit on this variable
+under python's hood). Anything larger will not fit on this variable,
 which makes sense cause there isn't a large enough memory to store the
 entire address space that variable can point to.
 
-TLDR: an eset supports __len__ however __len__ is doen't fully support
+TLDR: an eset supports __len__, however __len__ doesn't fully support
 an eset.
 
 The sys.maxsize is the maximum value for the dunder __len__ method,
@@ -326,7 +326,7 @@ Other multiples can actually be obtained from this, say multiples of
 >>>
 ```
 
-### Is there an **eset** where we can contruct the multiples from the start?
+### Is there an **eset** where we can construct the multiples from the start?
 
 I thought you'd never ask:
 
@@ -358,7 +358,7 @@ Note that the negatives can be extracted like this:
 >>>
 ```
 
-### How about arithmetic progressions
+### How about arithmetic progressions?
 
 No sweat:
 
@@ -401,7 +401,7 @@ brainer:
 
 Converting the entire set... just don't ;-)
 
-### All this looks way to academic. Is there more? Something more applied?
+### All this looks way too academic. Is there more? Something more applied?
 
 Yep and it may pay off big time. But we'll leave it here for now.
 
@@ -409,7 +409,7 @@ Just as a teaser consider the following; In many fields of study using
 a relative error that is 10% or under is usually good enough. When
 enumerating we are interested in an absolute error, anything different
 from zero is completely wrong (even if it is an error of
-1). Mathematical precision is of the upmost importance.
+1). Mathematical precision is of the utmost importance.
 
 Consider the following:
 
@@ -432,10 +432,10 @@ happens to be more than 35 thousand orders of magnitude wrong in terms
 of the absolute error!!
 
 Please take a moment to contemplate this, it is not something that is
-off by 35 thousand, that is just 4 orders of magnitude (`10**4`) the
-error is in fact 35 thousand orders of magnitude (`10**35000`) even
-there it is actually off by about a googol to the six power
-(`(10**100)**6==10**600`) look how tiny that is in comparison to
+off by 35 thousand, that is just 4 orders of magnitude (`10**4`). The
+error is in fact 35 thousand orders of magnitude (`10**35000`). For
+scale, even a googol to the sixth power (`(10**100)**6==10**600`),
+already an unfathomably large number on its own, is tiny compared to
 `10**35000`. This is a taste of combinatorial explosion.
 
 We can actually do a:
@@ -679,7 +679,7 @@ no subclass required. See docTest.txt for a fuller walkthrough
 
 ## TODO:
 
-* Describe how to create and `eset`.
+* Describe how to create an `eset`.
 * Implement other esets.
 * ~~Start development with combinators, permutators and other ones.~~
   See [COMBINATORICS.md](https://github.com/ffavela/esets/blob/main/COMBINATORICS.md).
