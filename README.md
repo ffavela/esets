@@ -2,6 +2,30 @@
 
 The datastructure that nobody asked for is finally here. (beta)
 
+## Installation
+
+With [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv add esets-lib
+```
+
+Or with pip:
+
+```bash
+pip install esets-lib
+```
+
+Note the distribution name (`esets-lib`) is not the same as the
+import name: the package on PyPI is called `esets-lib` simply because
+`esets` was already taken by an unrelated project, but in code it's
+still:
+
+```python
+>>> import esets
+>>>
+```
+
 ## What is it? (An informal introduction)
 
 **esets** stands for enumerated sets. They can handle arbitrarily
