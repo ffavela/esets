@@ -323,10 +323,44 @@ of either. Elements must be unique, the same requirement
 distinguishable items, so there's no meaningful "repeated element"
 variant to disambiguate.
 
-**Speed:** this is the most constrained class in the whole family.
-Its restricted-growth-string recursion hits Python's recursion limit
-around `n=80`-`100` elements in informal testing, the lowest ceiling
-here by a wide margin. Bell numbers grow fast enough that this is
+**Speed:** a genuinely constrained class. Its restricted-growth-string
+recursion hits Python's recursion limit around `n=80`-`100` elements
+in informal testing -- tighter than everything in this family except
+`Natural_Derangement`, which breaks even sooner (around `n=60`; see
+its own section above). Bell numbers grow fast enough that this is
 unlikely to matter in practice (`B(80)` is already astronomically
 larger than anything you'd enumerate), but it's worth knowing this one
-specifically has the tightest practical ceiling of the family.
+doesn't scale the way most of its siblings do.
+
+## Cartesian_Product: combining several sources, not choosing within one
+
+Different in kind from everything above: every other class here
+chooses or arranges within a *single* domain. `Natural_Cartesian_Product`
+combines several independent sources, one pick from each -- the
+concrete capability gap this project found comparing itself to the
+`slowcomb` library's `CatCombination`:
+
+```python
+>>> from cesets import Cartesian_Product
+>>> cp = Cartesian_Product([['I'], ['need', 'want'], ['sugar', 'spice', 'scissors']])
+>>> cp.len()
+6
+>>> cp[0]
+('I', 'need', 'sugar')
+>>> cp.index(('I', 'want', 'spice'))
+4
+>>>
+```
+
+Enumerated in the same order `itertools.product` uses (the last
+source varies fastest). Each source must have unique elements
+internally, the same requirement every `Distinct_*` class has, but
+different sources are free to share values with each other (they're
+tracked by which source they came from, not one shared elements
+domain).
+
+**Speed:** the other class in the family with no recursion at all.
+The count is just the product of the source sizes, and
+ranking/unranking is a direct mixed-radix decomposition (peel off the
+least significant digit via `divmod`, or fold digits back together
+most significant first) -- no recursion-limit ceiling to report.

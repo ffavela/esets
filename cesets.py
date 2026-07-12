@@ -1510,3 +1510,128 @@ class Distinct_Derangement(Distinct_DerangementABCMixin):
         if isinstance(key, slice):
             return type(self)(xtra_params=(self.eset_obj[key], self.elements))
         return super().__getitem__(key)
+
+
+class Natural_Cartesian_Product(Eset):
+    """A basic eset that handles the Cartesian product of several
+    ranges: every tuple (i_1, ..., i_k) with 0 <= i_j < sizes[j],
+    enumerated in the same order itertools.product(*[range(s) for s in
+    sizes]) uses (the last size varies fastest). Unlike every other
+    Natural_* class in this module, this one takes several independent
+    sizes rather than one, since it's about combining multiple
+    distinct sources rather than choosing/arranging within a single
+    one.
+
+    The count needs no recursion, just the product of the sizes
+    (0 if any size is 0, 1 if sizes is empty), and ranking/unranking is
+    a direct mixed-radix decomposition: unrank by peeling off the
+    least significant "digit" (the last size) first via divmod, rank
+    by folding the digits back together most significant first.
+    """
+
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs:
+            if len(kwargs['xtra_params']) != 0:
+                self.SIZES = kwargs['xtra_params'][0]
+            super().__init__(*args, **kwargs)
+        elif len(args) == 1:
+            sizes = tuple(args[0])
+            for size in sizes:
+                if not isinstance(size, int) or size < 0:
+                    raise ValueError('Need a tuple of non-negative integers')
+            self.SIZES = sizes
+            super().__init__(xtra_params=(self.SIZES,))
+        else:
+            raise ValueError('Need a tuple of non-negative integers')
+
+    def direct_function(self, i):
+        return ecomb.get_cartesian_index(i, self.SIZES)
+
+    def inverse_function(self, val):
+        return ecomb.get_cartesian_index_number(val, self.SIZES)
+
+    def stop_init(self):
+        total = 1
+        for size in self.SIZES:
+            total *= size
+        return total
+
+    def contains(self, val):
+        if not isinstance(val, tuple) or len(val) != len(self.SIZES):
+            return False
+        if any(
+            not isinstance(v, int) or v < 0 or v >= size
+            for v, size in zip(val, self.SIZES)
+        ):
+            return False
+        return self.slice_contains(val)
+
+
+Cartesian_ProductABCMixin = EABCMixinFactory.create_ABC_mixin(
+    Natural_Cartesian_Product(())
+)
+
+
+class Cartesian_Product(Cartesian_ProductABCMixin):
+    """An eset of every combination of one pick from each of several
+    finite sequences, built via EABCMixinFactory on top of
+    Natural_Cartesian_Product: that class enumerates index-tuples,
+    this class only translates between an index-tuple and the actual
+    pick from each source, one per source, in order.
+
+    Unlike Distinct_Permutator/Distinct_Combinator/Distinct_Arranger,
+    which all translate positions within a single elements domain,
+    this class combines several separate, independent sources -- the
+    concrete capability gap this class fills. Each source must have
+    unique elements internally (the same requirement every Distinct_*
+    class has, for the same reason: index lookups need to be
+    unambiguous), but different sources are free to share values with
+    each other, since they're tracked by source position, not by a
+    single shared elements domain.
+    """
+
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs and len(kwargs['xtra_params']) != 0:
+            eset_obj, self.sources = kwargs['xtra_params']
+            super().__init__(xtra_params=(eset_obj,))
+        elif len(args) == 1:
+            sources = tuple(tuple(s) for s in args[0])
+            for s in sources:
+                if len(set(s)) != len(s):
+                    raise ValueError('Each source must have unique elements')
+            self.sources = sources
+            sizes = tuple(len(s) for s in sources)
+            super().__init__(xtra_params=(Natural_Cartesian_Product(sizes),))
+        else:
+            raise ValueError('Need a sequence of sequences')
+
+    def init_check(self):
+        return True
+
+    def _idx_to_vals(self, idx_tpl):
+        return tuple(self.sources[j][idx_tpl[j]] for j in range(len(self.sources)))
+
+    def _vals_to_idx(self, val):
+        return tuple(self.sources[j].index(val[j]) for j in range(len(self.sources)))
+
+    def direct_function(self, i):
+        return self._idx_to_vals(self.eset_obj[i])
+
+    def inverse_function(self, val):
+        return self.eset_obj.index(self._vals_to_idx(val))
+
+    def eset_obj_val(self, val):
+        return self._vals_to_idx(val)
+
+    def get_mix_val(self, val):
+        return self._idx_to_vals(val)
+
+    def contains_mixin_check(self, val):
+        if not isinstance(val, tuple) or len(val) != len(self.sources):
+            return False
+        return all(v in s for v, s in zip(val, self.sources))
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            return type(self)(xtra_params=(self.eset_obj[key], self.sources))
+        return super().__getitem__(key)

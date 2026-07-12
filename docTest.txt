@@ -2656,6 +2656,86 @@ Slicing works the same way as everywhere else:
 >>> type(sl).__name__
 'Distinct_Derangement'
 
+Everything so far has been about choosing/arranging within a single
+domain. Natural_Cartesian_Product is different in kind: it combines
+several independent sources, one pick from each, the same gap this
+project found comparing itself against the slowcomb library's
+CatCombination. Each tuple (i_1, ..., i_k) satisfies 0 <= i_j <
+sizes[j], enumerated in the same order itertools.product uses (the
+last size varies fastest):
+
+>>> from cesets import Natural_Cartesian_Product
+>>> ncp = Natural_Cartesian_Product((2, 3))
+>>> ncp
+<esets.Natural_Cartesian_Product ((0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2))>
+>>> ncp.len()
+6
+>>> (1, 2) in ncp
+True
+>>> (2, 0) in ncp
+False
+
+No new combinatorics needed here either: the count is just the
+product of the sizes, and ranking/unranking is a direct mixed-radix
+decomposition (unrank by peeling off the last size's digit first via
+divmod, rank by folding the digits back together most significant
+first) -- no recursion, no recursion-limit ceiling to report for this
+one.
+
+Cartesian_Product wraps it the same way Distinct_Permutator wraps
+Natural_Permutator, translating an index-tuple into one pick from each
+of several real sources:
+
+>>> from cesets import Cartesian_Product
+>>> cp = Cartesian_Product([['I'], ['need', 'want'], ['sugar', 'spice', 'scissors']])
+>>> cp
+<esets.Cartesian_Product (('I', 'need', 'sugar'), ('I', 'need', 'spice'), ('I', 'need', 'scissors'), ('I', 'want', 'sugar'), ('I', 'want', 'spice'), ('I', 'want', 'scissors'))>
+>>> cp.len()
+6
+>>> cp[0]
+('I', 'need', 'sugar')
+>>> ('I', 'want', 'spice') in cp
+True
+>>> cp.index(('I', 'want', 'spice'))
+4
+>>> cp.index(('I', 'need', 'pepper'))
+Traceback (most recent call last):
+...
+ValueError: ('I', 'need', 'pepper') not in Cartesian_Product
+
+Each source must have unique elements internally, the same
+requirement every Distinct_* class has and for the same reason (index
+lookups need to be unambiguous):
+
+>>> Cartesian_Product([['a', 'a'], ['x', 'y']])
+Traceback (most recent call last):
+...
+ValueError: Each source must have unique elements
+
+Different sources, though, are free to share values with each other,
+since they're tracked by which source they came from, not by one
+shared elements domain the way Distinct_Permutator's single sequence
+is:
+
+>>> cp2 = Cartesian_Product([['a', 'b'], ['a', 'c']])
+>>> list(cp2)
+[('a', 'a'), ('a', 'c'), ('b', 'a'), ('b', 'c')]
+
+Slicing works the same way as everywhere else:
+
+>>> sl = cp[1:3]
+>>> sl
+<esets.Cartesian_Product (('I', 'need', 'spice'), ('I', 'need', 'scissors'))>
+>>> type(sl).__name__
+'Cartesian_Product'
+
+And the same trivial edge case as always, no sources at all: the
+Cartesian product of zero sets is the single empty tuple, not zero
+tuples:
+
+>>> list(Cartesian_Product([]))
+[()]
+
 Speaking of warming up, let's cool down with something concrete: the
 Float64s eset, which enumerates every single IEEE 754 double,
 negative zero, infinities and nans included.

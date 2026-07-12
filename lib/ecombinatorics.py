@@ -776,3 +776,35 @@ def get_derangement_number(perm: tuple[int], n: int) -> int | None:
         return block + locate(remaining, pdict, a, b_actual, candidates[1:])
 
     return rank(list(range(n)), perm_dict)
+
+
+def get_cartesian_index(val: int, sizes: tuple[int, ...]) -> tuple[int, ...] | None:
+    total = 1
+    for size in sizes:
+        total *= size
+    if val >= total or val < 0:
+        return None
+
+    # Standard mixed-radix decomposition, last source varying fastest
+    # (the same order itertools.product uses): peel off the least
+    # significant "digit" -- the last source's index -- first.
+    result = []
+    remaining = val
+    for size in reversed(sizes):
+        remaining, r = divmod(remaining, size)
+        result.append(r)
+    return tuple(reversed(result))
+
+
+def get_cartesian_index_number(
+    idx: tuple[int, ...], sizes: tuple[int, ...]
+) -> int | None:
+    if len(idx) != len(sizes):
+        return None
+    if any(i < 0 or i >= size for i, size in zip(idx, sizes)):
+        return None
+
+    val = 0
+    for i, size in zip(idx, sizes):
+        val = val * size + i
+    return val
