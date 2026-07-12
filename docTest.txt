@@ -1215,7 +1215,7 @@ function is used.
 >>> bWS
 <esets.BWholesSHA256s (5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9, 6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b, d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35, 4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce, ...)>
 >>> bWS.__doc__
-'A blind eset of SHA256s of the Whole numbers. It uses ascii\nencoding since only decimal numbers are expected.\n\n'
+'A blind eset of SHA256s of the Whole numbers. It uses ascii encoding since only decimal numbers are expected.'
 >>> bWS[:100]
 <esets.BWholesSHA256s* (5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9, 6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b, d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35, 4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce, ..., 7b1a278f5abe8e9da907fc9c29dfd432d60dc76e17b0fabab659d2a508bc65c4, d6d824abba4afde81129c71dea75b8100e96338da5f416d2f69088f1960cb091, 29db0c6782dbd5000559ef4d9e953e300e2b479eed26d887ef3f92b921c06a67, 8c1f1046219ddd216a023f792356ddf127fce372a72ec9b4cdac989ee5b0b455)>
 >>> bWS[:100][::-1]
@@ -1322,20 +1322,23 @@ object's own header and slots get counted, never what those slots
 point to. It's easy to misread that as "how much this thing holds":
 
 >>> import sys
->>> sys.getsizeof(deck)
-48
+>>> sys.getsizeof(deck) < sys.getsizeof(deck._cards)
+True
 >>> sys.getsizeof(deck._cards)
 472
 
-deck is 48 bytes no matter how many cards it has. deck._cards is a
-separate object, and only that list's own 52 pointers get counted (52
-machine words plus list overhead), never the 52 Card objects each
-pointer refers to. Now the interesting one, shuffles itself:
+deck itself stays small no matter how many cards it has: just a
+header and one pointer to _cards (the exact byte count is a CPython
+implementation detail that shifts a little between versions, so it's
+compared here rather than hardcoded). deck._cards is a separate
+object, and only that list's own 52 pointers get counted (52 machine
+words plus list overhead), never the 52 Card objects each pointer
+refers to. Now the interesting one, shuffles itself:
 
->>> sys.getsizeof(shuffles)
-48
+>>> sys.getsizeof(shuffles) == sys.getsizeof(deck)
+True
 
-The exact same 48 bytes as deck, despite standing for all
+The exact same size as deck, despite standing for all
 80658175170943878571660636856403766975289505440883277824000000000000
 permutations of it. shuffles.eset_obj (a Natural_Permutator) does
 the index arithmetic and shuffles.elements holds the 52 cards, but
@@ -1347,8 +1350,8 @@ Materializing one shuffle does cost something, but only for the fresh
 tuple spine; the 52 Card objects inside it are the very same ones
 already living in deck._cards, not copies:
 
->>> sys.getsizeof(shuffles[0])
-464
+>>> sys.getsizeof(shuffles[0]) > sys.getsizeof(shuffles)
+True
 
 And the index itself, shuffles.len(), a 70 digit integer, costs far
 less than a single materialized shuffle:
@@ -1361,13 +1364,17 @@ CPython's arbitrary precision ints are stored in 30-bit "digits"
 .bit_length(), only needs about 8 of those; header included that's 56
 bytes total, regardless of the decimal repr running 70 digits long.
 
-That gap, 56 bytes for an index versus 464 for a materialized
-shuffle, is the whole argument for storing indices instead of hands:
-once the context is fixed (this Distinct_Permutator, over this exact deck), an
-index plus a call to shuffles[idx] reconstructs the full permutation
-on demand. Logging a million dealt hands as indices instead of full
-52-card sequences is roughly an eightfold saving here, and the ratio
-only grows the heavier each element of the sequence gets.
+>>> sys.getsizeof(shuffles.len()) < sys.getsizeof(shuffles[0])
+True
+
+That gap between an index and a materialized shuffle is the whole
+argument for storing indices instead of hands: once the context is
+fixed (this Distinct_Permutator, over this exact deck), an index plus
+a call to shuffles[idx] reconstructs the full permutation on demand.
+Logging a million dealt hands as indices instead of full 52-card
+sequences is roughly an eightfold saving here (56 bytes versus the
+low 450s, depending on the CPython version), and the ratio only grows
+the heavier each element of the sequence gets.
 
 Natural_Permutator only deals in positions (0, 1, 2, ...), but the
 eset factory (EABCMixinFactory) lets us wrap it into something that

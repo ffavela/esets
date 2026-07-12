@@ -17,10 +17,7 @@ class BEvens(BEset):
 
 
 class BWholesSHA256s(BEset):
-    """A blind eset of SHA256s of the Whole numbers. It uses ascii
-    encoding since only decimal numbers are expected.
-
-    """
+    """A blind eset of SHA256s of the Whole numbers. It uses ascii encoding since only decimal numbers are expected."""
 
     def direct_function(self, i):
         return hashlib.sha256(str(i).encode('ascii')).hexdigest()
