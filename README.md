@@ -41,8 +41,8 @@ operation gives directly the answer. You may imagine it as fetching
 the data from a meta memory space, or in a more honest sense from a
 fake memory space.
 
-In a bit more technical sense, [eset.py](eset.py) is and abstract base
-class (ABC) and [esets.py](esets.py) has a set of classes that derive
+In a bit more technical sense, [esets/eset.py](https://github.com/ffavela/esets/blob/main/esets/eset.py) is and abstract base
+class (ABC) and [esets/numeric.py](https://github.com/ffavela/esets/blob/main/esets/numeric.py) has a set of classes that derive
 from the ABC, they implement the required methods like the function
 that gets the value given an index and the corresponding inverse
 function.
@@ -484,13 +484,13 @@ esets. I hope that this introduction got you in the right mindset for
 using this library.
 
 Before going into outrageously large numbers, first take a look into
-the [FLOAT64S.md](FLOAT64S.md) for an eset that enumerates all the 64
+the [FLOAT64S.md](https://github.com/ffavela/esets/blob/main/FLOAT64S.md) for an eset that enumerates all the 64
 bit floats.
 
 And for the combinatorial esets themselves, permutations,
 combinations, arrangements, subsets, integer partitions and set
 partitions, all addressable by index with no enumeration involved, see
-[COMBINATORICS.md](COMBINATORICS.md). [POKER.md](POKER.md) puts several
+[COMBINATORICS.md](https://github.com/ffavela/esets/blob/main/COMBINATORICS.md). [POKER.md](https://github.com/ffavela/esets/blob/main/POKER.md) puts several
 of them to work together on a single running example, a deck of cards.
 
 ## Is there anything like this already out there? (Prior art)
@@ -566,17 +566,17 @@ Sort of, but nothing quite does what an **eset** does.
   directly to the *k*-th combination/permutation without generating
   the ones before it. This is the same direct-function idea applied to
   combinatorics, and is the direction
-  [lib/ecombinatorics.py](lib/ecombinatorics.py) is heading -- with one
+  [esets/ecombinatorics.py](https://github.com/ffavela/esets/blob/main/esets/ecombinatorics.py) is heading -- with one
   caveat the `O(1)` framing above glosses over: it's `O(1)` in the
   index, not in `n` (the size of what's being permuted/combined/...),
   since ranking/unranking a combinatorial structure is real
   algorithmic work in a way `2 * i` isn't. See
-  [COMBINATORICS.md](COMBINATORICS.md#a-note-on-speed-upfront) for the
+  [COMBINATORICS.md](https://github.com/ffavela/esets/blob/main/COMBINATORICS.md#a-note-on-speed-upfront) for the
   actual complexity, which is polynomial in `n`, not constant.
 
 ### BEset, Eset, and EMap: what's actually underneath?
 
-[eset.py](eset.py) actually splits that ABC in two. `BEset` (the
+[esets/eset.py](https://github.com/ffavela/esets/blob/main/esets/eset.py) actually splits that ABC in two. `BEset` (the
 "blind" eset) is the foundation: indexing, slicing, iteration, `repr`,
 the `__len__`/`.len()` split for numbers too large for `__len__` to
 return -- everything except knowing whether a given value belongs to
@@ -584,7 +584,7 @@ it. That last part is deliberately missing: `BEset.__contains__` is
 explicitly disabled, on purpose, not merely unimplemented:
 
 ```python
->>> from eset import BEset
+>>> from esets import BEset
 >>> class BlindSquares(BEset):
 ...     def direct_function(self, i):
 ...         return i * i
@@ -661,7 +661,7 @@ all you need is a one-off eset from plain functions, `EMap` builds an
 and a base eset (just for sizing, via its `.len()`):
 
 ```python
->>> from eset import EMap
+>>> from esets import EMap
 >>> from esets import Wholes
 >>> e = EMap(lambda i: 2 * i, lambda v: v // 2,
 ...          lambda v: False if not isinstance(v, int) else None, Wholes())
@@ -682,6 +682,6 @@ no subclass required. See docTest.txt for a fuller walkthrough
 * Describe how to create and `eset`.
 * Implement other esets.
 * ~~Start development with combinators, permutators and other ones.~~
-  See [COMBINATORICS.md](COMBINATORICS.md).
+  See [COMBINATORICS.md](https://github.com/ffavela/esets/blob/main/COMBINATORICS.md).
 * How do these compare with lists, tuples, sets etc.?
 * Compare with itertools (once the above is ready).

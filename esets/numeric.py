@@ -1,4 +1,4 @@
-from eset import Eset, EABCMixinFactory
+from .eset import Eset, EABCMixinFactory
 from math import isqrt, copysign
 import struct
 import sys

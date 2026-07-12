@@ -1166,7 +1166,7 @@ Looks good, BTW it should touch the last one, and yes starts at
 Now let's try out EMaps (alpha), with the intention of creating an
 Evens eset essentially from a mapping from the Whole numbers
 
->>> from eset import EMap
+>>> from esets import EMap
 >>> from esets import Wholes
 >>> e = EMap(lambda i: 2*i, lambda v: v//2, lambda v: False if not isinstance(v, int)
 ... else None, Wholes())
@@ -1210,7 +1210,7 @@ method but it is perfectly slicesable and supports indexing. Here is
 an example using the Whole numbers where a sha256 (ascii encoded) has
 function is used.
 
->>> from besets import BWholesSHA256s
+>>> from esets import BWholesSHA256s
 >>> bWS = BWholesSHA256s()
 >>> bWS
 <esets.BWholesSHA256s (5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9, 6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b, d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35, 4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce, ...)>
@@ -1227,7 +1227,7 @@ function is used.
 Now trying out the canonical permutator, permutating 3 distinct
 elements:
 
->>> from cesets import Natural_Permutator
+>>> from esets import Natural_Permutator
 >>> cp3 = Natural_Permutator(3)
 >>> cp3
 <esets.Natural_Permutator ((0, 1, 2), (0, 2, 1), (1, 0, 2), (1, 2, 0), (2, 0, 1), (2, 1, 0))>
@@ -1296,7 +1296,7 @@ Card(rank='A', suit='hearts')
 needs something it can call tuple() on, and that __getitem__ fallback
 is enough for that):
 
->>> from cesets import Distinct_Permutator
+>>> from esets import Distinct_Permutator
 >>> shuffles = Distinct_Permutator(deck)
 >>> shuffles.len() == cp52.len()
 True
@@ -1375,7 +1375,7 @@ permutes actual elements instead. Distinct_Permutator takes any finite
 sequence of unique elements and treats the sequence as given as
 permutation #0:
 
->>> from cesets import Distinct_Permutator
+>>> from esets import Distinct_Permutator
 >>> pizza = Distinct_Permutator(['pepperoni', 'mushroom', 'onion'])
 >>> pizza
 <esets.Distinct_Permutator (('pepperoni', 'mushroom', 'onion'), ('pepperoni', 'onion', 'mushroom'), ('mushroom', 'pepperoni', 'onion'), ('mushroom', 'onion', 'pepperoni'), ('onion', 'pepperoni', 'mushroom'), ('onion', 'mushroom', 'pepperoni'))>
@@ -1454,7 +1454,7 @@ Natural_Permutator does, but its domain is a tuple of canonical labels
 rather than a bare size, and its count is the multinomial coefficient
 n!/(m1!*m2!*...*mk!) instead of n!:
 
->>> from cesets import Natural_Multiset_Permutator
+>>> from esets import Natural_Multiset_Permutator
 >>> nmp = Natural_Multiset_Permutator((0, 0, 1))
 >>> nmp
 <esets.Natural_Multiset_Permutator ((0, 0, 1), (0, 1, 0), (1, 0, 0))>
@@ -1513,7 +1513,7 @@ canonical labels 0..k-1, repeats allowed, via the multinomial
 generalization of the factorial-number-system trick) the same way
 Distinct_Permutator wraps Natural_Permutator:
 
->>> from cesets import Permutator
+>>> from esets import Permutator
 >>> p = Permutator(['a', 'a', 'b'])
 >>> p
 <esets.Permutator (('a', 'a', 'b'), ('a', 'b', 'a'), ('b', 'a', 'a'))>
@@ -1659,7 +1659,7 @@ down the canonical class order explicitly instead of deriving it from
 first appearance, so the resulting enumeration depends only on the
 alphabet and the multiset, not on the input's own arrangement:
 
->>> from cesets import Permutator
+>>> from esets import Permutator
 >>> p1 = Permutator(['a', 'b', 'a'], ['c', 'b', 'a'])
 >>> p2 = Permutator(['b', 'a', 'a'], ['c', 'b', 'a'])
 >>> p1[0]
@@ -1749,7 +1749,7 @@ esets built the same way: Natural_Combinator is the plain, no
 repetition base case, mirroring Natural_Permutator's role but for
 k-subsets of range(n) rather than full arrangements:
 
->>> from cesets import Natural_Combinator
+>>> from esets import Natural_Combinator
 >>> nc = Natural_Combinator(4, 2)
 >>> nc
 <esets.Natural_Combinator ((0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3))>
@@ -1799,7 +1799,7 @@ Natural_Combinator only deals in positions; Distinct_Combinator wraps
 it via the eset factory to choose from real, unique elements instead,
 same relationship Distinct_Permutator has to Natural_Permutator:
 
->>> from cesets import Distinct_Combinator
+>>> from esets import Distinct_Combinator
 >>> toppings = Distinct_Combinator(['pepperoni', 'mushroom', 'onion', 'anchovy'], 2)
 >>> toppings
 <esets.Distinct_Combinator (('pepperoni', 'mushroom'), ('pepperoni', 'onion'), ('pepperoni', 'anchovy'), ('mushroom', 'onion'), ('mushroom', 'anchovy'), ('onion', 'anchovy'))>
@@ -1874,7 +1874,7 @@ parametrized by a multiplicities tuple (capacities per class) and how
 many, k, to choose. A combination is a non-decreasing tuple of
 canonical labels:
 
->>> from cesets import Natural_Multiset_Combinator
+>>> from esets import Natural_Multiset_Combinator
 >>> nmc = Natural_Multiset_Combinator((2, 3, 1), 3)
 >>> nmc
 <esets.Natural_Multiset_Combinator ((0, 0, 1), (0, 0, 2), (0, 1, 1), (0, 1, 2), (1, 1, 1), (1, 1, 2))>
@@ -1902,7 +1902,7 @@ Combinator ties it all together: real elements, repeats allowed,
 choosing k, wrapping Natural_Multiset_Combinator the same way
 Permutator wraps Natural_Multiset_Permutator:
 
->>> from cesets import Combinator
+>>> from esets import Combinator
 >>> c = Combinator(['a', 'a', 'b'], 2)
 >>> c
 <esets.Combinator (('a', 'a'), ('a', 'b'))>
@@ -2034,7 +2034,7 @@ class rather than a Natural_* plus wrapper pair. Each partition of n
 is a non-increasing tuple of positive integers summing to n, the
 standard convention:
 
->>> from cesets import Partitioner
+>>> from esets import Partitioner
 >>> p5 = Partitioner(5)
 >>> p5
 <esets.Partitioner ((1, 1, 1, 1, 1), (2, 1, 1, 1), (2, 2, 1), (3, 1, 1), (3, 2), (4, 1), (5,))>
@@ -2134,7 +2134,7 @@ multisets, sometimes called partial permutations or r-permutations of
 n. Natural_Arranger is the no-repetition base case, an ordered tuple
 of r distinct indices from range(n):
 
->>> from cesets import Natural_Arranger
+>>> from esets import Natural_Arranger
 >>> na = Natural_Arranger(4, 2)
 >>> na
 <esets.Natural_Arranger ((0, 1), (0, 2), (0, 3), (1, 0), ..., (2, 3), (3, 0), (3, 1), (3, 2))>
@@ -2165,7 +2165,7 @@ Distinct_Arranger wraps Natural_Arranger the same way
 Distinct_Permutator wraps Natural_Permutator, translating positions
 to real, unique elements, order preserved:
 
->>> from cesets import Distinct_Arranger
+>>> from esets import Distinct_Arranger
 >>> toppings = Distinct_Arranger(['pepperoni', 'mushroom', 'onion', 'anchovy'], 2)
 >>> toppings
 <esets.Distinct_Arranger (('pepperoni', 'mushroom'), ('pepperoni', 'onion'), ('pepperoni', 'anchovy'), ('mushroom', 'pepperoni'), ..., ('onion', 'anchovy'), ('anchovy', 'pepperoni'), ('anchovy', 'mushroom'), ('anchovy', 'onion'))>
@@ -2191,7 +2191,7 @@ Choosing with repetition allowed needs Natural_Multiset_Arranger,
 parametrized by a multiplicities tuple (capacities per class) and how
 many, r, to choose and arrange:
 
->>> from cesets import Natural_Multiset_Arranger
+>>> from esets import Natural_Multiset_Arranger
 >>> nma = Natural_Multiset_Arranger((2, 1), 2)
 >>> nma
 <esets.Natural_Multiset_Arranger ((0, 0), (0, 1), (1, 0))>
@@ -2212,7 +2212,7 @@ is 1, and with Natural_Multiset_Permutator's ordering whenever r
 equals the full multiset size:
 
 >>> d4 = Distinct_Arranger('abcd', 2)
->>> from cesets import Arranger
+>>> from esets import Arranger
 >>> g4 = Arranger('abcd', 2)
 >>> list(d4) == list(g4)
 True
@@ -2248,7 +2248,7 @@ lazy pass, instead of going through that composition, since finding
 "which combination" a given index falls under by scanning through
 them first would defeat the entire point of an eset:
 
->>> from cesets import Combinator, Permutator
+>>> from esets import Combinator, Permutator
 >>> elems = ['x', 'x', 'y', 'z']
 >>> via_composition = set()
 >>> for c in Combinator(elems, 2):
@@ -2284,7 +2284,7 @@ Combinator chooses exactly k elements at a time. Powerset chooses any
 number at once: every subset, of every size from 0 to n, 2**n of them
 in total. Natural_Powerset is the no-repetition base case:
 
->>> from cesets import Natural_Powerset
+>>> from esets import Natural_Powerset
 >>> npo = Natural_Powerset(3)
 >>> npo
 <esets.Natural_Powerset ((), (0,), (1,), (2,), (0, 1), (0, 2), (1, 2), (0, 1, 2))>
@@ -2316,7 +2316,7 @@ same relationship Distinct_Combinator has to Natural_Combinator, and
 a subset is unordered here too: any arrangement of a valid subset is
 accepted and ranks the same:
 
->>> from cesets import Distinct_Powerset
+>>> from esets import Distinct_Powerset
 >>> toppings = Distinct_Powerset(['pepperoni', 'mushroom', 'onion'])
 >>> toppings
 <esets.Distinct_Powerset ((), ('pepperoni',), ('mushroom',), ('onion',), ('pepperoni', 'mushroom'), ('pepperoni', 'onion'), ('mushroom', 'onion'), ('pepperoni', 'mushroom', 'onion'))>
@@ -2341,7 +2341,7 @@ parametrized by just a multiplicities tuple (no r/k at all, unlike
 Natural_Multiset_Combinator/Arranger, since every size is included
 already):
 
->>> from cesets import Natural_Multiset_Powerset
+>>> from esets import Natural_Multiset_Powerset
 >>> nmp = Natural_Multiset_Powerset((2, 1))
 >>> nmp
 <esets.Natural_Multiset_Powerset ((), (0,), (1,), (0, 0), (0, 1), (0, 0, 1))>
@@ -2358,7 +2358,7 @@ Powerset ties it all together: real elements, repeats allowed, every
 size at once, wrapping Natural_Multiset_Powerset the same way
 Combinator wraps Natural_Multiset_Combinator:
 
->>> from cesets import Powerset
+>>> from esets import Powerset
 >>> ps = Powerset(['a', 'a', 'b'])
 >>> ps
 <esets.Powerset ((), ('a',), ('b',), ('a', 'a'), ('a', 'b'), ('a', 'a', 'b'))>
@@ -2383,7 +2383,7 @@ Powerset's graded order also means it's literally the concatenation
 of Combinator(elements, k) for every k from 0 to the size of
 elements, one after another:
 
->>> from cesets import Combinator
+>>> from esets import Combinator
 >>> elems = ['x', 'x', 'y', 'z']
 >>> full = list(Powerset(elems))
 >>> regenerated = []
@@ -2424,7 +2424,7 @@ object that actually needed one all along: the ways of grouping n
 by the Bell numbers rather than the partition function p(n).
 Natural_Set_Partitioner is the position-only base case:
 
->>> from cesets import Natural_Set_Partitioner
+>>> from esets import Natural_Set_Partitioner
 >>> nsp = Natural_Set_Partitioner(3)
 >>> nsp
 <esets.Natural_Set_Partitioner ((0, 0, 0), (0, 0, 1), (0, 1, 0), (0, 1, 1), (0, 1, 2))>
@@ -2465,7 +2465,7 @@ Set_Partitioner wraps Natural_Set_Partitioner via the eset factory,
 translating an RGS into the actual groups of elements it was given,
 elements sharing a label landing in the same group:
 
->>> from cesets import Set_Partitioner
+>>> from esets import Set_Partitioner
 >>> sp = Set_Partitioner(['a', 'b', 'c'])
 >>> sp
 <esets.Set_Partitioner ((('a', 'b', 'c'),), (('a', 'b'), ('c',)), (('a', 'c'), ('b',)), (('a',), ('b', 'c')), (('a',), ('b',), ('c',)))>
@@ -2529,7 +2529,7 @@ not one. Same no-elements-domain shape as Partitioner (a composition's
 parts already are the integers), so no Natural_*/wrapper split here
 either:
 
->>> from cesets import Compositioner
+>>> from esets import Compositioner
 >>> c5 = Compositioner(5)
 >>> c5
 <esets.Compositioner ((1, 1, 1, 1, 1), (2, 1, 1, 1), (1, 2, 1, 1), (1, 1, 2, 1), ..., (3, 2), (2, 3), (1, 4), (5,))>
@@ -2583,7 +2583,7 @@ Natural_Permutator enumerates every rearrangement; Natural_Derangement
 is the restriction to those with no fixed point at all -- no position
 p may end up holding value p, counted by the subfactorial !n:
 
->>> from cesets import Natural_Derangement
+>>> from esets import Natural_Derangement
 >>> nd = Natural_Derangement(4)
 >>> nd
 <esets.Natural_Derangement ((1, 0, 3, 2), (1, 2, 3, 0), (1, 3, 0, 2), (2, 3, 0, 1), ..., (2, 3, 1, 0), (3, 2, 1, 0), (3, 2, 0, 1), (3, 0, 1, 2))>
@@ -2625,7 +2625,7 @@ real, unique elements: the sequence as given is the one reference
 arrangement every derangement must move every single element away
 from.
 
->>> from cesets import Distinct_Derangement
+>>> from esets import Distinct_Derangement
 >>> toppings = Distinct_Derangement(['pepperoni', 'mushroom', 'onion', 'anchovy'])
 >>> toppings.len()
 9
@@ -2664,7 +2664,7 @@ CatCombination. Each tuple (i_1, ..., i_k) satisfies 0 <= i_j <
 sizes[j], enumerated in the same order itertools.product uses (the
 last size varies fastest):
 
->>> from cesets import Natural_Cartesian_Product
+>>> from esets import Natural_Cartesian_Product
 >>> ncp = Natural_Cartesian_Product((2, 3))
 >>> ncp
 <esets.Natural_Cartesian_Product ((0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2))>
@@ -2686,7 +2686,7 @@ Cartesian_Product wraps it the same way Distinct_Permutator wraps
 Natural_Permutator, translating an index-tuple into one pick from each
 of several real sources:
 
->>> from cesets import Cartesian_Product
+>>> from esets import Cartesian_Product
 >>> cp = Cartesian_Product([['I'], ['need', 'want'], ['sugar', 'spice', 'scissors']])
 >>> cp
 <esets.Cartesian_Product (('I', 'need', 'sugar'), ('I', 'need', 'spice'), ('I', 'need', 'scissors'), ('I', 'want', 'sugar'), ('I', 'want', 'spice'), ('I', 'want', 'scissors'))>
@@ -2832,7 +2832,7 @@ False
 
 nan is a member of pf64s too, its repr shows right there in the
 tail. Getting this right took a bit of care in Eset.id_contains
-(eset.py), which would otherwise reject any value via
+(esets/eset.py), which would otherwise reject any value via
 "val != direct_function(inverse_function(val))", and nan is famously
 never equal to itself, not even to its own bit-identical round trip:
 

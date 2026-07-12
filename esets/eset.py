@@ -225,13 +225,10 @@ class BEset(abc.ABC):
             i += 1
 
     def clean_class_name(self):
-        cls = str(type(self))
-        # Hey it works!... ok?! If there are performance issues down
-        # the line, for some reason... cause it is mostly for the
-        # repr, we'll come back to this.
-        return cls[
-            cls.index('.') + 1 : cls.index('.') + cls[cls.index('.') :].index("'")
-        ]
+        # Used to hand-parse str(type(self)); type(self).__name__ is
+        # the same result and doesn't break if the class ends up
+        # living behind a dotted (sub)package path.
+        return type(self).__name__
 
     def format_funct(self, v):
         """A format function intended to be used with the repr"""

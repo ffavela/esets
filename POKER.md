@@ -20,7 +20,7 @@ to `factorial(52) - 1`:
 ```python
 >>> import collections, random
 >>> from math import factorial
->>> from cesets import Distinct_Permutator
+>>> from esets import Distinct_Permutator
 >>> Card = collections.namedtuple('Card', ['rank', 'suit'])
 >>> class FrenchDeck:
 ...     ranks = [str(n) for n in range(2, 11)] + list('JQKA')
@@ -76,7 +76,7 @@ enumerates: choosing and arranging 5 cards out of 52 (nPr, not
 smaller space:
 
 ```python
->>> from cesets import Distinct_Arranger
+>>> from esets import Distinct_Arranger
 >>> arrangements = Distinct_Arranger(deck, 5)
 >>> arrangements.len()
 311875200
@@ -106,7 +106,7 @@ the arrangement (or `a`, the arrangement number), we can use the
 combination index instead:
 
 ```python
->>> from cesets import Distinct_Combinator
+>>> from esets import Distinct_Combinator
 >>> combinations = Distinct_Combinator(deck, 5)
 >>> combinations.len()
 2598960
@@ -168,7 +168,7 @@ cards", think "how many cards of each rank" -- exactly what
 capped at a capacity of 4:
 
 ```python
->>> from cesets import Natural_Multiset_Combinator
+>>> from esets import Natural_Multiset_Combinator
 >>> from collections import Counter
 >>> from math import comb
 >>> rank_shapes = Natural_Multiset_Combinator((4,) * 13, 5)
@@ -255,7 +255,7 @@ than the formula directly, formatted with the library's own
 fast:
 
 ```python
->>> from cesets import Natural_Multiset_Permutator
+>>> from esets import Natural_Multiset_Permutator
 >>> nmp = Natural_Multiset_Permutator((1,) * 52)
 >>> for decks in range(1, 7):
 ...     count = Natural_Multiset_Permutator((decks,) * 52).len()

@@ -1,4 +1,4 @@
-from eset import BEset
+from .eset import BEset
 import hashlib
 
 

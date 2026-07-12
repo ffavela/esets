@@ -1,5 +1,5 @@
-from eset import Eset, EABCMixinFactory
-import lib.ecombinatorics as ecomb
+from .eset import Eset, EABCMixinFactory
+from . import ecombinatorics as ecomb
 from math import factorial, comb, perm
 from collections import Counter
 

@@ -1,7 +1,7 @@
 # Combinatorics on esets (cesets)
 
-This is the eset case study for combinatorics: [cesets.py](cesets.py)
-and [lib/ecombinatorics.py](lib/ecombinatorics.py), collectively the
+This is the eset case study for combinatorics: [esets/cesets.py](esets/cesets.py)
+and [esets/ecombinatorics.py](esets/ecombinatorics.py), collectively the
 "cesets". Where the rest of this library enumerates numbers,
 these enumerate permutations, combinations, arrangements, subsets,
 integer partitions, and set partitions, each one addressable by a
@@ -10,7 +10,7 @@ single index with no enumeration of anything that comes before it.
 Two acknowledgements before diving in. The multiset-counting ideas
 behind several of these classes, particularly the memoized recursive
 counting and the "capacities can't bind" shortcut used all over
-[lib/ecombinatorics.py](lib/ecombinatorics.py), were worked out first
+[esets/ecombinatorics.py](esets/ecombinatorics.py), were worked out first
 in a sibling project of this one, [mset](https://github.com/ffavela/mset),
 which studies multiset combinations and counting on its own. And the general design
 philosophy of this whole library, leaning on Python's sequence
@@ -107,7 +107,7 @@ rearrangements via the multinomial coefficient instead of counting
 `n!` of them:
 
 ```python
->>> from cesets import Permutator
+>>> from esets import Permutator
 >>> banana = Permutator('BANANA')
 >>> banana.len()
 60
@@ -140,7 +140,7 @@ where no position holds its own index, counted by the subfactorial
 same way `Distinct_Permutator` wraps `Natural_Permutator`:
 
 ```python
->>> from cesets import Natural_Derangement
+>>> from esets import Natural_Derangement
 >>> nd = Natural_Derangement(4)
 >>> nd.len()
 9
@@ -174,7 +174,7 @@ generalizes it to choosing `k` from a multiset, using the mset-derived
 counting:
 
 ```python
->>> from cesets import Combinator
+>>> from esets import Combinator
 >>> c = Combinator(['a', 'a', 'b'], 2)
 >>> list(c)
 [('a', 'a'), ('a', 'b')]
@@ -205,7 +205,7 @@ you'd get composing a `Combinator` (which r) with a `Permutator` for
 each choice, computed directly instead:
 
 ```python
->>> from cesets import Arranger
+>>> from esets import Arranger
 >>> arr = Arranger(['a', 'a', 'b'], 2)
 >>> list(arr)
 [('a', 'a'), ('a', 'b'), ('b', 'a')]
@@ -228,7 +228,7 @@ on), reusing `Natural_Combinator`/`Natural_Multiset_Combinator`
 directly for each size-block:
 
 ```python
->>> from cesets import Powerset
+>>> from esets import Powerset
 >>> ps = Powerset(['a', 'a', 'b'])
 >>> list(ps)
 [(), ('a',), ('b',), ('a', 'a'), ('a', 'b'), ('a', 'a', 'b')]
@@ -252,7 +252,7 @@ Integer partitions: every way to write `n` as a sum of positive
 integers, order disregarded, no elements domain involved at all:
 
 ```python
->>> from cesets import Partitioner
+>>> from esets import Partitioner
 >>> list(Partitioner(5))
 [(1, 1, 1, 1, 1), (2, 1, 1, 1), (2, 2, 1), (3, 1, 1), (3, 2), (4, 1), (5,)]
 >>>
@@ -264,7 +264,7 @@ The count, `p(n)`, has no closed form the way `n!`/`comb(n, k)` do;
 it's a classic memoized DP (worked through in detail in the
 conversation that built this class, and in the docstrings of
 `partitions_count`/`get_partition` in
-[lib/ecombinatorics.py](lib/ecombinatorics.py)).
+[esets/ecombinatorics.py](esets/ecombinatorics.py)).
 
 **Speed:** the recursion-limit ceiling here is comfortably high for
 practical use, somewhere between `n=400` and `n=800` in informal
@@ -278,7 +278,7 @@ doesn't, so `4 = 1 + 3` and `4 = 3 + 1` count as two different
 compositions, not one:
 
 ```python
->>> from cesets import Compositioner
+>>> from esets import Compositioner
 >>> list(Compositioner(5))
 [(1, 1, 1, 1, 1), (2, 1, 1, 1), (1, 2, 1, 1), (1, 1, 2, 1), (1, 1, 1, 2), (3, 1, 1), (2, 2, 1), (2, 1, 2), (1, 3, 1), (1, 2, 2), (1, 1, 3), (4, 1), (3, 2), (2, 3), (1, 4), (5,)]
 >>>
@@ -309,7 +309,7 @@ represents each grouping as a restricted growth string; `Set_Partitioner`
 translates that into actual groups of elements:
 
 ```python
->>> from cesets import Set_Partitioner
+>>> from esets import Set_Partitioner
 >>> list(Set_Partitioner(['a', 'b', 'c']))
 [(('a', 'b', 'c'),), (('a', 'b'), ('c',)), (('a', 'c'), ('b',)), (('a',), ('b', 'c')), (('a',), ('b',), ('c',))]
 >>>
@@ -341,7 +341,7 @@ concrete capability gap this project found comparing itself to the
 `slowcomb` library's `CatCombination`:
 
 ```python
->>> from cesets import Cartesian_Product
+>>> from esets import Cartesian_Product
 >>> cp = Cartesian_Product([['I'], ['need', 'want'], ['sugar', 'spice', 'scissors']])
 >>> cp.len()
 6
