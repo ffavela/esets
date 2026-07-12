@@ -2579,6 +2579,83 @@ composition, the empty tuple:
 >>> Compositioner(0).len()
 1
 
+Natural_Permutator enumerates every rearrangement; Natural_Derangement
+is the restriction to those with no fixed point at all -- no position
+p may end up holding value p, counted by the subfactorial !n:
+
+>>> from cesets import Natural_Derangement
+>>> nd = Natural_Derangement(4)
+>>> nd
+<esets.Natural_Derangement ((1, 0, 3, 2), (1, 2, 3, 0), (1, 3, 0, 2), (2, 3, 0, 1), ..., (2, 3, 1, 0), (3, 2, 1, 0), (3, 2, 0, 1), (3, 0, 1, 2))>
+>>> nd.len()
+9
+
+9 = !4, not 4! = 24: every one of the 15 permutations that leave at
+least one element in place is excluded. The construction is a classic
+two-case bijection, not a simple digit-by-digit placement like
+Natural_Permutator's: fix where the smallest remaining label maps to,
+then either close it off as a 2-cycle (leaving an ordinary derangement
+of everyone else), or continue by building an ordinary derangement of
+one fewer label and relabelling one of its values -- the standard
+proof that !n = (n-1)*(!(n-1) + !(n-2)), turned into a rank/unrank
+scheme (see get_derangement/get_derangement_number in
+lib/ecombinatorics.py for the full construction).
+
+>>> (1, 0, 3, 2) in nd
+True
+>>> (0, 1, 2, 3) in nd
+False
+>>> nd.index((1, 2, 3, 0))
+1
+>>> nd[0]
+(1, 0, 3, 2)
+
+A permutation of a single element can only map it to itself, so
+!1 == 0: Natural_Derangement(1) is legitimately empty, the same way
+Natural_Combinator can be empty when k > n:
+
+>>> Natural_Derangement(1)
+<esets.Natural_Derangement ()>
+>>> Natural_Derangement(1).len()
+0
+
+Distinct_Derangement wraps Natural_Derangement the same way
+Distinct_Permutator wraps Natural_Permutator, translating positions to
+real, unique elements: the sequence as given is the one reference
+arrangement every derangement must move every single element away
+from.
+
+>>> from cesets import Distinct_Derangement
+>>> toppings = Distinct_Derangement(['pepperoni', 'mushroom', 'onion', 'anchovy'])
+>>> toppings.len()
+9
+>>> toppings[0]
+('mushroom', 'pepperoni', 'anchovy', 'onion')
+>>> ('mushroom', 'pepperoni', 'anchovy', 'onion') in toppings
+True
+>>> toppings.index(('mushroom', 'pepperoni', 'anchovy', 'onion'))
+0
+>>> ('pepperoni', 'mushroom', 'onion', 'anchovy') in toppings
+False
+
+That last one is rejected for being the reference arrangement itself,
+every element sitting exactly where it started -- the one arrangement
+no derangement is allowed to produce. Elements must be unique, the
+same requirement Distinct_Permutator has:
+
+>>> Distinct_Derangement(['a', 'a'])
+Traceback (most recent call last):
+...
+ValueError: Elements must be unique
+
+Slicing works the same way as everywhere else:
+
+>>> sl = toppings[1:3]
+>>> sl
+<esets.Distinct_Derangement (('mushroom', 'onion', 'anchovy', 'pepperoni'), ('mushroom', 'anchovy', 'pepperoni', 'onion'))>
+>>> type(sl).__name__
+'Distinct_Derangement'
+
 Speaking of warming up, let's cool down with something concrete: the
 Float64s eset, which enumerates every single IEEE 754 double,
 negative zero, infinities and nans included.

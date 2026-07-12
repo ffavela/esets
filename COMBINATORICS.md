@@ -132,6 +132,41 @@ steps does an `O(n)` list operation). `Natural_Multiset_Permutator`/
 multinomial coefficient for the remaining labels gets recomputed at
 every step rather than cached across steps.
 
+## Natural_Derangement: permutations with no fixed point
+
+A restriction of `Natural_Permutator`: permutations of `range(n)`
+where no position holds its own index, counted by the subfactorial
+`!n`. `Distinct_Derangement` wraps it for real, unique elements the
+same way `Distinct_Permutator` wraps `Natural_Permutator`:
+
+```python
+>>> from cesets import Natural_Derangement
+>>> nd = Natural_Derangement(4)
+>>> nd.len()
+9
+>>> nd[0]
+(1, 0, 3, 2)
+>>>
+```
+
+9, not `4! = 24`: every permutation that leaves so much as one element
+in place is excluded. Unlike `Natural_Permutator`, this doesn't unrank
+one position at a time -- it's the classic two-case bijection behind
+`!n = (n-1)*(!(n-1) + !(n-2))`: fix where the smallest remaining label
+maps to, then either close it off as a 2-cycle (an ordinary derangement
+of everyone else), or build an ordinary derangement of one fewer label
+and relabel one of its values to recover the real assignment.
+
+**Speed:** this is the one class in the whole family with a
+meaningfully tighter practical ceiling than the rest. The "continue"
+case above calls the same unranking routine again, nested, to build
+the smaller derangement it relabels -- so stack depth compounds faster
+than a single `n`-deep call chain the way every other class here
+manages. Concretely: `Natural_Derangement(59)` unranks fine,
+`Natural_Derangement(60)` hits Python's default recursion limit, in
+informal testing. Comfortably enough for a deck-sized derangement, not
+enough to treat this one as scaling the way its siblings do.
+
 ## Combinator: choosing, order doesn't matter
 
 `Natural_Combinator(n, k)` is the classic `comb(n, k)`; `Combinator`

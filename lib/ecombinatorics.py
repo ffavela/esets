@@ -648,3 +648,131 @@ def get_composition_number(composition: tuple[int], n: int) -> int | None:
         dividers.append(running - 1)
     no_divider_gaps = tuple(sorted(set(range(n - 1)) - set(dividers)))
     return get_subset_number(no_divider_gaps, n - 1)
+
+
+def derangement_count(n: int) -> int:
+    """The subfactorial !n: permutations of range(n) with no fixed
+    point, via the classic D(n) = (n-1)*(D(n-1)+D(n-2))."""
+    memo: dict[int, int] = {}
+
+    def D(n: int) -> int:
+        if n in memo:
+            return memo[n]
+        if n == 0:
+            result = 1
+        elif n == 1:
+            result = 0
+        else:
+            result = (n - 1) * (D(n - 1) + D(n - 2))
+        memo[n] = result
+        return result
+
+    return D(n)
+
+
+def get_derangement(val: int, n: int) -> tuple[int] | None:
+    total = derangement_count(n)
+    if val >= total or val < 0:
+        return None
+
+    # Classic derangement bijection: fix where the smallest remaining
+    # label (a) maps to (candidate b), then split on what happens to b:
+    #  - "close": b maps back to a (a 2-cycle), leaving a plain
+    #    derangement of everyone else -- D(len(rest) - 2) ways.
+    #  - "continue": b maps elsewhere. Build tau, an ordinary
+    #    derangement of (remaining minus a) -- D(len(rest) - 1) ways --
+    #    then recover the real assignment by redirecting whichever
+    #    position tau sent to b so it goes to a instead (b's own image
+    #    is used as-is; a derangement never has tau(b) == b, so exactly
+    #    one other position redirects). This is the standard proof of
+    #    D(n) = (n-1)*(D(n-1)+D(n-2)), turned into an unranking scheme.
+    out: dict[int, int] = {}
+
+    def place(resval: int, remaining: list[int], target: dict[int, int]) -> None:
+        if not remaining:
+            return
+        a = remaining[0]
+        try_candidate(resval, remaining, target, a, remaining[1:])
+
+    def try_candidate(
+        resval: int,
+        remaining: list[int],
+        target: dict[int, int],
+        a: int,
+        candidates: list[int],
+    ) -> None:
+        b = candidates[0]
+        rest_without_a = [x for x in remaining if x != a]
+        rest_without_ab = [x for x in rest_without_a if x != b]
+        close_block = derangement_count(len(rest_without_ab))
+        continue_block = derangement_count(len(rest_without_a))
+        block = close_block + continue_block
+        if resval < block:
+            resolve(resval, target, a, b, rest_without_a, rest_without_ab, close_block)
+            return
+        try_candidate(resval - block, remaining, target, a, candidates[1:])
+
+    def resolve(
+        resval: int,
+        target: dict[int, int],
+        a: int,
+        b: int,
+        rest_without_a: list[int],
+        rest_without_ab: list[int],
+        close_block: int,
+    ) -> None:
+        if resval < close_block:
+            target[a] = b
+            target[b] = a
+            place(resval, rest_without_ab, target)
+            return
+        resval -= close_block
+        target[a] = b
+        tau: dict[int, int] = {}
+        place(resval, rest_without_a, tau)
+        for x in rest_without_a:
+            target[x] = a if tau[x] == b else tau[x]
+
+    place(val, list(range(n)), out)
+    return tuple(out[i] for i in range(n))
+
+
+def get_derangement_number(perm: tuple[int], n: int) -> int | None:
+    if sorted(perm) != list(range(n)) or any(perm[i] == i for i in range(n)):
+        return None
+
+    perm_dict = {i: perm[i] for i in range(n)}
+
+    def rank(remaining: list[int], pdict: dict[int, int]) -> int:
+        if not remaining:
+            return 0
+        a = remaining[0]
+        return locate(remaining, pdict, a, pdict[a], remaining[1:])
+
+    def locate(
+        remaining: list[int],
+        pdict: dict[int, int],
+        a: int,
+        b_actual: int,
+        candidates: list[int],
+    ) -> int:
+        cand = candidates[0]
+        rest_without_a = [x for x in remaining if x != a]
+        rest_without_a_cand = [x for x in rest_without_a if x != cand]
+        close_block = derangement_count(len(rest_without_a_cand))
+        continue_block = derangement_count(len(rest_without_a))
+        block = close_block + continue_block
+        if cand == b_actual:
+            if pdict[b_actual] == a:
+                return rank(rest_without_a_cand, pdict)
+            b = b_actual
+            tau = {}
+            for x in rest_without_a:
+                if x == b:
+                    tau[x] = pdict[x]
+                else:
+                    tau[x] = b if pdict[x] == a else pdict[x]
+            return close_block + rank(rest_without_a, tau)
+        return block + locate(remaining, pdict, a, b_actual, candidates[1:])
+
+    return rank(list(range(n)), perm_dict)

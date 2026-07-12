@@ -1403,3 +1403,110 @@ class Compositioner(Eset):
         if sum(val) != self.N:
             return False
         return self.slice_contains(val)
+
+
+class Natural_Derangement(Eset):
+    """A basic eset that handles derangements: permutations of
+    range(n) with no fixed point (direct_function(i)[p] != p for every
+    position p), counted by the subfactorial !n. Derangement #0 is
+    whichever one the ranking scheme constructs first (see
+    get_derangement in lib/ecombinatorics.py for the actual
+    construction, a classic two-case bijection -- a 2-cycle closing
+    off, or a smaller derangement with one value relabeled -- that
+    proves !n = (n-1)*(!(n-1) + !(n-2))).
+
+    Only two of the n! permutations of a 1-element set would need to
+    be considered, and neither is a derangement, so !1 == 0: this eset
+    is legitimately empty for n == 1, the same way Natural_Combinator
+    can be empty when k > n.
+    """
+
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs:
+            if len(kwargs['xtra_params']) != 0:
+                self.N = kwargs['xtra_params'][0]
+            super().__init__(*args, **kwargs)
+        elif len(args) == 1:
+            if not isinstance(args[0], int) or args[0] < 0:
+                raise ValueError('Need a non-negative integer to initialize')
+            self.N = args[0]
+            super().__init__(xtra_params=(self.N,))
+        else:
+            raise ValueError('Need a non-negative integer to initialize')
+
+    def direct_function(self, i):
+        return ecomb.get_derangement(i, self.N)
+
+    def inverse_function(self, val):
+        return ecomb.get_derangement_number(val, self.N)
+
+    def stop_init(self):
+        return ecomb.derangement_count(self.N)
+
+    def contains(self, val):
+        if not isinstance(val, tuple) or len(val) != self.N:
+            return False
+        if sorted(val) != list(range(self.N)):
+            return False
+        if any(val[p] == p for p in range(self.N)):
+            return False
+        return self.slice_contains(val)
+
+
+Distinct_DerangementABCMixin = EABCMixinFactory.create_ABC_mixin(Natural_Derangement(0))
+
+
+class Distinct_Derangement(Distinct_DerangementABCMixin):
+    """An eset of every derangement of a finite sequence of unique
+    elements, built via EABCMixinFactory on top of Natural_Derangement:
+    Natural_Derangement enumerates the positions, this class only
+    translates between positions and the elements it was given. The
+    sequence as given is the reference arrangement that every
+    derangement moves every single element away from.
+    """
+
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs and len(kwargs['xtra_params']) != 0:
+            eset_obj, self.elements = kwargs['xtra_params']
+            super().__init__(xtra_params=(eset_obj,))
+        elif len(args) == 1:
+            elements = tuple(args[0])
+            if len(set(elements)) != len(elements):
+                raise ValueError('Elements must be unique')
+            self.elements = elements
+            super().__init__(xtra_params=(Natural_Derangement(len(elements)),))
+        else:
+            raise ValueError(
+                'Need a finite sequence (list, tuple, or string) of unique elements'
+            )
+
+    def init_check(self):
+        return True
+
+    def _pos_to_elems(self, pos_tpl):
+        return tuple(self.elements[p] for p in pos_tpl)
+
+    def _elems_to_pos(self, val):
+        return tuple(self.elements.index(v) for v in val)
+
+    def direct_function(self, i):
+        return self._pos_to_elems(self.eset_obj[i])
+
+    def inverse_function(self, val):
+        return self.eset_obj.index(self._elems_to_pos(val))
+
+    def eset_obj_val(self, val):
+        return self._elems_to_pos(val)
+
+    def get_mix_val(self, val):
+        return self._pos_to_elems(val)
+
+    def contains_mixin_check(self, val):
+        if not isinstance(val, tuple) or len(val) != len(self.elements):
+            return False
+        return all(v in self.elements for v in val) and len(set(val)) == len(val)
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            return type(self)(xtra_params=(self.eset_obj[key], self.elements))
+        return super().__getitem__(key)
