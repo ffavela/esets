@@ -11,8 +11,8 @@ Two acknowledgements before diving in. The multiset-counting ideas
 behind several of these classes, particularly the memoized recursive
 counting and the "capacities can't bind" shortcut used all over
 [lib/ecombinatorics.py](lib/ecombinatorics.py), were worked out first
-in a sibling project of this one, mset, which studies multiset
-combinations and counting on its own. And the general design
+in a sibling project of this one, [mset](https://github.com/ffavela/mset),
+which studies multiset combinations and counting on its own. And the general design
 philosophy of this whole library, leaning on Python's sequence
 protocol so that `__len__`/`__getitem__` (and little else) are enough
 to get iteration, slicing, and membership testing for free, owes a
@@ -25,10 +25,11 @@ core idea, the interesting features, and how fast it actually is. It
 is not exhaustive: docTest.txt has the full doctest suite for these
 classes (order-independence, alphabet, Counter input, reversal
 caveats, and every edge case), and is the place to look for detail
-this file doesn't cover. If you don't need any of the specific
-counting algorithms below and just want to wire up a one-off eset
-from plain functions instead of writing a class, see `EMap` in
-[README.md](README.md).
+this file doesn't cover. For several of these families put to work
+together on one running example, see [POKER.md](POKER.md). If you
+don't need any of the specific counting algorithms below and just want
+to wire up a one-off eset from plain functions instead of writing a
+class, see `EMap` in [README.md](README.md).
 
 ## A note on speed, upfront
 

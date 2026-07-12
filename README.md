@@ -490,7 +490,8 @@ bit floats.
 And for the combinatorial esets themselves, permutations,
 combinations, arrangements, subsets, integer partitions and set
 partitions, all addressable by index with no enumeration involved, see
-[COMBINATORICS.md](COMBINATORICS.md).
+[COMBINATORICS.md](COMBINATORICS.md). [POKER.md](POKER.md) puts several
+of them to work together on a single running example, a deck of cards.
 
 ## Is there anything like this already out there? (Prior art)
 

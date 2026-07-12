@@ -44,7 +44,13 @@ def test_wholes():
 
 
 def test_doctests():
-    for docfile in ('docTest.txt', 'README.md', 'FLOAT64S.md', 'COMBINATORICS.md'):
+    for docfile in (
+        'docTest.txt',
+        'README.md',
+        'FLOAT64S.md',
+        'COMBINATORICS.md',
+        'POKER.md',
+    ):
         result = doctest.testfile(docfile, optionflags=doctest.ELLIPSIS)
         assert (
             result.failed == 0
