@@ -236,6 +236,35 @@ practical use, somewhere between `n=400` and `n=800` in informal
 testing, well past any partition count a person would realistically
 enumerate one at a time.
 
+## Compositioner: the same sum, but order counts
+
+`Partitioner` disregards order; `Compositioner` is the sibling that
+doesn't, so `4 = 1 + 3` and `4 = 3 + 1` count as two different
+compositions, not one:
+
+```python
+>>> from cesets import Compositioner
+>>> list(Compositioner(5))
+[(1, 1, 1, 1, 1), (2, 1, 1, 1), (1, 2, 1, 1), (1, 1, 2, 1), (1, 1, 1, 2), (3, 1, 1), (2, 2, 1), (2, 1, 2), (1, 3, 1), (1, 2, 2), (1, 1, 3), (4, 1), (3, 2), (2, 3), (1, 4), (5,)]
+>>>
+```
+
+This is the one class in the whole family that needed no new
+combinatorics at all: a composition of `n` corresponds exactly to a
+subset of the `n-1` gaps between `n` items in a row (does a divider go
+there or not), so the count is just `2**(n-1)`, and
+`direct_function`/`inverse_function` reuse `get_subset`/
+`get_subset_number` directly, the same functions `Natural_Powerset`
+itself calls, applied to the complementary "no divider here" gaps.
+That complement was chosen deliberately: it's what makes composition
+`#0` and the last composition match `Partitioner`'s own convention
+(all-ones first, `(n,)` last) at both ends, even though the two
+classes enumerate entirely different, differently-sized sets.
+
+**Speed:** as fast as `Natural_Powerset`, since that's exactly what it
+delegates to -- no independent recursion-limit ceiling of its own to
+report.
+
 ## Set_Partitioner: grouping, not summing
 
 The object integer partitions can't express: grouping `n`

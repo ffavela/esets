@@ -2523,6 +2523,62 @@ exactly one partition, the empty tuple of groups:
 >>> Set_Partitioner([])
 <esets.Set_Partitioner (())>
 
+Partitioner disregards order; Compositioner is the sibling that
+doesn't: 4 = 1 + 3 and 4 = 3 + 1 count as two different compositions,
+not one. Same no-elements-domain shape as Partitioner (a composition's
+parts already are the integers), so no Natural_*/wrapper split here
+either:
+
+>>> from cesets import Compositioner
+>>> c5 = Compositioner(5)
+>>> c5
+<esets.Compositioner ((1, 1, 1, 1, 1), (2, 1, 1, 1), (1, 2, 1, 1), (1, 1, 2, 1), ..., (3, 2), (2, 3), (1, 4), (5,))>
+>>> c5.len()
+16
+>>> c5[0]
+(1, 1, 1, 1, 1)
+>>> c5[-1]
+(5,)
+
+16 = 2**(5-1), not a number that needs its own combinatorics at all:
+a composition of n corresponds exactly to a subset of the n-1 gaps
+between n items in a row (does a divider go there or not), the
+classic stars-and-bars bijection also behind Powerset's own count.
+direct_function/inverse_function reuse get_subset/get_subset_number
+directly (the same functions Natural_Powerset itself calls), applied
+to the complementary "no divider here" gaps -- chosen specifically so
+that composition #0 and the last composition match Partitioner's own
+convention at both ends, even though the two objects enumerate
+completely different, differently-sized sets:
+
+>>> (2, 3) in c5
+True
+>>> (3, 2) in c5
+True
+>>> (1, 4) in c5
+True
+>>> (0, 5) in c5
+False
+>>> c5.index((1, 2, 3))
+Traceback (most recent call last):
+...
+ValueError: (1, 2, 3) not in Compositioner
+
+(1, 2, 3) sums to 6, not 5, so it's rejected the same way an
+out-of-range or wrongly-shaped value would be anywhere else in this
+module. Slicing works the same way as everywhere else:
+
+>>> c5[1:4]
+<esets.Compositioner* ((2, 1, 1, 1), (1, 2, 1, 1), (1, 1, 2, 1))>
+
+And the same trivial edge case as always, n = 0: exactly one
+composition, the empty tuple:
+
+>>> Compositioner(0)
+<esets.Compositioner (())>
+>>> Compositioner(0).len()
+1
+
 Speaking of warming up, let's cool down with something concrete: the
 Float64s eset, which enumerates every single IEEE 754 double,
 negative zero, infinities and nans included.

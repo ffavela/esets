@@ -1351,3 +1351,55 @@ class Set_Partitioner(Set_PartitionerABCMixin):
         if isinstance(key, slice):
             return type(self)(xtra_params=(self.eset_obj[key], self.elements))
         return super().__getitem__(key)
+
+
+class Compositioner(Eset):
+    """A basic eset that handles compositions: every way of writing a
+    non-negative integer n as an ORDERED sum of positive integers, so
+    unlike Partitioner, 4 = 1 + 3 and 4 = 3 + 1 are two distinct
+    compositions, not one. Like Partitioner, there's no elements domain
+    involved and no Natural_*/wrapper split: a composition's parts
+    already are the integers.
+
+    The count needs no new combinatorics at all: a composition of n
+    corresponds exactly to a subset of the n-1 gaps between n items in
+    a row (does a divider go there or not), the classic stars-and-bars
+    bijection, so the count is 2**(n-1) and direct_function/
+    inverse_function reuse get_subset/get_subset_number (the same
+    functions Natural_Powerset itself uses) directly, applied to the
+    complementary "no divider here" gaps -- chosen so that composition
+    #0 is (1, 1, ..., 1) and the last is (n,), matching Partitioner's
+    own convention at both ends, even though the two objects enumerate
+    completely different, differently-sized sets.
+    """
+
+    def __init__(self, *args, **kwargs):
+        if 'xtra_params' in kwargs:
+            if len(kwargs['xtra_params']) != 0:
+                self.N = kwargs['xtra_params'][0]
+            super().__init__(*args, **kwargs)
+        elif len(args) == 1:
+            if not isinstance(args[0], int) or args[0] < 0:
+                raise ValueError('Need a non-negative integer to initialize')
+            self.N = args[0]
+            super().__init__(xtra_params=(self.N,))
+        else:
+            raise ValueError('Need a non-negative integer to initialize')
+
+    def direct_function(self, i):
+        return ecomb.get_composition(i, self.N)
+
+    def inverse_function(self, val):
+        return ecomb.get_composition_number(val, self.N)
+
+    def stop_init(self):
+        return 1 if self.N == 0 else 2 ** (self.N - 1)
+
+    def contains(self, val):
+        if not isinstance(val, tuple):
+            return False
+        if any(not isinstance(p, int) or p <= 0 for p in val):
+            return False
+        if sum(val) != self.N:
+            return False
+        return self.slice_contains(val)

@@ -609,3 +609,42 @@ def get_set_partition_number(rgs: tuple[int, ...]) -> int | None:
         return block + locate(seq, m, c + 1)
 
     return rank(list(rgs[1:]), 1)
+
+
+def get_composition(val: int, n: int) -> tuple[int] | None:
+    if n == 0:
+        return () if val == 0 else None
+    total = 2 ** (n - 1)
+    if val >= total or val < 0:
+        return None
+
+    # A composition of n is a subset of the n-1 gaps between n items in a
+    # row (which gaps get a divider), so this reuses get_subset directly,
+    # applied to the complementary "no divider here" gaps -- chosen so
+    # that composition #0 is (1, 1, ..., 1) and the last is (n,), the
+    # same convention get_partition uses.
+    no_divider_gaps = get_subset(val, n - 1)
+    dividers = sorted(set(range(n - 1)) - set(no_divider_gaps))
+
+    parts = []
+    prev = 0
+    for d in dividers:
+        parts.append(d + 1 - prev)
+        prev = d + 1
+    parts.append(n - prev)
+    return tuple(parts)
+
+
+def get_composition_number(composition: tuple[int], n: int) -> int | None:
+    if n == 0:
+        return 0 if composition == () else None
+    if sum(composition) != n or any(p <= 0 for p in composition):
+        return None
+
+    dividers = []
+    running = 0
+    for p in composition[:-1]:
+        running += p
+        dividers.append(running - 1)
+    no_divider_gaps = tuple(sorted(set(range(n - 1)) - set(dividers)))
+    return get_subset_number(no_divider_gaps, n - 1)
