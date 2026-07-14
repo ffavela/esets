@@ -50,6 +50,7 @@ def test_doctests():
         'FLOAT64S.md',
         'COMBINATORICS.md',
         'POKER.md',
+        'INCLUSIONEXCLUSION.md',
     ):
         result = doctest.testfile(docfile, optionflags=doctest.ELLIPSIS)
         assert (
