@@ -109,7 +109,9 @@ class Distinct_Permutator(Distinct_PermutatorABCMixin):
         """Delegating to eset_obj like EMixinABC, but also carrying
         self.elements along when slicing."""
         if isinstance(key, slice):
-            return type(self)(xtra_params=(self.eset_obj[key], self.elements))
+            result = type(self)(xtra_params=(self.eset_obj[key], self.elements))
+            result.sliced = True
+            return result
         return super().__getitem__(key)
 
 
@@ -289,9 +291,11 @@ class Permutator(PermutatorABCMixin):
         """Delegating to eset_obj like EMixinABC, but also carrying
         self.elements/self.classes along when slicing."""
         if isinstance(key, slice):
-            return type(self)(
+            result = type(self)(
                 xtra_params=(self.eset_obj[key], self.elements, self.classes)
             )
+            result.sliced = True
+            return result
         return super().__getitem__(key)
 
 
@@ -422,7 +426,9 @@ class Distinct_Combinator(Distinct_CombinatorABCMixin):
 
     def __getitem__(self, key):
         if isinstance(key, slice):
-            return type(self)(xtra_params=(self.eset_obj[key], self.elements, self.k))
+            result = type(self)(xtra_params=(self.eset_obj[key], self.elements, self.k))
+            result.sliced = True
+            return result
         return super().__getitem__(key)
 
 
@@ -592,9 +598,11 @@ class Combinator(CombinatorABCMixin):
 
     def __getitem__(self, key):
         if isinstance(key, slice):
-            return type(self)(
+            result = type(self)(
                 xtra_params=(self.eset_obj[key], self.elements, self.k, self.classes)
             )
+            result.sliced = True
+            return result
         return super().__getitem__(key)
 
 
@@ -768,7 +776,9 @@ class Distinct_Arranger(Distinct_ArrangerABCMixin):
 
     def __getitem__(self, key):
         if isinstance(key, slice):
-            return type(self)(xtra_params=(self.eset_obj[key], self.elements, self.r))
+            result = type(self)(xtra_params=(self.eset_obj[key], self.elements, self.r))
+            result.sliced = True
+            return result
         return super().__getitem__(key)
 
 
@@ -929,9 +939,11 @@ class Arranger(ArrangerABCMixin):
 
     def __getitem__(self, key):
         if isinstance(key, slice):
-            return type(self)(
+            result = type(self)(
                 xtra_params=(self.eset_obj[key], self.elements, self.r, self.classes)
             )
+            result.sliced = True
+            return result
         return super().__getitem__(key)
 
 
@@ -1047,7 +1059,9 @@ class Distinct_Powerset(Distinct_PowersetABCMixin):
 
     def __getitem__(self, key):
         if isinstance(key, slice):
-            return type(self)(xtra_params=(self.eset_obj[key], self.elements))
+            result = type(self)(xtra_params=(self.eset_obj[key], self.elements))
+            result.sliced = True
+            return result
         return super().__getitem__(key)
 
 
@@ -1188,9 +1202,11 @@ class Powerset(PowersetABCMixin):
 
     def __getitem__(self, key):
         if isinstance(key, slice):
-            return type(self)(
+            result = type(self)(
                 xtra_params=(self.eset_obj[key], self.elements, self.classes)
             )
+            result.sliced = True
+            return result
         return super().__getitem__(key)
 
 
@@ -1349,7 +1365,9 @@ class Set_Partitioner(Set_PartitionerABCMixin):
 
     def __getitem__(self, key):
         if isinstance(key, slice):
-            return type(self)(xtra_params=(self.eset_obj[key], self.elements))
+            result = type(self)(xtra_params=(self.eset_obj[key], self.elements))
+            result.sliced = True
+            return result
         return super().__getitem__(key)
 
 
@@ -1508,7 +1526,9 @@ class Distinct_Derangement(Distinct_DerangementABCMixin):
 
     def __getitem__(self, key):
         if isinstance(key, slice):
-            return type(self)(xtra_params=(self.eset_obj[key], self.elements))
+            result = type(self)(xtra_params=(self.eset_obj[key], self.elements))
+            result.sliced = True
+            return result
         return super().__getitem__(key)
 
 
@@ -1633,5 +1653,7 @@ class Cartesian_Product(Cartesian_ProductABCMixin):
 
     def __getitem__(self, key):
         if isinstance(key, slice):
-            return type(self)(xtra_params=(self.eset_obj[key], self.sources))
+            result = type(self)(xtra_params=(self.eset_obj[key], self.sources))
+            result.sliced = True
+            return result
         return super().__getitem__(key)

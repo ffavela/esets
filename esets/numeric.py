@@ -386,7 +386,9 @@ class Float64s(Eset):
 
         """
         if isinstance(key, slice):
-            return Float64s(xtra_params=(self.f64tpls[key],))
+            result = Float64s(xtra_params=(self.f64tpls[key],))
+            result.sliced = True
+            return result
         elif isinstance(key, int):
             return tpl2float(self.f64tpls[key])
         raise ValueError('Need a slice or an integer')

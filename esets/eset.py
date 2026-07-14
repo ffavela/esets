@@ -470,7 +470,9 @@ class EABCMixinFactory(abc.ABC):
                 def __getitem__(self, key):
                     """Delegating __getitem__ to the eset_obj"""
                     if isinstance(key, slice):
-                        return type(self)(xtra_params=(self.eset_obj[key],))
+                        result = type(self)(xtra_params=(self.eset_obj[key],))
+                        result.sliced = True
+                        return result
                     elif isinstance(key, int):
                         mix_val = self.get_mix_val(self.eset_obj[key])
                         return mix_val
