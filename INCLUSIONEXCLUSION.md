@@ -154,14 +154,15 @@ True
 
 ## Benchmarks
 
-Two regimes turn out to matter, and they favor opposite algorithms.
+Three regimes turn out to matter, and no single algorithm wins all of
+them.
 
 **Many tight-capacity classes** (small `c_i`, `m` large): this is the
 poker/inventory shape -- lots of distinct classes, each one only
 holding a handful of items. `k` classes' worth of excess accumulates
 fast, so pruning collapses the `2**m` sum to almost nothing, and the
 DP's own "capacities can't bind" shortcut
-([esets/ecombinatorics.py:167](esets/ecombinatorics.py)) engages
+([esets/ecombinatorics.py:174](esets/ecombinatorics.py)) engages
 early too. The plain, unpruned sum is the one that suffers, growing
 visibly exponentially in `m`:
 
@@ -241,19 +242,77 @@ noticing immediately. Cheap to add, and it shaves a meaningful slice
 off this regime's worst cases, but it doesn't touch the underlying
 `min(capacity, k)`-sized branching factor that dominates here.)
 
+**Targets near the total capacity** (any capacity shape, `k` close to
+`sum(capacities)`): this regime isn't about capacity shape at all --
+it's about how little slack is left. Pruned inclusion-exclusion's
+cutoff only fires once a partial subset's excess exceeds `k`, and near
+the ceiling there's barely any excess to exceed: most subsets stay
+under `k` for a long time, so pruning barely narrows the `2**m` sum,
+even back in the *many tight-capacity classes* shape that made pruning
+so effective above:
+
+```python
+>>> caps = (2,) * 16
+>>> k = sum(caps) - 4
+>>> t0 = time.perf_counter(); ie_pruned(caps, k); t1 = time.perf_counter()
+3620
+>>> t2 = time.perf_counter(); multiset_combination_count(caps, k); t3 = time.perf_counter()
+3620
+>>> (t1 - t0) > (t3 - t2) * 50
+True
+
+```
+
+Growing `m` at a fixed "4 below the ceiling" target shows pruned
+inclusion-exclusion sliding back toward its naive, exponential
+behavior, while the DP stays flat (informal, for scale, as above):
+
+| m  | pruned I-E | DP       | ratio    |
+|----|------------|----------|----------|
+| 12 | 0.00109s   | 0.00012s | 8.8x     |
+| 16 | 0.02102s   | 0.00023s | 89.8x    |
+| 20 | 0.36899s   | 0.00037s | 1,000x   |
+| 24 | 5.91856s   | 0.00043s | 13,779x  |
+| 28 | 55.51435s  | 0.00030s | 185,041x |
+
+The DP handles this cleanly because of a second fix this benchmarking
+exercise led to: the branch loop in
+`multiset_combination_count`/`multiset_arrangement_count`
+([esets/ecombinatorics.py:182-185](esets/ecombinatorics.py)) used to
+bound how many units go to the current class only from *above* (can't
+exceed its own capacity or `k`). Near the ceiling that's not enough --
+plenty of *low* values are just as hopeless, since assigning too
+little here leaves too much for a tail that can't cover it anymore.
+Bounding the loop on both ends turns those into branches that are
+never generated, rather than ones generated, recursed into, and only
+then discovered to be dead ends -- the same idea as the impossible-state
+check above, just applied one level earlier, before the recursive call
+instead of at the top of it.
+
 ## Takeaway
 
-Neither algorithm dominates; they're fast in complementary regimes,
-and the reason traces back to the same idea both docs keep returning
-to. The DP is fast exactly when capacities are small relative to `k`
--- the same "capacities can't bind" condition that gives it a
-stars-and-bars shortcut in the first place. Pruned inclusion-exclusion
-is fast exactly when a handful of classes' capacities are enough to
-blow past `k` -- i.e. when *few* classes, regardless of how roomy
-each one is, already settle the sum. `esets` ships the DP because its
+Neither algorithm dominates unconditionally, but the DP's advantage
+turned out to be wider than the first pass through this benchmark
+suggested -- both fixes it produced closed gaps that were specific to
+*inclusion-exclusion's* pruning, not to the DP's own shape. Pruned
+inclusion-exclusion cuts a branch the moment its excess is
+provably hopeless; the DP now does the equivalent check on *both*
+sides of every branch it would otherwise generate, and does it before
+generating the branch rather than after. That's why it now wins both
+the "many tight-capacity classes" regime (where pruning already had
+plenty to bite into) and the "target near the total capacity" regime
+(where pruning barely bites at all, regardless of how many classes
+there are).
+
+The one regime that still favors inclusion-exclusion is "few
+large-capacity classes" with `k` comfortably inside what they allow --
+there, the DP's `min(capacity, k)`-sized branching factor is the
+bottleneck, and nothing about bounding a loop more tightly changes how
+large that factor is to begin with. `esets` ships the DP because its
 target use cases (hand shapes, capped inventories, anything modeled
 after "many distinct classes, each with a small cap") sit
-comfortably in the regime where it wins; a workload with the opposite
-shape -- few classes, each with room for hundreds or thousands of
-items -- would be better served by inclusion-exclusion, pruned rather
-than naive, instead.
+comfortably in the regimes where it now wins outright; a workload
+built the opposite way -- a handful of classes, each with room for
+hundreds or thousands of items, and a target well short of their
+combined capacity -- would still be better served by inclusion-exclusion,
+pruned rather than naive.
