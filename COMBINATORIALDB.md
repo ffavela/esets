@@ -323,20 +323,76 @@ combination space is always smaller than the arrangement space it's
 carved out of: this is the one comparison in this file that isn't an
 artifact of how CPython happens to store small integers.
 
+## What actually drives the crossover: basket size, not catalog size
+
+Growing the catalog alone didn't get `arrange_db`/`comb_db` ahead of
+`shop_db` -- `n2 = 80` above already shows that; every product index
+still fit the cached range, and neither compressed form pulled ahead.
+The real lever is basket size, and it's structural, not a caching
+effect at all: `shop_db`'s tuple needs one pointer slot for *every
+item in the purchase*, so its cost is `O(basket size)` regardless of
+whether the referenced integers are cached. `arrange_db`/`comb_db` is
+always a 2-tuple -- `(size, index)` -- no matter how many items were
+bought; only the single index integer grows. Holding catalog size and
+capacity fixed and growing only the basket size isolates this
+cleanly:
+
+```python
+>>> n3 = 30
+>>> for basket_size in [6, 10, 14, 18]:
+...     random.seed(9)
+...     caps3 = (basket_size + 10,) * n3
+...     shop_db3 = [tuple(random.choices(range(n3), k=basket_size)) for _ in range(100)]
+...     A3 = Natural_Multiset_Arranger(caps3, basket_size)
+...     C3 = Natural_Multiset_Combinator(caps3, basket_size)
+...     arrange_db3 = [(basket_size, A3.index(p)) for p in shop_db3]
+...     comb_db3 = [(basket_size, C3.index(tuple(sorted(p)))) for p in shop_db3]
+...     print(basket_size, deep_size(shop_db3), deep_size(arrange_db3), deep_size(comb_db3))
+...
+6 11360 10148 10148
+10 14560 10548 10148
+14 17760 10948 10548
+18 20960 10948 10548
+
+```
+
+`shop_db3` grows in a straight line with basket size; `arrange_db3`
+and `comb_db3` barely move. The crossover already happened by
+`basket_size = 6` in this setup, and by `18` `shop_db3` is roughly
+twice the size of either compressed form -- with no CPython caching
+quirk involved anywhere in this explanation. `comb_db3` stays at or
+below `arrange_db3` throughout, the same order-independence edge as
+above, holding at every basket size tested.
+
 ## One honest boundary
 
-This file's `n = 80` synthetic catalog is a deliberate choice, not
-just "big enough to see the effect." `COMBINATORICS.md` already notes
-that the plain recursion behind these classes "hits Python's
-recursion limit somewhere around 250-300 classes," and
-`INCLUSIONEXCLUSION.md` found the same wall from a different angle
-while benchmarking `multiset_combination_count`'s own counting
-recursion. Ranking -- what `.index()` above is actually doing -- hits
-it too, and earlier, since it has no equivalent of the shortcuts that
-now protect plain counting: pushing this file's synthetic catalog to
-`n = 300` reproduces a `RecursionError` directly, from
-`get_multiset_arrangement_number`, not from anything this file
-introduces. A real shop with a genuinely large catalog would need
-that fixed the same way the counting side eventually was -- not
-attempted here, since it's a different recursion with its own shape,
-not a corollary of the counting fixes.
+This file's `n = 80` and `n = 30` synthetic catalogs above are
+deliberate choices, not just "big enough to see the effect and no
+more thought given to it." An earlier draft of this section claimed
+ranking hits "the same wall" `COMBINATORICS.md` and
+`INCLUSIONEXCLUSION.md` document for plain counting -- roughly
+250-300 classes -- and that turned out to be too simple. Reading
+`get_multiset_combination_number` and `get_multiset_arrangement_number`
+directly ([esets/ecombinatorics.py:301](esets/ecombinatorics.py) and
+[esets/ecombinatorics.py:521](esets/ecombinatorics.py)) shows why:
+counting's shortcuts -- the closed forms this project added while
+benchmarking against inclusion-exclusion -- all live inside
+`multiset_combination_count` itself. Ranking calls that function for
+a block size at each step, but its own search -- the part that walks
+toward an answer -- has no equivalent shortcut. `get_multiset_combination_number`'s
+`locate` searches for the right count within the *current* class one
+unit at a time before moving to the next class, so its depth is
+closer to `classes x min(capacity, basket size)` than to `classes`
+alone. `get_multiset_arrangement_number`'s `locate` searches through
+*candidate classes* once per item in the purchase, closer to `classes
+x basket size`. Both are worse than "class count alone," and neither
+gives a single fixed safe boundary -- it's why a large catalog with
+small, tight purchases can survive fine while a much smaller catalog
+with a handful of large purchases can't. Verified directly: `n = 300`
+with capacity `3` and a basket of `3` completes without incident,
+while `n = 80` with a basket of `50` raises `RecursionError` well
+before reaching it. A real shop with either a genuinely large catalog
+*or* customers who buy dozens of items in one purchase would need
+this fixed the same way the counting side eventually was -- not
+attempted here, since ranking is a different recursion with a
+different shape, not a corollary of the counting fixes.
