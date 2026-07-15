@@ -179,7 +179,12 @@ def multiset_combination_count(multiplicities: tuple[int, ...], k: int) -> int:
         memo[key] = result
         return result
 
-    return count(multiplicities, k)
+    # The count is invariant under reordering the classes (it depends only
+    # on the multiset of capacities, not their positions), but the
+    # recursion's cost isn't: ascending order lets the "capacities can't
+    # bind" shortcut above trigger as soon as only large-capacity classes
+    # are left, instead of branching on them first.
+    return count(tuple(sorted(multiplicities)), k)
 
 
 def get_multiset_combination(
@@ -384,6 +389,10 @@ def multiset_arrangement_count(multiplicities: tuple[int, ...], r: int) -> int:
             # Even every remaining class at full capacity can't reach
             # remaining_r: no need to branch to find that out.
             result = 0
+        elif remaining_r <= min(rem):
+            # Capacities can't bind: every one of the remaining_r ordered
+            # slots can freely pick any of the len(rem) remaining classes.
+            result = len(rem) ** remaining_r
         else:
             # Choose x occurrences of the current class, choose which x of
             # the remaining_r open slots they take (comb), and recurse on
@@ -395,7 +404,9 @@ def multiset_arrangement_count(multiplicities: tuple[int, ...], r: int) -> int:
         memo[key] = result
         return result
 
-    return g(multiplicities, r)
+    # See multiset_combination_count: the count doesn't depend on class
+    # order, but ascending order lets the shortcut above trigger sooner.
+    return g(tuple(sorted(multiplicities)), r)
 
 
 def get_multiset_arrangement(
