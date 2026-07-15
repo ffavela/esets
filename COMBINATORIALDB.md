@@ -241,14 +241,22 @@ True
 
 `set_db` isn't a close second here -- it's the largest of the four,
 by a wide margin, despite holding *less* information than any of the
-others (measured once, on this machine: `shop_db` 2208 bytes, `set_db`
-6280, `arrange_db` 2540, `comb_db` 2512 -- exact byte counts are
-CPython-version-specific, since `sys.getsizeof` reflects internal
-object layout that changes across versions, but the *ordering* checked
-above doesn't). A `set`'s hash table (sized to keep its load factor
-low, and rounded up to a power of two) costs far more overhead than a
-`tuple` ever does for a handful of elements. `set_db` loses on both
-axes at once: it's wrong, and it's not even small.
+others. Exact byte counts are CPython-version-specific (`sys.getsizeof`
+reflects internal object layout that changes across versions, which is
+why only the *ordering* checked above is asserted, not these numbers
+directly), but for scale, measured once on this machine:
+
+| representation | bytes |
+|-----------------|------:|
+| `shop_db`       |  2208 |
+| `set_db`        |  6280 |
+| `arrange_db`    |  2540 |
+| `comb_db`       |  2512 |
+
+A `set`'s hash table (sized to keep its load factor low, and rounded
+up to a power of two) costs far more overhead than a `tuple` ever does
+for a handful of elements. `set_db` loses on both axes at once: it's
+wrong, and it's not even small.
 
 `arrange_db` and `comb_db`, on the other hand, are barely
 distinguishable from `shop_db` in raw bytes here -- and `comb_db`
@@ -303,10 +311,17 @@ True
 
 ```
 
-Raw bytes still favor `shop_db2` here (measured once, on this machine:
-`shop_db2` 17792 bytes, `arrange_db2` 19844, `comb_db2` 19748 --
-again, exact counts are version-specific, the ordering above isn't) --
-every one of its product indices (`0` to `79`) is still inside the
+Raw bytes still favor `shop_db2` here -- again, exact counts are
+version-specific, only the ordering above is asserted, but for scale,
+measured once on this machine:
+
+| representation | bytes |
+|-----------------|------:|
+| `shop_db2`      | 17792 |
+| `arrange_db2`   | 19844 |
+| `comb_db2`      | 19748 |
+
+Every one of its product indices (`0` to `79`) is still inside the
 cached range, so this isn't the comparison that settles anything
 either. The one that does is bit length: how many bits does each
 index actually need, independent of whatever any particular Python
@@ -372,17 +387,23 @@ True
 ```
 
 `shop_db3` grows in a straight line with basket size; `arrange_db3`
-and `comb_db3` barely move (measured once, on this machine: `basket_size`
-6/10/14/18 gave `shop_db3` 11360/14560/17760/20960 bytes against
-`arrange_db3` 10148/10548/10948/10948 and `comb_db3`
-10148/10148/10548/10548 -- again, only the ordering above is asserted,
-not these exact counts). The crossover already happened by
-`basket_size = 6` in this setup (`results[0][1] > results[0][3]`
-above), and by `18` `shop_db3` is roughly twice the size of either
-compressed form, with no CPython caching quirk involved anywhere in
-this explanation. `comb_db3` stays at or below `arrange_db3`
-throughout, the same order-independence edge as above, holding at
-every basket size tested.
+and `comb_db3` barely move. Again, only the ordering checked above is
+asserted, not these exact counts, but for scale, measured once on this
+machine:
+
+| basket_size | `shop_db3` | `arrange_db3` | `comb_db3` |
+|------------:|-----------:|--------------:|-----------:|
+|           6 |      11360 |          10148 |      10148 |
+|          10 |      14560 |          10548 |      10148 |
+|          14 |      17760 |          10948 |      10548 |
+|          18 |      20960 |          10948 |      10548 |
+
+The crossover already happened by `basket_size = 6` in this setup
+(`results[0][1] > results[0][3]` above), and by `18` `shop_db3` is
+roughly twice the size of either compressed form, with no CPython
+caching quirk involved anywhere in this explanation. `comb_db3` stays
+at or below `arrange_db3` throughout, the same order-independence edge
+as above, holding at every basket size tested.
 
 ## One honest boundary
 
