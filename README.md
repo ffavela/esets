@@ -26,6 +26,30 @@ still:
 >>>
 ```
 
+## The docs, if you want to skip ahead
+
+This README is a long, informal walkthrough. If you'd rather get to
+the substance directly:
+
+* [COMBINATORICS.md](https://github.com/ffavela/esets/blob/main/COMBINATORICS.md)
+  -- the combinatorics family: permutations, combinations,
+  arrangements, subsets, integer partitions, set partitions,
+  derangements, and Cartesian products, all addressable by index with
+  no enumeration involved.
+* [POKER.md](https://github.com/ffavela/esets/blob/main/POKER.md) --
+  several of those put to work together on one running example, a
+  deck of cards.
+* [COMBINATORIALDB.md](https://github.com/ffavela/esets/blob/main/COMBINATORIALDB.md)
+  -- a second worked example, a shop database: comparing a raw
+  purchase log against a `set`-based, an arrangement-indexed, and a
+  combination-indexed representation, for both correctness and size.
+* [INCLUSIONEXCLUSION.md](https://github.com/ffavela/esets/blob/main/INCLUSIONEXCLUSION.md)
+  -- the library's own counting recursion benchmarked against
+  inclusion-exclusion, with the real performance fixes that
+  benchmarking turned up.
+* [FLOAT64S.md](https://github.com/ffavela/esets/blob/main/FLOAT64S.md)
+  -- an eset that enumerates all 64-bit floats.
+
 ## What is it? (An informal introduction)
 
 **esets** stands for enumerated sets. They can handle arbitrarily

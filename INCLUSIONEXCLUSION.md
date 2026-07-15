@@ -12,13 +12,16 @@ principle -- and benchmarks it head-to-head against the memoized
 recursion (DP) this project actually ships. The headline result isn't
 "DP always wins": which approach is faster depends on *where* the
 capacities live, in a way that adds a genuinely new axis to the
-Big-O discussion COMBINATORICS.md already opened. It also stopped
-being a clean head-to-head partway through writing this file: one of
-the regimes below turned out to favor inclusion-exclusion so
-consistently that `multiset_combination_count` now calls it directly
-for that shape, rather than losing to it. Where that happens is called
-out explicitly, not glossed over as still being "the DP" winning on
-its own.
+Big-O discussion COMBINATORICS.md already opened. One regime in
+particular turned out to favor inclusion-exclusion so consistently
+that `multiset_combination_count` now calls it directly for that
+shape, rather than losing to it -- called out explicitly below, not
+glossed over as still being "the DP" winning on its own.
+
+*(This file went through several rounds of revision as its own
+benchmarks turned up real fixes worth making to
+`esets/ecombinatorics.py`; what follows reflects where that process
+ended up.)*
 
 ## The theory
 
@@ -72,10 +75,11 @@ going to diverge from the DP.
 ```
 
 Checked against a small hand-picked inventory (8 SKUs, 2 in stock
-each, a 5-item basket -- the same shape [COMBINATORIALDB.md](COMBINATORIALDB.md)
-works through properly, with an actual shop and actual purchases
-rather than just a sanity-check number), and against the 13-rank,
-capacity-4 poker hand-shape count from [POKER.md](POKER.md):
+each, a 5-item basket -- the same shape
+[COMBINATORIALDB.md](COMBINATORIALDB.md) works through as a full
+worked example, with an actual shop and actual purchases), and
+against the 13-rank, capacity-4 poker hand-shape count from
+[POKER.md](POKER.md):
 
 ```python
 >>> from esets import Natural_Multiset_Combinator
@@ -202,23 +206,19 @@ size -- your machine will differ):
 | 22 | 11 | 2.1373s   | 0.00107s   | 0.00028s  |
 | 24 | 12 | 9.4208s   | 0.00755s   | 0.00106s  |
 
-**Few large-capacity classes** (`c_i` large, `m` small): this used to
-be the regime nothing above prepared you for -- and the reason this
-section is written in the past tense is that it no longer holds. The
-DP's recursion branches on `min(rem[0], remaining_k) + 1` at every
-state, a factor that grows with the *capacity itself*, not just with
-`m`; COMBINATORICS.md's "Big-O" discussion is entirely about the
+**Few large-capacity classes** (`c_i` large, `m` small): the DP's
+recursion branches on `min(rem[0], remaining_k) + 1` at every state, a
+factor that grows with the *capacity itself*, not just with `m`;
+COMBINATORICS.md's "Big-O" discussion is entirely about the
 class-count axis (`n`, fixed at construction) and says nothing about
 capacity magnitude, because none of its examples push that axis hard.
-Pushing it here used to make the DP blow up. It no longer does,
-because -- once this regime turned out to be exactly where
-inclusion-exclusion consistently wins -- `multiset_combination_count`
-was changed to recognize this shape and hand the subproblem to
-inclusion-exclusion internally instead of continuing to branch. **Be
-honest about what this means for the comparison below: it is no
-longer two independent algorithms competing.** The DP, for this
-specific shape, *is* pruned inclusion-exclusion now, called from
-inside an `elif`.
+Pushing it here would make the DP's own recursion blow up -- except
+that `multiset_combination_count` recognizes exactly this shape and
+hands the subproblem to inclusion-exclusion internally instead of
+continuing to branch. **Be honest about what this means for the
+comparison below: it is not two independent algorithms competing.**
+The DP, for this specific shape, *is* pruned inclusion-exclusion,
+called from inside an `elif`.
 
 ```python
 >>> caps, k = (100,) * 8, 400
@@ -231,8 +231,8 @@ True
 
 ```
 
-Before-and-after on the same configurations this section originally
-used, informally, for scale:
+The same configurations, before and after the fix, informally, for
+scale:
 
 | cap | m | k   | pruned I-E | DP (before) | DP (now)  |
 |-----|---|-----|------------|--------------|-----------|
@@ -300,19 +300,18 @@ behavior, while the DP stays flat (informal, for scale, as above):
 | 24 | 5.91856s   | 0.00043s | 13,779x  |
 | 28 | 55.51435s  | 0.00030s | 185,041x |
 
-The DP handles this cleanly because of a second fix this benchmarking
-exercise led to: the branch loop in
+The DP handles this cleanly: its branch loop in
 `multiset_combination_count`/`multiset_arrangement_count`
-([esets/ecombinatorics.py:182-185](esets/ecombinatorics.py)) used to
-bound how many units go to the current class only from *above* (can't
-exceed its own capacity or `k`). Near the ceiling that's not enough --
-plenty of *low* values are just as hopeless, since assigning too
-little here leaves too much for a tail that can't cover it anymore.
-Bounding the loop on both ends turns those into branches that are
-never generated, rather than ones generated, recursed into, and only
-then discovered to be dead ends -- the same idea as the impossible-state
-check above, just applied one level earlier, before the recursive call
-instead of at the top of it.
+([esets/ecombinatorics.py:182-185](esets/ecombinatorics.py)) bounds
+how many units go to the current class on *both* ends, not just from
+above (can't exceed its own capacity or `k`). Near the ceiling, an
+upper bound alone isn't enough -- plenty of *low* values are just as
+hopeless, since assigning too little to this class leaves too much for
+the remaining classes to cover. Bounding the loop on both ends turns
+those into branches that are never generated, rather than ones
+generated, recursed into, and only then discovered to be dead ends --
+the same idea as the impossible-state check above, just applied one
+level earlier, before the recursive call instead of at the top of it.
 
 A natural follow-up: since `x_i <-> c_i - x_i` is a bijection between
 assignments summing to `k` and ones summing to `sum(capacities) - k`,
@@ -354,8 +353,8 @@ inclusion-exclusion set out to make.
 
 ## Takeaway
 
-Three of the four fixes this benchmark produced closed gaps specific
-to *inclusion-exclusion's* pruning, without inclusion-exclusion itself
+Three of the four fixes below close gaps specific to
+*inclusion-exclusion's* pruning, without inclusion-exclusion itself
 ever entering `multiset_combination_count`. Pruned inclusion-exclusion
 cuts a branch the moment its excess is provably hopeless; the DP now
 does the equivalent check on both sides of every branch it would

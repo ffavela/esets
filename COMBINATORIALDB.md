@@ -1,13 +1,15 @@
 # A shop's database: sets, arrangements, and combinations
 
-A small shop, a fixed inventory, and a day's worth of purchases --
-this is the worked example the "purchase transaction" discussion from
-this project's own history kept getting mentioned without ever
-actually being written down. It's the same idea POKER.md builds a
-hand around (order-free multiset counting, `Natural_Multiset_Combinator`,
-`Natural_Multiset_Arranger`), applied to a database problem instead of
-a card game: given a log of purchases, how should closing time
-compress it onto disk?
+A small shop, a fixed inventory, and a day's worth of purchases. It's
+the same idea POKER.md builds a hand around (order-free multiset
+counting, `Natural_Multiset_Combinator`, `Natural_Multiset_Arranger`),
+applied to a database problem instead of a card game: given a log of
+purchases, how should closing time compress it onto disk?
+
+*(This file went through a round of revision after its first
+publication corrected an inaccurate claim about where ranking's
+recursion limit actually comes from; see "One honest boundary" below
+for the corrected version.)*
 
 ## The shop
 
@@ -367,19 +369,19 @@ above, holding at every basket size tested.
 ## One honest boundary
 
 This file's `n = 80` and `n = 30` synthetic catalogs above are
-deliberate choices, not just "big enough to see the effect and no
-more thought given to it." An earlier draft of this section claimed
-ranking hits "the same wall" `COMBINATORICS.md` and
-`INCLUSIONEXCLUSION.md` document for plain counting -- roughly
-250-300 classes -- and that turned out to be too simple. Reading
-`get_multiset_combination_number` and `get_multiset_arrangement_number`
-directly ([esets/ecombinatorics.py:301](esets/ecombinatorics.py) and
+deliberate choices, not just "big enough to see the effect." Ranking
+-- what `.index()` is doing throughout this file -- does *not* hit the
+same wall `COMBINATORICS.md` and `INCLUSIONEXCLUSION.md` document for
+plain counting (roughly 250-300 classes); it's more fragile than
+that. Reading `get_multiset_combination_number` and
+`get_multiset_arrangement_number` directly
+([esets/ecombinatorics.py:301](esets/ecombinatorics.py) and
 [esets/ecombinatorics.py:521](esets/ecombinatorics.py)) shows why:
-counting's shortcuts -- the closed forms this project added while
-benchmarking against inclusion-exclusion -- all live inside
-`multiset_combination_count` itself. Ranking calls that function for
-a block size at each step, but its own search -- the part that walks
-toward an answer -- has no equivalent shortcut. `get_multiset_combination_number`'s
+counting's shortcuts -- the closed forms inside
+`multiset_combination_count` itself -- don't apply to ranking.
+Ranking calls that function for a block size at each step, but its
+own search -- the part that walks toward an answer -- has no
+equivalent shortcut. `get_multiset_combination_number`'s
 `locate` searches for the right count within the *current* class one
 unit at a time before moving to the next class, so its depth is
 closer to `classes x min(capacity, basket size)` than to `classes`
