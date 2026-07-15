@@ -4,8 +4,9 @@
 (see [COMBINATORICS.md](COMBINATORICS.md) and
 [esets/ecombinatorics.py](esets/ecombinatorics.py)) count k-combinations
 of a multiset whose classes have per-element capacities -- the exact
-problem behind the poker hand-shape counting and inventory-basket
-examples in [POKER.md](POKER.md). This file solves the identical
+problem behind the poker hand-shape counting in [POKER.md](POKER.md)
+and the shop-inventory counting in
+[COMBINATORIALDB.md](COMBINATORIALDB.md). This file solves the identical
 problem a second, completely different way -- the inclusion-exclusion
 principle -- and benchmarks it head-to-head against the memoized
 recursion (DP) this project actually ships. The headline result isn't
@@ -70,10 +71,11 @@ going to diverge from the DP.
 
 ```
 
-Checked against the two worked examples already established in this
-project: the 8-SKU, 2-in-stock basket count from the "purchase
-transaction" discussion, and the 13-rank, capacity-4 poker hand-shape
-count from [POKER.md](POKER.md):
+Checked against a small hand-picked inventory (8 SKUs, 2 in stock
+each, a 5-item basket -- the same shape [COMBINATORIALDB.md](COMBINATORIALDB.md)
+works through properly, with an actual shop and actual purchases
+rather than just a sanity-check number), and against the 13-rank,
+capacity-4 poker hand-shape count from [POKER.md](POKER.md):
 
 ```python
 >>> from esets import Natural_Multiset_Combinator
