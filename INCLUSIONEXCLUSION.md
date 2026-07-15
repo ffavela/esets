@@ -11,7 +11,13 @@ principle -- and benchmarks it head-to-head against the memoized
 recursion (DP) this project actually ships. The headline result isn't
 "DP always wins": which approach is faster depends on *where* the
 capacities live, in a way that adds a genuinely new axis to the
-Big-O discussion COMBINATORICS.md already opened.
+Big-O discussion COMBINATORICS.md already opened. It also stopped
+being a clean head-to-head partway through writing this file: one of
+the regimes below turned out to favor inclusion-exclusion so
+consistently that `multiset_combination_count` now calls it directly
+for that shape, rather than losing to it. Where that happens is called
+out explicitly, not glossed over as still being "the DP" winning on
+its own.
 
 ## The theory
 
@@ -194,14 +200,23 @@ size -- your machine will differ):
 | 22 | 11 | 2.1373s   | 0.00107s   | 0.00028s  |
 | 24 | 12 | 9.4208s   | 0.00755s   | 0.00106s  |
 
-**Few large-capacity classes** (`c_i` large, `m` small): this is the
-regime nothing above prepares you for. The DP's recursion branches on
-`min(rem[0], remaining_k) + 1` at every state -- a factor that grows
-with the *capacity itself*, not just with `m`. COMBINATORICS.md's
-"Big-O" discussion is entirely about the class-count axis (`n`,
-fixed at construction); it says nothing about capacity magnitude,
-because none of its examples push that axis hard. Push it, and the DP
--- not the naive sum -- is the one that blows up:
+**Few large-capacity classes** (`c_i` large, `m` small): this used to
+be the regime nothing above prepared you for -- and the reason this
+section is written in the past tense is that it no longer holds. The
+DP's recursion branches on `min(rem[0], remaining_k) + 1` at every
+state, a factor that grows with the *capacity itself*, not just with
+`m`; COMBINATORICS.md's "Big-O" discussion is entirely about the
+class-count axis (`n`, fixed at construction) and says nothing about
+capacity magnitude, because none of its examples push that axis hard.
+Pushing it here used to make the DP blow up. It no longer does,
+because -- once this regime turned out to be exactly where
+inclusion-exclusion consistently wins -- `multiset_combination_count`
+was changed to recognize this shape and hand the subproblem to
+inclusion-exclusion internally instead of continuing to branch. **Be
+honest about what this means for the comparison below: it is no
+longer two independent algorithms competing.** The DP, for this
+specific shape, *is* pruned inclusion-exclusion now, called from
+inside an `elif`.
 
 ```python
 >>> caps, k = (100,) * 8, 400
@@ -209,38 +224,46 @@ because none of its examples push that axis hard. Push it, and the DP
 51396760553461
 >>> t2 = time.perf_counter(); multiset_combination_count(caps, k); t3 = time.perf_counter()
 51396760553461
->>> (t3 - t2) > (t1 - t0) * 50
+>>> (t3 - t2) < 0.01 and (t1 - t0) < 0.01
 True
 
 ```
 
-Again, informally, for scale (`multiset_combination_count` is doing
-real polynomial-but-capacity-scaled work here, not exploding
-combinatorially -- it's just that "polynomial in `m`, `k`, *and*
-`min(capacity, k)`" stops being fast once that last factor is in the
-hundreds or thousands):
+Before-and-after on the same configurations this section originally
+used, informally, for scale:
 
-| cap | m | k    | pruned I-E | DP       |
-|-----|---|------|------------|----------|
-| 50  | 6 | 150  | 0.00002s   | 0.00702s |
-| 50  | 8 | 200  | 0.00006s   | 0.01367s |
-| 100 | 6 | 300  | 0.00003s   | 0.02610s |
-| 100 | 8 | 400  | 0.00008s   | 0.05062s |
-| 200 | 6 | 600  | 0.00003s   | 0.10771s |
-| 200 | 8 | 800  | 0.00008s   | 0.20907s |
+| cap | m | k   | pruned I-E | DP (before) | DP (now)  |
+|-----|---|-----|------------|--------------|-----------|
+| 50  | 6 | 150 | 0.00002s   | 0.00702s     | 0.000030s |
+| 50  | 8 | 200 | 0.00006s   | 0.01367s     | 0.000062s |
+| 100 | 6 | 300 | 0.00003s   | 0.02610s     | 0.000021s |
+| 100 | 8 | 400 | 0.00008s   | 0.05062s     | 0.000065s |
+| 200 | 6 | 600 | 0.00003s   | 0.10771s     | 0.000019s |
+| 200 | 8 | 800 | 0.00008s   | 0.20907s     | 0.000065s |
 
-At `m = 16`, `cap = 1000` (well outside anything sane to put in a
-doctest), the DP takes upward of 19 seconds against a fraction of a
-millisecond for pruned inclusion-exclusion -- a reversal complete
-enough that "just use the DP" stops being good advice. (Those DP
-figures already include one fix this benchmarking exercise found and
-patched directly: `multiset_combination_count`/`multiset_arrangement_count`
-had no early exit for outright-impossible states -- `remaining_k`
-exceeding what every remaining class combined could still supply --
-and would recurse all the way down to discover that instead of
-noticing immediately. Cheap to add, and it shaves a meaningful slice
-off this regime's worst cases, but it doesn't touch the underlying
-`min(capacity, k)`-sized branching factor that dominates here.)
+The dispatch only fires below two thresholds, checked together --
+`len(rem) <= 15` classes remaining *and* `min(rem) >= 15` capacity on
+all of them
+([esets/ecombinatorics.py](esets/ecombinatorics.py), search
+`_INCLUSION_EXCLUSION_CLASS_THRESHOLD`). Both matter, not just the
+class count: inclusion-exclusion has its own weak spot, independent
+of everything above -- a target sitting near *half* of a subproblem's
+own total capacity prunes poorly regardless of how large that capacity
+is, and its cost climbs with `m` alone (`cap=100`, target at exactly
+half: `m=10` in 0.0004s, `m=16` in 0.018s, `m=22` in 1.4s, measured
+standalone). 15 was chosen by measuring that exact worst case up to
+the boundary and confirming it stays under 10ms there before shipping
+the threshold -- not an arbitrary round number.
+
+That boundary is real, and worth being honest about too: push *past*
+it -- many large-capacity classes together, not few -- and neither
+fix applies. `cap=100`, `m=20` (five past the class-count threshold),
+target at half: measured at **5.29 seconds**, because the dispatch
+condition correctly declines to fire (`len(rem) = 20 > 15`) and
+inclusion-exclusion would be no faster there either, for the reason
+in the paragraph above. "Few large-capacity classes" quietly meant
+"few enough" all along; this just makes that boundary explicit instead
+of implicit.
 
 **Targets near the total capacity** (any capacity shape, `k` close to
 `sum(capacities)`): this regime isn't about capacity shape at all --
@@ -329,35 +352,44 @@ inclusion-exclusion set out to make.
 
 ## Takeaway
 
-Neither algorithm dominates unconditionally, but the DP's advantage
-turned out to be wider than the first pass through this benchmark
-suggested -- all three fixes it produced closed gaps that were
-specific to *inclusion-exclusion's* pruning, not to the DP's own
-shape. Pruned inclusion-exclusion cuts a branch the moment its excess
-is provably hopeless; the DP now does the equivalent check on both
-sides of every branch it would otherwise generate (rather than one),
-before generating the branch (rather than after), and even reframes
-"almost full" targets as "barely any gap" ones so the existing
-shortcut can catch them too. That's why it now wins both the "many
-tight-capacity classes" regime (where pruning already had plenty to
-bite into) and the "target near the total capacity" regime (where
-pruning barely bites at all, regardless of how many classes there
-are) -- with one caveat: the gap-reframing fix only helps when the
-leftover slack fits inside some single remaining class's own capacity.
-Combine *tight* capacities with a near-ceiling target and enough
-classes (the `(2,) * m` shape above, past roughly `m = 600`), and the
-DP still exhausts Python's call stack, a pre-existing limit none of
-these fixes were aimed at closing.
+Three of the four fixes this benchmark produced closed gaps specific
+to *inclusion-exclusion's* pruning, without inclusion-exclusion itself
+ever entering `multiset_combination_count`. Pruned inclusion-exclusion
+cuts a branch the moment its excess is provably hopeless; the DP now
+does the equivalent check on both sides of every branch it would
+otherwise generate (rather than one), before generating the branch
+(rather than after), and even reframes "almost full" targets as
+"barely any gap" ones so the existing shortcut can catch them too.
+That's why it wins both the "many tight-capacity classes" regime
+(where pruning already had plenty to bite into) and the "target near
+the total capacity" regime (where pruning barely bites at all,
+regardless of how many classes there are) -- with one caveat: the
+gap-reframing fix only helps when the leftover slack fits inside some
+single remaining class's own capacity. Combine *tight* capacities with
+a near-ceiling target and enough classes (the `(2,) * m` shape above,
+past roughly `m = 600`), and the DP still exhausts Python's call
+stack, a pre-existing limit none of these three fixes were aimed at
+closing.
 
-The one regime that still favors inclusion-exclusion is "few
-large-capacity classes" with `k` comfortably inside what they allow --
-there, the DP's `min(capacity, k)`-sized branching factor is the
-bottleneck, and nothing about bounding a loop more tightly changes how
-large that factor is to begin with. `esets` ships the DP because its
-target use cases (hand shapes, capped inventories, anything modeled
-after "many distinct classes, each with a small cap") sit
-comfortably in the regimes where it now wins outright; a workload
-built the opposite way -- a handful of classes, each with room for
-hundreds or thousands of items, and a target well short of their
-combined capacity -- would still be better served by inclusion-exclusion,
-pruned rather than naive.
+The fourth fix is different in kind: for "few large-capacity classes,"
+the DP doesn't out-compete inclusion-exclusion -- it calls it. If you
+can't beat them, join... let them join you ;-)
+
+Below 15 remaining classes with at least 15 capacity apiece, the
+branching recursion hands the subproblem straight to pruned
+inclusion-exclusion instead of continuing to branch on a
+capacity-sized factor it can't shrink any other way. That threshold
+is a real, checked boundary, not a suggestion: push past it -- many
+large-capacity classes together, not few -- and neither algorithm is
+fast, since inclusion-exclusion's own pruning weakens as `m` grows
+regardless of capacity size (measured standalone: seconds, not
+milliseconds, by `m` in the low twenties for a target near half of a
+large total). `esets` ships this hybrid
+because its target use cases (hand shapes, capped inventories, high-
+stock catalogs kept to a modest number of distinct items) all sit
+inside the regimes it now covers outright -- "many distinct classes,
+each with a small cap" through the first three fixes, "few classes,
+each with plenty of room" through the fourth. A workload that's
+genuinely *both* many classes *and* large capacities per class is the
+one shape nothing here solves, and would need a different approach
+entirely, not just a different choice between these two.

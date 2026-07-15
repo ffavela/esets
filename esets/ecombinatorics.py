@@ -153,6 +153,41 @@ def get_combination_number(combination: tuple[int], n: int) -> int | None:
     return rank(list(range(n)), list(combination))
 
 
+# Below this many remaining classes, inclusion-exclusion's 2**len(rem)
+# subsets are cheap regardless of capacity size -- and above this many
+# remaining classes, that same sum stops being cheap. Below this
+# capacity, the branching recursion's own cost (tied to capacity, not
+# class count) is already small enough that switching buys nothing.
+# Both are load-bearing together, not independently: inclusion-exclusion
+# has its own weak spot (a target near half of a subproblem's own total
+# capacity prunes poorly, regardless of how large that capacity is), so
+# this only dispatches when there are few *enough* classes left that even
+# that weak spot stays cheap -- checked up to 15 classes at capacity 100,
+# worst case (target at exactly half), before shipping this threshold.
+_INCLUSION_EXCLUSION_CLASS_THRESHOLD = 15
+_INCLUSION_EXCLUSION_CAPACITY_THRESHOLD = 15
+
+
+def _inclusion_exclusion_combination_count(
+    rem: tuple[int, ...], remaining_k: int
+) -> int:
+    m = len(rem)
+    total_answer = 0
+
+    def rec(i: int, excess: int, sign: int) -> None:
+        nonlocal total_answer
+        if excess > remaining_k:
+            return
+        if i == m:
+            total_answer += sign * comb(m - 1 + remaining_k - excess, m - 1)
+            return
+        rec(i + 1, excess, sign)
+        rec(i + 1, excess + rem[i] + 1, -sign)
+
+    rec(0, 0, 1)
+    return total_answer
+
+
 def multiset_combination_count(multiplicities: tuple[int, ...], k: int) -> int:
     memo: dict[tuple[tuple[int, ...], int], int] = {}
 
@@ -185,6 +220,16 @@ def multiset_combination_count(multiplicities: tuple[int, ...], k: int) -> int:
                 # to the original shortcut above, one class at a time.
                 gap = total - remaining_k
                 result = comb(len(rem) + gap - 1, gap)
+            elif (
+                len(rem) <= _INCLUSION_EXCLUSION_CLASS_THRESHOLD
+                and min(rem) >= _INCLUSION_EXCLUSION_CAPACITY_THRESHOLD
+            ):
+                # Few classes, each with plenty of room: this is exactly
+                # where this recursion's own branching factor (tied to
+                # capacity size, not class count) stops being competitive
+                # with inclusion-exclusion's 2**len(rem), which doesn't
+                # care how large the capacities are at all.
+                result = _inclusion_exclusion_combination_count(rem, remaining_k)
             else:
                 # t (how many go to this class) can't be so small that the
                 # rest of the classes, even maxed out, can't cover what's
