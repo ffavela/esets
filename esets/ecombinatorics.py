@@ -164,18 +164,25 @@ def multiset_combination_count(multiplicities: tuple[int, ...], k: int) -> int:
             result = 1
         elif not rem:
             result = 0
-        elif remaining_k > sum(rem):
-            # Even every remaining class at full capacity can't reach
-            # remaining_k: no need to branch to find that out.
-            result = 0
-        elif remaining_k <= min(rem):
-            # Capacities can't bind: plain stars-and-bars (mset's C1 shortcut).
-            result = comb(len(rem) + remaining_k - 1, remaining_k)
         else:
-            result = sum(
-                count(rem[1:], remaining_k - t)
-                for t in range(min(rem[0], remaining_k) + 1)
-            )
+            total = sum(rem)
+            if remaining_k > total:
+                # Even every remaining class at full capacity can't reach
+                # remaining_k: no need to branch to find that out.
+                result = 0
+            elif remaining_k <= min(rem):
+                # Capacities can't bind: plain stars-and-bars (mset's C1 shortcut).
+                result = comb(len(rem) + remaining_k - 1, remaining_k)
+            else:
+                # t (how many go to this class) can't be so small that the
+                # rest of the classes, even maxed out, can't cover what's
+                # left -- that's a hopeless branch just as much as t being
+                # too large is, so bound the loop on both ends instead of
+                # generating and then discarding those calls.
+                tail_capacity = total - rem[0]
+                lo = max(0, remaining_k - tail_capacity)
+                hi = min(rem[0], remaining_k)
+                result = sum(count(rem[1:], remaining_k - t) for t in range(lo, hi + 1))
         memo[key] = result
         return result
 
@@ -385,22 +392,28 @@ def multiset_arrangement_count(multiplicities: tuple[int, ...], r: int) -> int:
             result = 1
         elif not rem:
             result = 0
-        elif remaining_r > sum(rem):
-            # Even every remaining class at full capacity can't reach
-            # remaining_r: no need to branch to find that out.
-            result = 0
-        elif remaining_r <= min(rem):
-            # Capacities can't bind: every one of the remaining_r ordered
-            # slots can freely pick any of the len(rem) remaining classes.
-            result = len(rem) ** remaining_r
         else:
-            # Choose x occurrences of the current class, choose which x of
-            # the remaining_r open slots they take (comb), and recurse on
-            # the rest with the later classes.
-            result = sum(
-                comb(remaining_r, x) * g(rem[1:], remaining_r - x)
-                for x in range(min(rem[0], remaining_r) + 1)
-            )
+            total = sum(rem)
+            if remaining_r > total:
+                # Even every remaining class at full capacity can't reach
+                # remaining_r: no need to branch to find that out.
+                result = 0
+            elif remaining_r <= min(rem):
+                # Capacities can't bind: every one of the remaining_r ordered
+                # slots can freely pick any of the len(rem) remaining classes.
+                result = len(rem) ** remaining_r
+            else:
+                # x (how many go to this class) can't be so small that the
+                # rest of the classes, even maxed out, can't cover what's
+                # left -- bound the loop on both ends instead of generating
+                # and then discarding those calls.
+                tail_capacity = total - rem[0]
+                lo = max(0, remaining_r - tail_capacity)
+                hi = min(rem[0], remaining_r)
+                result = sum(
+                    comb(remaining_r, x) * g(rem[1:], remaining_r - x)
+                    for x in range(lo, hi + 1)
+                )
         memo[key] = result
         return result
 
