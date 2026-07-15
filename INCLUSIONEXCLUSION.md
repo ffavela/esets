@@ -221,17 +221,25 @@ hundreds or thousands):
 
 | cap | m | k    | pruned I-E | DP       |
 |-----|---|------|------------|----------|
-| 50  | 6 | 150  | 0.00002s   | 0.00905s |
-| 50  | 8 | 200  | 0.00006s   | 0.02069s |
-| 100 | 6 | 300  | 0.00003s   | 0.03631s |
-| 100 | 8 | 400  | 0.00008s   | 0.07344s |
-| 200 | 6 | 600  | 0.00003s   | 0.14275s |
-| 200 | 8 | 800  | 0.00008s   | 0.29541s |
+| 50  | 6 | 150  | 0.00002s   | 0.00702s |
+| 50  | 8 | 200  | 0.00006s   | 0.01367s |
+| 100 | 6 | 300  | 0.00003s   | 0.02610s |
+| 100 | 8 | 400  | 0.00008s   | 0.05062s |
+| 200 | 6 | 600  | 0.00003s   | 0.10771s |
+| 200 | 8 | 800  | 0.00008s   | 0.20907s |
 
 At `m = 16`, `cap = 1000` (well outside anything sane to put in a
-doctest), the DP takes upward of 25 seconds against a fraction of a
+doctest), the DP takes upward of 19 seconds against a fraction of a
 millisecond for pruned inclusion-exclusion -- a reversal complete
-enough that "just use the DP" stops being good advice.
+enough that "just use the DP" stops being good advice. (Those DP
+figures already include one fix this benchmarking exercise found and
+patched directly: `multiset_combination_count`/`multiset_arrangement_count`
+had no early exit for outright-impossible states -- `remaining_k`
+exceeding what every remaining class combined could still supply --
+and would recurse all the way down to discover that instead of
+noticing immediately. Cheap to add, and it shaves a meaningful slice
+off this regime's worst cases, but it doesn't touch the underlying
+`min(capacity, k)`-sized branching factor that dominates here.)
 
 ## Takeaway
 

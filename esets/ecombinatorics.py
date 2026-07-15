@@ -164,6 +164,10 @@ def multiset_combination_count(multiplicities: tuple[int, ...], k: int) -> int:
             result = 1
         elif not rem:
             result = 0
+        elif remaining_k > sum(rem):
+            # Even every remaining class at full capacity can't reach
+            # remaining_k: no need to branch to find that out.
+            result = 0
         elif remaining_k <= min(rem):
             # Capacities can't bind: plain stars-and-bars (mset's C1 shortcut).
             result = comb(len(rem) + remaining_k - 1, remaining_k)
@@ -375,6 +379,10 @@ def multiset_arrangement_count(multiplicities: tuple[int, ...], r: int) -> int:
         if remaining_r == 0:
             result = 1
         elif not rem:
+            result = 0
+        elif remaining_r > sum(rem):
+            # Even every remaining class at full capacity can't reach
+            # remaining_r: no need to branch to find that out.
             result = 0
         else:
             # Choose x occurrences of the current class, choose which x of
