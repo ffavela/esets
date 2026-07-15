@@ -289,20 +289,65 @@ then discovered to be dead ends -- the same idea as the impossible-state
 check above, just applied one level earlier, before the recursive call
 instead of at the top of it.
 
+A natural follow-up: since `x_i <-> c_i - x_i` is a bijection between
+assignments summing to `k` and ones summing to `sum(capacities) - k`,
+`multiset_combination_count(caps, k) == multiset_combination_count(caps, sum(caps) - k)`
+holds for every capacity/target pair (checked against 500 random
+cases). That means a near-ceiling target can be reframed as a
+small-*gap* target, and the very same "capacities can't bind" shortcut
+applies to the gap instead of to `k` directly -- one more `elif`
+alongside the other two:
+
+```python
+>>> caps = (10,) * 300
+>>> k = sum(caps) - 3
+>>> t0 = time.perf_counter(); multiset_combination_count(caps, k); t1 = time.perf_counter()
+4545100
+>>> t1 - t0 < 0.01
+True
+
+```
+
+300 classes, no recursion at all -- the leftover slack (3) fits inside
+a single remaining class's own capacity (10), so the closed form
+applies immediately. But it doesn't rescue the *tight*-capacity shape
+this section's own table uses: with `capacity=2` and slack `3`, no
+single remaining class could ever absorb all of it, so this new
+shortcut never fires, and the recursion still has to walk down class
+by class until the *original* shortcut eventually catches a shrinking
+`remaining_k` -- costing recursion depth proportional to `k /
+capacity` regardless. Measured directly, the `(2,) * m` shape starts
+raising `RecursionError` (Python's default call-stack limit) somewhere
+around `m = 600`, with or without this fix. That's not a new problem --
+[COMBINATORICS.md](COMBINATORICS.md) already notes the plain recursion
+"hits Python's recursion limit somewhere around 250-300 classes" -- and
+the fixes in this file push that ceiling out some without removing it.
+Actually closing it for tight capacities would mean escaping Python's
+call stack altogether, rewriting the recursion iteratively instead of
+recursively: a different, larger change than benchmarking against
+inclusion-exclusion set out to make.
+
 ## Takeaway
 
 Neither algorithm dominates unconditionally, but the DP's advantage
 turned out to be wider than the first pass through this benchmark
-suggested -- both fixes it produced closed gaps that were specific to
-*inclusion-exclusion's* pruning, not to the DP's own shape. Pruned
-inclusion-exclusion cuts a branch the moment its excess is
-provably hopeless; the DP now does the equivalent check on *both*
-sides of every branch it would otherwise generate, and does it before
-generating the branch rather than after. That's why it now wins both
-the "many tight-capacity classes" regime (where pruning already had
-plenty to bite into) and the "target near the total capacity" regime
-(where pruning barely bites at all, regardless of how many classes
-there are).
+suggested -- all three fixes it produced closed gaps that were
+specific to *inclusion-exclusion's* pruning, not to the DP's own
+shape. Pruned inclusion-exclusion cuts a branch the moment its excess
+is provably hopeless; the DP now does the equivalent check on both
+sides of every branch it would otherwise generate (rather than one),
+before generating the branch (rather than after), and even reframes
+"almost full" targets as "barely any gap" ones so the existing
+shortcut can catch them too. That's why it now wins both the "many
+tight-capacity classes" regime (where pruning already had plenty to
+bite into) and the "target near the total capacity" regime (where
+pruning barely bites at all, regardless of how many classes there
+are) -- with one caveat: the gap-reframing fix only helps when the
+leftover slack fits inside some single remaining class's own capacity.
+Combine *tight* capacities with a near-ceiling target and enough
+classes (the `(2,) * m` shape above, past roughly `m = 600`), and the
+DP still exhausts Python's call stack, a pre-existing limit none of
+these fixes were aimed at closing.
 
 The one regime that still favors inclusion-exclusion is "few
 large-capacity classes" with `k` comfortably inside what they allow --

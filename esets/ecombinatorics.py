@@ -173,6 +173,18 @@ def multiset_combination_count(multiplicities: tuple[int, ...], k: int) -> int:
             elif remaining_k <= min(rem):
                 # Capacities can't bind: plain stars-and-bars (mset's C1 shortcut).
                 result = comb(len(rem) + remaining_k - 1, remaining_k)
+            elif total - remaining_k <= min(rem):
+                # Gaps can't bind: x_i <-> c_i - x_i is a bijection between
+                # assignments summing to remaining_k and ones summing to
+                # total - remaining_k (unused capacity), so the same
+                # "can't bind" shortcut applies to that leftover instead.
+                # Only fires when the leftover slack could fit inside a
+                # single remaining class's own capacity -- when even the
+                # smallest remaining capacity is less than the slack, this
+                # doesn't trigger and the recursion still has to walk down
+                # to the original shortcut above, one class at a time.
+                gap = total - remaining_k
+                result = comb(len(rem) + gap - 1, gap)
             else:
                 # t (how many go to this class) can't be so small that the
                 # rest of the classes, even maxed out, can't cover what's
