@@ -31,6 +31,39 @@ What "a token" *is* is entirely up to how the text gets split before
 this point -- a single character, a whole word, or anything else
 hashable. That choice is the real subject of this file.
 
+## An alphabet's order is a choice, not a fact
+
+Everything downstream -- `Arranger`, `Combinator`, `Permutator`, and
+the word "lexicographic" used later in this file -- ranks tokens by
+comparing their positions in `alphabet`, low to high. It's easy to
+misread that as "alphabetical order," the A-before-B-before-C one
+learned in grade school. It isn't. It's "the order of whatever
+sequence got passed in as `alphabet`" -- and that sequence can list
+its entries in any order at all, as long as each is unique. There is
+no "real" order underneath waiting to be respected; there's only
+whichever one was supplied.
+
+```python
+>>> from esets.cesets import Arranger
+>>> weird_alphabet = ['z', 'a', 'm']
+>>> A = Arranger(('z', 'a', 'm'), 2, weird_alphabet)
+>>> list(A)
+[('z', 'a'), ('z', 'm'), ('a', 'z'), ('a', 'm'), ('m', 'z'), ('m', 'a')]
+
+```
+
+Every `z`-first pair comes before every `a`-first pair, which comes
+before every `m`-first pair -- backwards from the everyday alphabet,
+forwards from `weird_alphabet`. Nothing downstream (counting, ranking,
+`.index()`, reconstruction) cares that this doesn't match the
+dictionary; the only requirement is using the same `alphabet`
+consistently for encoding and decoding, not matching some external
+convention. The two alphabets built next in this file make the same
+point with real data instead of a toy one: `char_alphabet` reaches for
+`sorted()`, and `word_alphabet` reaches for something else entirely --
+neither is "the" order, both are just choices, made explicit below
+rather than left implicit.
+
 ## The sample text
 
 Two lines of a public-domain tongue twister, chosen for its heavy
@@ -62,6 +95,11 @@ spaces, punctuation, and the newline included:
 18
 
 ```
+
+`sorted()` here is doing the same job `weird_alphabet` did above,
+just with a less startling result: for plain ASCII letters it happens
+to land on ordinary A-Z order, which reads as "the" order only because
+it's a familiar convenient choice, not because anything required it.
 
 Nothing is discarded, so `''.join(char_tokens) == text` trivially --
 reconstruction is exact by construction, before any encoding even
@@ -105,6 +143,14 @@ True
 
 ```
 
+`word_alphabet` makes a different choice than `char_alphabet` did --
+first-appearance order instead of `sorted()` -- and reads that way:
+`'Peter'` is class 0 because it's the first token in the text, not
+because it precedes `'Piper'` in a dictionary. Both are just
+conventions; `sorted()` would have worked here too, and would have
+produced a different (still perfectly valid) set of indices throughout
+the rest of this file.
+
 Lossless (`''.join` reconstructs `text` exactly, spaces/punctuation/
 newlines included -- they're just tokens like any other, not discarded
 and not special-cased) and, unlike the naive split, it doesn't fracture
@@ -136,6 +182,9 @@ True
 >>> word_idx.bit_length()
 77
 
+>>> round(char_idx.bit_length() / word_idx.bit_length(), 2)
+3.88
+
 ```
 
 Both round-trip exactly, and both need their own small header (the
@@ -143,13 +192,23 @@ histogram, i.e. which classes and how many of each -- 18 numbers for
 the character alphabet, 12 for the word one) alongside the index to
 mean anything. But the index itself is far smaller for the word-level
 encoding -- 222 fewer bits for the same text, `char_idx.bit_length() -
-word_idx.bit_length() == 222` -- because each *word* token carries far
-more redundancy for the multiset to exploit than each character does.
-That gap is the whole motivation for eventually wanting a
-whole-language word alphabet instead of a 12-word one built from a
-single sample: the more text a shared alphabet has seen, the more of
-its repetition an arrangement index can absorb instead of paying for
-verbatim.
+word_idx.bit_length() == 222`, a **3.88x** ratio (the word-level index
+needs roughly a quarter as many bits) -- because each *word* token
+carries far more redundancy for the multiset to exploit than each
+character does.
+
+Be precise about what that `3.88x` is and isn't measuring, though: it
+compares the two *indices* to each other, nothing else. It doesn't
+include either header (the 18 or 12 numbers above), and it doesn't
+compare either encoding against the size of `text` itself as a
+baseline -- so it isn't a real, end-to-end compression ratio, just a
+same-text, index-to-index one. That fuller accounting is exactly the
+kind of thing the intro defers to a follow-up rather than attempting
+here. What this number does show honestly: the gap between the two is
+the whole motivation for eventually wanting a whole-language word
+alphabet instead of a 12-word one built from a single sample -- the
+more text a shared alphabet has seen, the more of its repetition an
+arrangement index can absorb instead of paying for verbatim.
 
 One more fact worth checking rather than assuming: when `r` equals the
 full token count and every class's capacity is exactly its actual
@@ -229,21 +288,36 @@ True
 ```
 
 `(combo_idx, perm_idx)` and `Arranger`'s own single index for this
-same slice cover the identical space -- but they are not the same
-number, and not related by any simple formula. `Arranger` isn't
-secretly running this composition internally; it ranks position by
-position in one pass (see `get_multiset_arrangement_number` in
-`esets/ecombinatorics.py`), a different bijection over the same set:
+same slice cover the identical space, but there's no formula that
+turns one into the other -- not because the arithmetic is subtle, but
+because the two are built by walking the space in structurally
+different orders. Flattening `Combinator` then `Permutator` puts every
+arrangement of a given combination into one contiguous block, by
+definition -- that's what "first pick which combination, then pick
+which order within it" means. `Arranger` doesn't do that: it ranks by
+raw lexicographic order across label positions (smallest feasible
+label at position 0, then position 1, and so on -- see
+`get_multiset_arrangement_number` in `esets/ecombinatorics.py`), which
+interleaves arrangements from *different* combinations instead of
+grouping them. A minimal example makes this concrete: 3 classes,
+capacity 1 each, choosing 2 -- small enough to print in full:
 
 ```python
->>> A_direct = Natural_Multiset_Arranger(loose_capacities, r)
->>> arranger_idx = A_direct.index(sl)
->>> arranger_idx
-3509761
->>> combo_idx * P.len() + perm_idx == arranger_idx
-False
+>>> tiny = Natural_Multiset_Arranger((1, 1, 1), 2)
+>>> [(tiny[i], tuple(sorted(tiny[i]))) for i in range(tiny.len())]
+[((0, 1), (0, 1)), ((0, 2), (0, 2)), ((1, 0), (0, 1)), ((1, 2), (1, 2)), ((2, 0), (0, 2)), ((2, 1), (1, 2))]
 
 ```
+
+Combination `(0, 1)` owns `Arranger` positions 0 and 2, with a
+`(0, 2)` arrangement sitting in between them at position 1 --
+`Arranger`'s own order doesn't keep it contiguous, so no block-based
+construction can land on the same numbering without already knowing
+`Arranger`'s interleaving in advance. Both orderings are valid,
+complete, and correct; they're just different orderings of the same
+set, the same way "alphabetical" and "by length" are both valid ways
+to sort the same list of words without one being derivable from the
+other by a formula.
 
 ## Where this stops here, on purpose
 
