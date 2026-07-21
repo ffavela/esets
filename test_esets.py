@@ -52,6 +52,7 @@ def test_doctests():
         'POKER.md',
         'INCLUSIONEXCLUSION.md',
         'COMBINATORIALDB.md',
+        'TEXTENCODE.md',
     ):
         result = doctest.testfile(docfile, optionflags=doctest.ELLIPSIS)
         assert (

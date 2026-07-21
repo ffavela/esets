@@ -49,6 +49,10 @@ the substance directly:
   benchmarking turned up.
 * [FLOAT64S.md](https://github.com/ffavela/esets/blob/main/FLOAT64S.md)
   -- an eset that enumerates all 64-bit floats.
+* [TEXTENCODE.md](https://github.com/ffavela/esets/blob/main/TEXTENCODE.md)
+  -- character and word alphabets built from a small text file, encoded
+  with `Arranger` and with `Combinator`+`Permutator` by hand, as a
+  first step toward larger-text, whole-language "compression."
 
 ## What is it? (An informal introduction)
 
