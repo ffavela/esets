@@ -31,6 +31,29 @@ What "a token" *is* is entirely up to how the text gets split before
 this point -- a single character, a whole word, or anything else
 hashable. That choice is the real subject of this file.
 
+An alphabet only says which classes exist; it says nothing about how
+many of each there are, which is exactly what a capacities (or
+multiplicities) tuple needs. `Counter` is the bridge between the two
+-- count the tokens, then read off one number per alphabet class, in
+the alphabet's own order:
+
+```python
+>>> from collections import Counter
+>>> counts = Counter(tokens)
+>>> tuple(counts[c] for c in alphabet)
+(2, 1, 1)
+
+```
+
+`(2, 1, 1)` -- two `'a'`s, one `'b'`, one `'c'` -- is precisely the
+multiplicities tuple `Natural_Multiset_Arranger`, `Natural_Multiset_Combinator`,
+and `Natural_Multiset_Permutator` take directly, and it's exactly what
+`Arranger`/`Combinator`/`Permutator` compute for you internally, via
+`Counter(elements)`, whenever capacities aren't passed in explicitly.
+This file builds that same tuple by hand a few times below instead of
+leaving it hidden inside the wrapper -- and, later on, deliberately
+*doesn't* build it that way once, which is worth being able to spot.
+
 ## An alphabet's order is a choice, not a fact
 
 Everything downstream -- `Arranger`, `Combinator`, `Permutator`, and
@@ -103,7 +126,29 @@ it's a familiar convenient choice, not because anything required it.
 
 Nothing is discarded, so `''.join(char_tokens) == text` trivially --
 reconstruction is exact by construction, before any encoding even
-happens.
+happens. The capacities behind that reconstruction are just `Counter`
+again, one count per class in `char_alphabet`'s own order:
+
+```python
+>>> char_counts = Counter(char_tokens)
+>>> char_capacities = tuple(char_counts[c] for c in char_alphabet)
+>>> char_capacities
+(2, 14, 2, 1, 4, 1, 6, 4, 16, 2, 6, 6, 2, 2, 14, 6, 2, 2)
+>>> sum(char_capacities) == len(char_tokens)
+True
+
+```
+
+That's not a separate fact from what `Arranger` does below -- it's
+the same tuple `Arranger(char_tokens, ..., char_alphabet)` builds for
+itself internally:
+
+```python
+>>> from esets.cesets import Arranger, Natural_Multiset_Arranger
+>>> Natural_Multiset_Arranger(char_capacities, len(char_tokens)).len() == Arranger(char_tokens, len(char_tokens), char_alphabet).len()
+True
+
+```
 
 ## Word-level tokenizing, and what happens to spaces and punctuation
 
@@ -114,7 +159,6 @@ different token classes:
 
 ```python
 >>> naive = text.split()
->>> from collections import Counter
 >>> Counter(naive)['peppers']
 1
 >>> Counter(naive)['peppers.']
@@ -140,8 +184,18 @@ True
 ['Peter', ' ', 'Piper', 'picked', 'a', 'peck', 'of', 'pickled', 'peppers', '.', '\n', 'A']
 >>> len(word_alphabet)
 12
+>>> word_capacities = tuple(Counter(word_tokens)[c] for c in word_alphabet)
+>>> word_capacities
+(2, 14, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1)
+>>> sum(word_capacities) == len(word_tokens)
+True
 
 ```
+
+Same construction as `char_capacities` above, same `Counter`, just
+counting a different kind of token -- `'peppers'` shows up as `2` here
+for the same reason it showed up as `2` a moment ago, because this
+tokenizer (unlike `text.split()`) keeps it as one class.
 
 `word_alphabet` makes a different choice than `char_alphabet` did --
 first-appearance order instead of `sorted()` -- and reads that way:
@@ -259,6 +313,19 @@ do (which histogram is it) before `Permutator` decides the order:
 
 ```
 
+Notice `loose_capacities` isn't built with `Counter`, unlike
+`char_capacities`/`word_capacities` earlier -- that's the deliberate
+exception flagged back in "Building an alphabet." `Counter` gives the
+*exact* histogram of what's actually there, which is exactly wrong
+for this section: with exact counts and `r` equal to their sum, there
+is only one valid combination (use everything), so `Combinator` would
+have nothing to choose between and this whole composition would
+collapse back to the trivial case already covered by the `Arranger`/
+`Permutator` identity above. A capacity bound *looser* than reality --
+here, just "as many as the whole token stream, per class," picked for
+convenience rather than derived from anything -- is what gives
+`Combinator` a real space of alternatives to rank `combo` against.
+
 `combo_idx` alone only says *which 8-token multiset* this is, out of
 75582 possible ones under these loose capacities -- not what order it
 was in. `Permutator`, built fresh on just that specific multiset,
@@ -304,20 +371,70 @@ capacity 1 each, choosing 2 -- small enough to print in full:
 
 ```python
 >>> tiny = Natural_Multiset_Arranger((1, 1, 1), 2)
->>> [(tiny[i], tuple(sorted(tiny[i]))) for i in range(tiny.len())]
-[((0, 1), (0, 1)), ((0, 2), (0, 2)), ((1, 0), (0, 1)), ((1, 2), (1, 2)), ((2, 0), (0, 2)), ((2, 1), (1, 2))]
+>>> arranger_order = tuple(tiny[i] for i in range(tiny.len()))
+>>> arranger_order
+((0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1))
 
 ```
 
-Combination `(0, 1)` owns `Arranger` positions 0 and 2, with a
-`(0, 2)` arrangement sitting in between them at position 1 --
-`Arranger`'s own order doesn't keep it contiguous, so no block-based
-construction can land on the same numbering without already knowing
-`Arranger`'s interleaving in advance. Both orderings are valid,
-complete, and correct; they're just different orderings of the same
-set, the same way "alphabetical" and "by length" are both valid ways
-to sort the same list of words without one being derivable from the
-other by a formula.
+That's the `Arranger` side, in full. The `Combinator` side of the same
+space -- 3 classes, capacity 1 each, choosing 2 -- is smaller: there
+are only 3 distinct *combinations*, since order doesn't count here,
+`(1, 0)` and `(0, 1)` are the same combination:
+
+```python
+>>> tiny_combos_obj = Natural_Multiset_Combinator((1, 1, 1), 2)
+>>> tiny_combos = [tiny_combos_obj[i] for i in range(tiny_combos_obj.len())]
+>>> tiny_combos
+[(0, 1), (0, 2), (1, 2)]
+
+```
+
+Three combinations, canonical (non-decreasing) order, `Combinator`
+index `0`, `1`, `2` respectively. Each one, on its own, is small enough
+for its own `Permutator` to enumerate directly -- and since every
+class here has capacity 1, each combination's 2 elements are always
+distinct, so each block is the same size, 2:
+
+```python
+>>> blocks = [(combo, tuple(Permutator(combo))) for combo in tiny_combos]
+>>> for combo, perms in blocks:
+...     print(combo, '->', perms)
+...
+(0, 1) -> ((0, 1), (1, 0))
+(0, 2) -> ((0, 2), (2, 0))
+(1, 2) -> ((1, 2), (2, 1))
+
+```
+
+Flattening those three blocks in `Combinator`'s own order -- exactly
+what "first pick which combination, then pick which order within it"
+means, done by hand instead of via a formula -- produces a full
+ordering of the same 6 arrangements `Arranger` enumerated above, but
+grouped instead of interleaved:
+
+```python
+>>> grouped_order = tuple(p for combo, perms in blocks for p in perms)
+>>> grouped_order
+((0, 1), (1, 0), (0, 2), (2, 0), (1, 2), (2, 1))
+>>> grouped_order == arranger_order
+False
+>>> sorted(grouped_order) == sorted(arranger_order)
+True
+
+```
+
+Same 6 arrangements either way (`sorted(...)` agrees), but a different
+order (`==` doesn't). `grouped_order` keeps combination `(0, 1)`'s two
+arrangements adjacent, positions 0 and 1; `arranger_order` splits them
+across positions 0 and 2, with a `(0, 2)` arrangement in between at
+position 1 -- `Arranger`'s raw lexicographic walk never grouped them
+in the first place, so there was never a combination-sized block for
+`Combinator`+`Permutator`'s construction to land back on. Both
+orderings are valid, complete, and correct; they're just different
+orderings of the same set, the same way "alphabetical" and "by length"
+are both valid ways to sort the same list of words without one being
+derivable from the other by a formula.
 
 ## Where this stops here, on purpose
 
