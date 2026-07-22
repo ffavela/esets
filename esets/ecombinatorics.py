@@ -438,8 +438,18 @@ def get_arrangement_number(arrangement: tuple[int], n: int) -> int | None:
     return get_number(list(arrangement), r)
 
 
-def multiset_arrangement_count(multiplicities: tuple[int, ...], r: int) -> int:
-    memo: dict[tuple[tuple[int, ...], int], int] = {}
+def multiset_arrangement_count(
+    multiplicities: tuple[int, ...],
+    r: int,
+    _memo: dict[tuple[tuple[int, ...], int], int] | None = None,
+) -> int:
+    # get_multiset_arrangement/get_multiset_arrangement_number call this
+    # once per candidate tried at every position, so they pass their own
+    # long-lived _memo through every call instead of letting each call
+    # start over from an empty one -- the two share overlapping
+    # subproblems (same sorted-suffix, same remaining_r) constantly, and
+    # without a shared memo those get recomputed from scratch every time.
+    memo: dict[tuple[tuple[int, ...], int], int] = {} if _memo is None else _memo
 
     def g(rem: tuple[int, ...], remaining_r: int) -> int:
         key = (rem, remaining_r)
@@ -482,7 +492,8 @@ def multiset_arrangement_count(multiplicities: tuple[int, ...], r: int) -> int:
 def get_multiset_arrangement(
     val: int, multiplicities: tuple[int, ...], r: int
 ) -> tuple[int] | None:
-    total = multiset_arrangement_count(multiplicities, r)
+    memo: dict[tuple[tuple[int, ...], int], int] = {}
+    total = multiset_arrangement_count(multiplicities, r, memo)
     if val >= total or val < 0:
         return None
 
@@ -508,7 +519,7 @@ def get_multiset_arrangement(
         new_mult = list(remaining_mult)
         new_mult[label] -= 1
         rest_mult = tuple(new_mult)
-        block = multiset_arrangement_count(rest_mult, remaining_r - 1)
+        block = multiset_arrangement_count(rest_mult, remaining_r - 1, memo)
         if resval < block:
             return place(resval, rest_mult, remaining_r - 1, retlist + [label])
         return try_candidate(
@@ -529,6 +540,8 @@ def get_multiset_arrangement_number(
     ):
         return None
 
+    memo: dict[tuple[tuple[int, ...], int], int] = {}
+
     def rank(remaining_mult: tuple[int, ...], remaining_r: int, seq: list[int]) -> int:
         if not seq:
             return 0
@@ -545,7 +558,7 @@ def get_multiset_arrangement_number(
         new_mult = list(remaining_mult)
         new_mult[label] -= 1
         rest_mult = tuple(new_mult)
-        block = multiset_arrangement_count(rest_mult, remaining_r - 1)
+        block = multiset_arrangement_count(rest_mult, remaining_r - 1, memo)
         if label == seq[0]:
             return rank(rest_mult, remaining_r - 1, seq[1:])
         return block + locate(remaining_mult, remaining_r, seq, candidates[1:])
