@@ -188,8 +188,19 @@ def _inclusion_exclusion_combination_count(
     return total_answer
 
 
-def multiset_combination_count(multiplicities: tuple[int, ...], k: int) -> int:
-    memo: dict[tuple[tuple[int, ...], int], int] = {}
+def multiset_combination_count(
+    multiplicities: tuple[int, ...],
+    k: int,
+    _memo: dict[tuple[tuple[int, ...], int], int] | None = None,
+) -> int:
+    # get_multiset_combination/get_multiset_combination_number call this
+    # once per candidate tried at every class, and get_multiset_subset/
+    # get_multiset_subset_number call it once per size -- both pass their
+    # own long-lived _memo through every call instead of letting each one
+    # start over from empty, since overlapping subproblems (same
+    # sorted-suffix, same remaining_k) come up constantly across those
+    # calls.
+    memo: dict[tuple[tuple[int, ...], int], int] = {} if _memo is None else _memo
 
     def count(rem: tuple[int, ...], remaining_k: int) -> int:
         key = (rem, remaining_k)
@@ -254,7 +265,8 @@ def multiset_combination_count(multiplicities: tuple[int, ...], k: int) -> int:
 def get_multiset_combination(
     val: int, multiplicities: tuple[int, ...], k: int
 ) -> tuple[int] | None:
-    total = multiset_combination_count(multiplicities, k)
+    memo: dict[tuple[tuple[int, ...], int], int] = {}
+    total = multiset_combination_count(multiplicities, k, memo)
     if val >= total or val < 0:
         return None
 
@@ -284,7 +296,7 @@ def get_multiset_combination(
         retlist: list[int],
         t: int,
     ) -> list[int]:
-        block = multiset_combination_count(classes[1:], remaining_k - t)
+        block = multiset_combination_count(classes[1:], remaining_k - t, memo)
         if resval < block:
             return place(
                 resval,
@@ -310,6 +322,8 @@ def get_multiset_combination_number(
     ):
         return None
 
+    memo: dict[tuple[tuple[int, ...], int], int] = {}
+
     def rank(
         classes: tuple[int, ...], remaining_k: int, class_id: int, seq: list[int]
     ) -> int:
@@ -330,7 +344,7 @@ def get_multiset_combination_number(
         t: int,
         actual: int,
     ) -> int:
-        block = multiset_combination_count(classes[1:], remaining_k - t)
+        block = multiset_combination_count(classes[1:], remaining_k - t, memo)
         if t == actual:
             return rank(classes[1:], remaining_k - t, class_id + 1, seq[t:])
         return block + locate(classes, remaining_k, class_id, seq, t - 1, actual)
@@ -605,8 +619,10 @@ def get_multiset_subset(val: int, multiplicities: tuple[int, ...]) -> tuple[int]
     if val >= total or val < 0:
         return None
 
+    memo: dict[tuple[tuple[int, ...], int], int] = {}
+
     def try_size(resval: int, k: int) -> tuple[int]:
-        block = multiset_combination_count(multiplicities, k)
+        block = multiset_combination_count(multiplicities, k, memo)
         if resval < block:
             return get_multiset_combination(resval, multiplicities, k)
         return try_size(resval - block, k + 1)
@@ -621,10 +637,14 @@ def get_multiset_subset_number(
     if combo_rank is None:
         return None
 
+    memo: dict[tuple[tuple[int, ...], int], int] = {}
+
     def offset(size: int) -> int:
         if size == 0:
             return 0
-        return multiset_combination_count(multiplicities, size - 1) + offset(size - 1)
+        return multiset_combination_count(multiplicities, size - 1, memo) + offset(
+            size - 1
+        )
 
     return offset(len(subset)) + combo_rank
 
