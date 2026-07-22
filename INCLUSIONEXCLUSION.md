@@ -394,3 +394,78 @@ each with plenty of room" through the fourth. A workload that's
 genuinely *both* many classes *and* large capacities per class is the
 one shape nothing here solves, and would need a different approach
 entirely, not just a different choice between these two.
+
+## A related fix, out of scope for the benchmarks above
+
+`get_multiset_combination_number`/`get_multiset_arrangement_number` --
+the *ranking* side, `.index()` in `Natural_Multiset_Combinator`/
+`Natural_Multiset_Arranger`, not the counting this file benchmarks --
+had their own inefficiency, unrelated to inclusion-exclusion: they
+call `multiset_combination_count`/`multiset_arrangement_count` once
+per candidate tried at every class or position, and each of those
+calls used to start its memo over from empty, discarding everything
+the previous call in the same ranking had already worked out. Fixed by
+threading one shared memo through an entire ranking call instead.
+
+Be precise about what this does and doesn't touch: it's a different
+function from the one benchmarked throughout this file, called a
+different way. Every `multiset_combination_count(caps, k)` call above
+is a single, standalone call with no ranking around it, so this fix
+changes none of the numbers in this file -- checked directly, live,
+not assumed. Same config as the very first benchmark above, same
+result, same order of magnitude for the DP's own time
+(`0.00020s` in that table):
+
+```python
+>>> caps, k = (2,) * 18, 9
+>>> t0 = time.perf_counter(); multiset_combination_count(caps, k); t1 = time.perf_counter()
+1481108
+>>> t1 - t0 < 0.01
+True
+
+```
+
+Where it does matter is exactly this file's own "many tight-capacity
+classes" shape, on the ranking side instead of the counting side --
+`Natural_Multiset_Combinator`/`Natural_Multiset_Arranger` calling
+`.index()` on something built from many small-capacity classes, the
+poker/inventory shape `COMBINATORIALDB.md` and `TEXTENCODE.md` both
+lean on:
+
+```python
+>>> from esets.ecombinatorics import (
+...     get_multiset_combination, get_multiset_combination_number,
+...     get_multiset_arrangement, get_multiset_arrangement_number,
+... )
+>>> caps, k = (2,) * 60, 40
+>>> combo = get_multiset_combination(0, caps, k)
+>>> t0 = time.perf_counter(); get_multiset_combination_number(combo, caps); t1 = time.perf_counter()
+0
+>>> t1 - t0 < 0.1
+True
+
+>>> arr = get_multiset_arrangement(0, caps, k)
+>>> t0 = time.perf_counter(); get_multiset_arrangement_number(arr, caps); t1 = time.perf_counter()
+0
+>>> t1 - t0 < 0.1
+True
+
+```
+
+Measured before/after, informally, for scale (same shape as this
+file's own many-tight-capacity-classes table, 60 classes instead of
+up to 24, ranking instead of counting):
+
+| operation                     | classes | size | before  | after    | speedup |
+|--------------------------------|--------:|-----:|--------:|---------:|--------:|
+| combination ranking (`k=40`)   |      60 |   40 | 0.150s  | 0.0037s  | ~40x    |
+| arrangement ranking (`r=40`)   |      60 |   40 | 2.20s   | 0.0157s  | ~140x   |
+
+The arrangement side wins bigger for the same reason `multiset_arrangement_count`
+has fewer shortcuts than `multiset_combination_count` to begin with
+(no inclusion-exclusion dispatch, no gap-reframing) -- more of its
+work was genuinely redundant recomputation rather than already-pruned
+branches, so there was more for a shared memo to save. Neither fix
+touches recursion *depth* -- the ceiling `COMBINATORIALDB.md`'s "One
+honest boundary" section documents for ranking is still there, and
+still a different, larger change than this one.
