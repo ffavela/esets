@@ -808,6 +808,29 @@ class Natural_Multiset_Arranger(Eset):
     arrangement #0 agree with Natural_Arranger's ordering when every
     capacity is 1, and with Natural_Multiset_Permutator's ordering
     when r equals the full multiset size.
+
+    That position-by-position shape is also why ranking's recursion
+    depth is O(classes * r) in the worst case, not O(classes) --
+    each of the r positions can try up to `classes` candidates before
+    landing on the right one. A prototype class-by-class ranking
+    (decide how many of the smallest remaining class, and which of
+    the still-open positions they occupy, via plain get_combination/
+    get_combination_number over positions, then recurse into the next
+    class for the remaining positions) was benchmarked and verified
+    as a correct bijection: it cuts depth to O(classes) and wins big
+    on many-classes/tight-capacity shapes (~470x faster before the
+    memo fix below existed, still much shallower after), but costs
+    more wall-clock time than the position-by-position approach on
+    few-classes/large-r shapes (get_combination_number's own O(r)
+    candidate search per class-step isn't free), and it ranks
+    arrangements in a different order than this class does today, so
+    switching isn't behavior-preserving the way the memo fix is.
+    Shipping it for real would mean dispatching between the two by
+    shape -- the same treatment multiset_combination_count already
+    gives inclusion-exclusion -- plus its own benchmark file, not a
+    blanket replacement. Not attempted here; left as a known, deferred
+    option for whoever next needs ranking to survive a much larger
+    number of classes than it currently does.
     """
 
     def __init__(self, *args, **kwargs):
