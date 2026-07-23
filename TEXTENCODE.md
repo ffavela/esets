@@ -175,6 +175,10 @@ into their own tokens keeps every repeat visible instead:
 ```python
 >>> import re
 >>> word_tokens = tuple(re.findall(r"\w+|[^\w\s]|\s+", text))
+>>> word_tokens
+('Peter', ' ', 'Piper', ' ', 'picked', ' ', 'a', ' ', 'peck', ' ', 'of', ' ', 'pickled', ' ', 'peppers', '.', '\n', 'A', ' ', 'peck', ' ', 'of', ' ', 'pickled', ' ', 'peppers', ' ', 'Peter', ' ', 'Piper', ' ', 'picked', '.', '\n')
+>>> len(word_tokens)
+34
 >>> ''.join(word_tokens) == text
 True
 >>> Counter(word_tokens)['peppers']
@@ -191,6 +195,17 @@ True
 True
 
 ```
+
+`word_tokens` itself, printed above, is worth actually looking at
+rather than taking on faith: 34 entries, words and single punctuation
+marks and whitespace runs all sitting side by side as equal citizens
+in the same tuple -- `' '` (a lone space) shows up over and over as
+its own recurring token, exactly like `'Peter'` or `'peck'` would, and
+`'.'`/`'\n'` each get exactly the two occurrences the text actually
+has. `word_alphabet`, right below it, is the same list with every
+repeat collapsed to its first appearance -- the difference between the
+two is the whole difference between "the text" and "the vocabulary the
+text uses."
 
 Same construction as `char_capacities` above, same `Counter`, just
 counting a different kind of token -- `'peppers'` shows up as `2` here
@@ -228,18 +243,115 @@ this exact multiset of tokens":
 True
 >>> char_idx.bit_length()
 299
+>>> len(str(char_idx))
+90
 
 >>> A_word = Arranger(word_tokens, len(word_tokens), word_alphabet)
 >>> word_idx = A_word.index(word_tokens)
 >>> A_word[word_idx] == word_tokens
 True
+>>> word_idx
+86428004812115296958064
 >>> word_idx.bit_length()
 77
+>>> len(str(word_idx))
+23
 
 >>> round(char_idx.bit_length() / word_idx.bit_length(), 2)
 3.88
 
 ```
+
+`word_idx` is printed above in full -- `86428004812115296958064`, 23
+digits -- because at that size it's still just a number, something to
+actually look at rather than take on faith: this genuinely is the
+entire two-line text, in full, as one integer, and `A_word[word_idx]
+== word_tokens` above is the proof that decoding it hands back
+exactly those 34 tokens and nothing else. `char_idx` doesn't get the same treatment; it's printed as a digit
+*count* instead of the digits themselves, and that omission is
+deliberate rather than lazy. A 90-digit block of digits reads as
+texture, not information -- nobody's meant to actually look at which
+digit is where, so printing it in full would add length to the page
+without adding anything to look at. `len(str(char_idx)) == 90` against
+`len(str(word_idx)) == 23` says the same thing the two full numbers
+side by side would have shown anyway (character-level pays for almost
+four times the digits), just without the 90-digit wall of noise in
+between.
+
+### Precision, not approximation
+
+`word_idx` is not a summary, an estimate, or a hash of the text -- it
+is one exact coordinate into an exact, enumerable space, and every
+other integer in that space names a *different*, equally complete,
+equally valid arrangement. There is no notion of "close enough" here,
+and it's worth actually breaking something to show that rather than
+just asserting it. The obvious way to break it: let the number pass
+through a float, the way it would if it got serialized through
+something that doesn't preserve arbitrary-precision integers --
+JSON in most other languages, a spreadsheet, `numpy` with a default
+dtype:
+
+```python
+>>> float(word_idx)
+8.64280048121153e+22
+>>> rounded = int(float(word_idx))
+>>> rounded == word_idx
+False
+>>> word_idx - rounded
+-2836880
+
+```
+
+Not off by a rounding hair -- off by **2,836,880**, because a Python
+float has about 15-17 significant decimal digits and `word_idx` has
+23; the low-order digits are simply gone the moment `float()` runs,
+with no warning, no exception, nothing to signal that anything was
+lost. Decoding that wrong number doesn't fail loudly either -- it's
+still a valid index into the same space, so it decodes to a complete,
+well-formed-*looking* arrangement, just not this one:
+
+```python
+>>> ''.join(A_word[rounded])
+'Peter Piper picked a peck of pickled peppers.\nA peck pickledPeter.pickedofPiper  peppers \n  '
+
+```
+
+Correct for the first sentence, silently garbled from partway through
+the second -- words run together, spaces go missing, order scrambles.
+Nothing about that output announces itself as wrong; reading it is the
+only way to notice, and a longer or less familiar text might not make
+even that possible.
+
+Being off by a single integer, in either direction, is just as
+wrong -- smaller in degree here, but not in kind:
+
+```python
+>>> ''.join(A_word[word_idx - 1])
+'Peter Piper picked a peck of pickled peppers.\nA peck of pickled peppers Peter  \n.pickedPiper'
+>>> ''.join(A_word[word_idx + 1])
+'Peter Piper picked a peck of pickled peppers.\nA peck of pickled peppers Peter Piper picked\n.'
+>>> A_word[word_idx - 1] == word_tokens
+False
+>>> A_word[word_idx + 1] == word_tokens
+False
+
+```
+
+`word_idx - 1` scrambles the last few tokens outright. `word_idx + 1`
+is the more unsettling one -- only the very last two characters are
+out of place (`picked\n.` instead of `picked.\n`), close enough that a
+quick read could miss it entirely. Neither the size nor the direction
+of the error is predictable from the index alone -- there's no rule
+here saying "off by one always means a small, local change"; it
+happened to be small in one of these two directions and larger in the
+other, and that's a property of the ranking algorithm, not a
+guarantee about the number line. What is guaranteed is narrower and
+more important: exactness. This is exactly why `esets` works in
+Python's arbitrary-precision integers throughout, never floats -- the
+combinatorial math underneath every `.index()` and every direct lookup
+in this project has to be exact for any of it to mean anything at
+all, and "approximately right" isn't a weaker version of that, it's a
+different, wrong number entirely.
 
 Both round-trip exactly, and both need their own small header (the
 histogram, i.e. which classes and how many of each -- 18 numbers for
@@ -297,8 +409,12 @@ do (which histogram is it) before `Permutator` decides the order:
 >>> from esets.cesets import Natural_Multiset_Arranger, Natural_Multiset_Combinator
 >>> classes = word_alphabet
 >>> labels = tuple(classes.index(t) for t in word_tokens)
+>>> labels
+(0, 1, 2, 1, 3, 1, 4, 1, 5, 1, 6, 1, 7, 1, 8, 9, 10, 11, 1, 5, 1, 6, 1, 7, 1, 8, 1, 0, 1, 2, 1, 3, 9, 10)
 >>> r = 8
 >>> sl = labels[:r]
+>>> sl
+(0, 1, 2, 1, 3, 1, 4, 1)
 >>> sl_tokens = word_tokens[:r]
 >>> sl_tokens
 ('Peter', ' ', 'Piper', ' ', 'picked', ' ', 'a', ' ')
@@ -307,11 +423,26 @@ do (which histogram is it) before `Permutator` decides the order:
 >>> C.len()
 75582
 >>> combo = tuple(sorted(sl))
+>>> combo
+(0, 1, 1, 1, 1, 2, 3, 4)
 >>> combo_idx = C.index(combo)
 >>> combo_idx
 12453
 
 ```
+
+`labels` is `word_tokens`, translated one entry at a time into its
+class number in `word_alphabet` -- `'Peter'` is class `0` so the
+sequence starts `0`, the space right after it is class `1` so `1`
+comes next, and so on; the repeated `1`s throughout are every space in
+the text landing on the same class, same as `'peppers'` did earlier.
+`sl` is just the first 8 of those labels, matching `sl_tokens` one for
+one. `combo`, though, is `sl` *sorted* -- `(0, 1, 1, 1, 1, 2, 3, 4)`,
+four of the eight slots collapsed onto class `1` because four of the
+first eight tokens happen to be spaces -- which is exactly why
+`Combinator` needs it in this shape: a combination has no "first"
+or "second" element to preserve, only how many of each class showed
+up.
 
 Notice `loose_capacities` isn't built with `Counter`, unlike
 `char_capacities`/`word_capacities` earlier -- that's the deliberate
