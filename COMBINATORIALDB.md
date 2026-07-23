@@ -437,3 +437,239 @@ before reaching it. A real shop with either a genuinely large catalog
 this fixed the same way the counting side eventually was -- not
 attempted here, since ranking is a different recursion with a
 different shape, not a corollary of the counting fixes.
+
+## Letting the inventory actually deplete
+
+Everything above addresses `arrange_db`/`comb_db` against the shop's
+*original* `capacities`, never against whatever stock is actually left
+at the moment of a given sale -- a choice this file made by analogy
+with `POKER.md`'s own multi-deck section, which does the same thing
+for a different, stated reason: re-deriving a hand's number against a
+shrinking deck needs *more* information to communicate it, not less,
+since the number alone stops being self-sufficient without also
+knowing the deck's current shape. `POKER.md` never mentions card
+counting -- that's a real, separate concern in a multi-party game
+(transmitting deck state right after dealing to one player could let
+everyone else infer that player's hand), but it isn't the reason given
+there, and it doesn't transfer here anyway: a shop's own database has
+no other players to keep in the dark.
+
+What *does* transfer is worth checking on its own terms rather than
+assumed. Unlike a single poker hand communicated in isolation,
+`arrange_db`/`comb_db` are already a full log, meant to be replayed
+start to finish -- so the "extra information" `POKER.md` warns about
+isn't extra at all here, it's just the running stock level, which
+falls out for free from replaying the log in order. The real cost is
+different: today, every entry in `arrange_db`/`comb_db` decodes
+independently, in any order, in parallel (the round-trip check earlier
+in this file does exactly that with a single `all(...)` over
+`zip(shop_db, arrange_db)`). Depleting stock breaks that outright --
+decoding purchase 17 needs purchases 0 through 16 already replayed, to
+know what stock was actually left. That's a real, structural trade,
+not a footnote.
+
+There's a harder wall underneath it, too. Once an item sells out
+completely, its capacity hits zero, and the constructors reject that
+outright:
+
+```python
+>>> Natural_Multiset_Arranger((3, 0, 2), 2)
+Traceback (most recent call last):
+    ...
+ValueError: Multiplicities must be positive integers
+
+```
+
+So depleting stock for real means dropping sold-out items from the
+alphabet entirely once they run out, not just letting their capacity
+reach zero -- a small compacting layer between the shop's product
+indices and the canonical labels `Natural_Multiset_Arranger` actually
+sees:
+
+```python
+>>> def get_depleting_arranger(remaining_stock, k):
+...     active_items = [i for i, c in enumerate(remaining_stock) if c > 0]
+...     caps = tuple(remaining_stock[i] for i in active_items)
+...     return Natural_Multiset_Arranger(caps, k), active_items
+...
+
+```
+
+`active_items[compact_label]` is the original product index a
+compacted label stands for at that point in the log -- built fresh
+each time from whatever's still in stock, so a product that sold out
+three purchases ago simply isn't a candidate class any more.
+
+Running this against `shop_db`, the very same 24-purchase log used
+throughout this file, round-trips correctly, replaying stock as it
+goes:
+
+```python
+>>> remaining = list(capacities)
+>>> deplete_db = []
+>>> for p in shop_db:
+...     A, active_items = get_depleting_arranger(remaining, len(p))
+...     pos = {orig: compact for compact, orig in enumerate(active_items)}
+...     compact_p = tuple(pos[i] for i in p)
+...     deplete_db.append((len(p), A.index(compact_p)))
+...     for c in p:
+...         remaining[c] -= 1
+...
+>>> remaining_check = list(capacities)
+>>> reconstructed = []
+>>> for (k, idx), p in zip(deplete_db, shop_db):
+...     A, active_items = get_depleting_arranger(remaining_check, k)
+...     reconstructed.append(tuple(active_items[c] for c in A[idx]))
+...     for c in p:
+...         remaining_check[c] -= 1
+...
+>>> reconstructed == shop_db
+True
+
+```
+
+Now the number this section actually exists to check: are the indices
+smaller? Against this file's own moderate-sized inventory (12 products,
+capacity 15-40 each) and a 24-purchase log that never drives anything
+close to sold out:
+
+```python
+>>> [idx for _, idx in deplete_db] == [idx for _, idx in arrange_db]
+True
+>>> min(remaining)
+6
+
+```
+
+Identical, purchase for purchase -- not approximately, exactly. That's
+surprising given the premise, and worth explaining rather than
+shrugging off: the ranking recursion's own "capacities can't bind"
+shortcut ([esets/ecombinatorics.py:458](esets/ecombinatorics.py))
+fires whenever remaining capacity for every class involved stays at or
+above the purchase size, and it computes the *same* answer either way
+once it fires -- depleted stock only starts changing an index once
+some class's remaining capacity drops close to a purchase's own size,
+not just because stock ticked down. `min(remaining) == 6` here, comfortably
+above every basket size in this log (`COMBINATORIALDB.md`'s own `sizes`
+table earlier tops out at `6`), so the shortcut fires identically
+throughout and depleting stock bought nothing on this particular day.
+
+## Making the effect actually show up
+
+Getting depletion to matter means picking a shop shape where it
+plausibly *does* bind -- a small inventory, relative to basket size,
+worked all the way down toward empty:
+
+```python
+>>> random.seed(42)
+>>> n5 = 5
+>>> deplete_capacities = tuple(random.randint(8, 14) for _ in range(n5))
+>>> deplete_capacities
+(13, 8, 8, 13, 10)
+>>> sum(deplete_capacities)
+52
+
+```
+
+Generating the purchase log itself has to change too: sampling
+uniformly from all `n5` products the way `shop_db`/`shop_db2` do would
+mostly just fail once stock ran low, rather than modeling a shop that
+naturally stops selling what it doesn't have. So each purchase draws
+only from products still in stock:
+
+```python
+>>> random.seed(99)
+>>> remaining_gen = list(deplete_capacities)
+>>> deplete_log = []
+>>> while len(deplete_log) < 60:
+...     available = [i for i, c in enumerate(remaining_gen) if c > 0]
+...     if not available:
+...         break
+...     size = min(random.randint(2, 4), len(available))
+...     basket, pool = [], list(available)
+...     for _ in range(size):
+...         if not pool:
+...             break
+...         choice = random.choice(pool)
+...         basket.append(choice)
+...         remaining_gen[choice] -= 1
+...         if remaining_gen[choice] == 0:
+...             pool.remove(choice)
+...     deplete_log.append(tuple(basket))
+...
+>>> len(deplete_log)
+21
+>>> all(c == 0 for c in remaining_gen)
+True
+
+```
+
+Sold out completely, all 5 products, after 21 purchases. Ranking every
+purchase both ways -- against the fixed original capacities, and
+against genuinely depleting, alphabet-shrinking stock:
+
+```python
+>>> fixed5 = {}
+>>> def FA5(k):
+...     if k not in fixed5:
+...         fixed5[k] = Natural_Multiset_Arranger(deplete_capacities, k)
+...     return fixed5[k]
+...
+>>> fixed_bits = [FA5(len(p)).index(p).bit_length() for p in deplete_log]
+>>> remaining5 = list(deplete_capacities)
+>>> dep_bits, active_counts = [], []
+>>> for p in deplete_log:
+...     A, active_items = get_depleting_arranger(remaining5, len(p))
+...     pos = {orig: compact for compact, orig in enumerate(active_items)}
+...     compact_p = tuple(pos[i] for i in p)
+...     dep_bits.append(A.index(compact_p).bit_length())
+...     active_counts.append(len(active_items))
+...     for c in p:
+...         remaining5[c] -= 1
+...
+>>> q = len(fixed_bits) // 4
+>>> sum(fixed_bits[:q]) / q, sum(dep_bits[:q]) / q
+(6.0, 6.0)
+>>> sum(fixed_bits[-q:]) / q, sum(dep_bits[-q:]) / q
+(1.2, 0.6)
+>>> sum(fixed_bits), sum(dep_bits)
+(99, 91)
+
+```
+
+The same shape as before, right up until it isn't: the first quarter
+of this log matches exactly (`6.0` either way), for the identical
+reason the full `shop_db` run above matched throughout -- stock is
+still comfortably above basket size early on. The last quarter is
+where it breaks open, average bits per purchase roughly halving
+(`1.2` down to `0.6`), because the number of *active classes* itself
+collapses as products sell out:
+
+```python
+>>> active_counts[-8:]
+[5, 4, 3, 3, 3, 2, 1, 1]
+>>> fixed_bits[-8:]
+[4, 4, 5, 0, 2, 4, 0, 0]
+>>> dep_bits[-8:]
+[4, 3, 3, 0, 1, 2, 0, 0]
+
+```
+
+By the last two purchases only one product is left at all -- there's
+exactly one possible arrangement remaining, so the index needs `0`
+bits to communicate it, while the fixed scheme keeps paying for
+arrangement space against products that no longer exist to be sold.
+Total across this run: `99` bits fixed versus `91` depleting -- a
+modest number that undersells what's actually happening, since almost
+all of the saving is concentrated in the handful of purchases nearest
+the stockout, not spread evenly across the log.
+
+Put together honestly: depleting stock isn't a free improvement over
+this file's original choice. On a normal day, with stock well above
+basket size throughout, it changes nothing at all, while giving up
+independent, parallel decodability for a purely sequential replay. It
+only earns its keep once a shop's inventory genuinely runs thin --
+closeout sales, near-stockout windows, a small catalog worked hard --
+and there, the effect isn't gradual, it's a sharp collapse right at
+the end, down to zero bits at the moment there's nothing left to
+choose from at all.
