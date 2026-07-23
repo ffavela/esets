@@ -153,7 +153,13 @@ shrinking as cards come off the top. So a scheme like this only stays
 simple if every combination number always refers back to the original
 52-card setup, as if none of the cards dealt so far had been removed,
 rather than being re-derived against whatever's left in the deck at
-that moment.
+that moment. The same choice happens to buy something else, too: a
+number re-derived against the live deck would leak more than its size
+implies -- the deck's state immediately after dealing to one player,
+for instance, narrows what everyone else can infer about that
+player's hand. Referring back to the fixed original setup sidesteps
+that as a side effect, not the reason for the choice above, but a real
+one anyway.
 
 ## Counting hand shapes, mset-style
 

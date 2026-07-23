@@ -447,12 +447,10 @@ with `POKER.md`'s own multi-deck section, which does the same thing
 for a different, stated reason: re-deriving a hand's number against a
 shrinking deck needs *more* information to communicate it, not less,
 since the number alone stops being self-sufficient without also
-knowing the deck's current shape. `POKER.md` never mentions card
-counting -- that's a real, separate concern in a multi-party game
-(transmitting deck state right after dealing to one player could let
-everyone else infer that player's hand), but it isn't the reason given
-there, and it doesn't transfer here anyway: a shop's own database has
-no other players to keep in the dark.
+knowing the deck's current shape. `POKER.md` notes one more benefit
+of that same choice, unrelated to communication cost -- it doesn't
+transfer here either, for a simpler reason than the one above: a
+shop's own database has no other players to keep in the dark.
 
 What *does* transfer is worth checking on its own terms rather than
 assumed. Unlike a single poker hand communicated in isolation,
