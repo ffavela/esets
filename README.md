@@ -53,6 +53,11 @@ the substance directly:
   -- character and word alphabets built from a small text file, encoded
   with `Arranger` and with `Combinator`+`Permutator` by hand, as a
   first step toward larger-text, whole-language "compression."
+* [ARRANGEMENTINFO.md](https://github.com/ffavela/esets/blob/main/ARRANGEMENTINFO.md)
+  -- an arrangement's information content split exactly into its
+  combination and permutation halves, where that split flips in
+  POKER.md's own 52-card deck, and how the flip point scales with
+  deck size in general.
 
 ## What is it? (An informal introduction)
 

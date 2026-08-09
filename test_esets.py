@@ -53,6 +53,7 @@ def test_doctests():
         'INCLUSIONEXCLUSION.md',
         'COMBINATORIALDB.md',
         'TEXTENCODE.md',
+        'ARRANGEMENTINFO.md',
     ):
         result = doctest.testfile(docfile, optionflags=doctest.ELLIPSIS)
         assert (
