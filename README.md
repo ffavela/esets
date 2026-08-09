@@ -55,9 +55,11 @@ the substance directly:
   first step toward larger-text, whole-language "compression."
 * [ARRANGEMENTINFO.md](https://github.com/ffavela/esets/blob/main/ARRANGEMENTINFO.md)
   -- an arrangement's information content split exactly into its
-  combination and permutation halves, where that split flips in
-  POKER.md's own 52-card deck, and how the flip point scales with
-  deck size in general.
+  combination and permutation halves, where that split (and the
+  combination curve's own peak) flips in POKER.md's own 52-card deck,
+  how the flip point scales with deck size in general, and how it
+  changes once the deck is grouped into multiset classes (by suit,
+  rank, and other real groupings) instead of picked as distinct cards.
 
 ## What is it? (An informal introduction)
 

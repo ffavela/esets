@@ -152,6 +152,8 @@ answering "which `k` first makes ordering worth more bits than
 choosing" -- there's no reason to expect the same `k` answers both,
 and here it clearly doesn't.
 
+![All three curves for a 52-card deck: arrangement bits climbing monotonically to log2(52!), combination bits rising to a peak at k=26 then falling back to zero, and permutation bits (log2 k!) crossing above combination bits at k=16.](assets/arrangementinfo/split_n52.png)
+
 ## The general relationship: k_flip is roughly e times sqrt(n)
 
 Fixing `n=52` and asking "which `k`" is one question; asking how that
@@ -228,6 +230,8 @@ before any precision is at stake:
 
 The ratio climbs steadily toward 1 as `n` grows, which is exactly the
 "should get tighter" prediction confirmed rather than assumed.
+
+![Two panels: the left plots exact k_flip against the e times sqrt(n) estimate on log-log axes, the two lines nearly on top of each other; the right plots their ratio against n, climbing from about 0.95 toward 1.0 as n grows from 1,000 to 100,000.](assets/arrangementinfo/asymptotic_convergence.png)
 
 ## Is this a known result?
 
@@ -312,9 +316,12 @@ by the three-tier grouping blackjack card counting uses:
 
 `face` splits jacks/queens/kings (`3 ranks * 4 suits = 12`) against
 everything else, aces included (`10 ranks * 4 suits = 40`). `hilo`
-splits into the three groups the Hi-Lo counting system POKER.md's own
-card-counting aside refers to: low `2`-`6` (`5*4=20`), neutral `7`-`9`
-(`3*4=12`), high `10` through ace (`5*4=20`).
+splits into the three groups the real-world Hi-Lo blackjack counting
+system uses (not something POKER.md itself names -- its own aside on
+this project's own combination-index choice is about a related but
+distinct point, live deck-state updates leaking more than their size
+implies, not counting systems specifically): low `2`-`6` (`5*4=20`),
+neutral `7`-`9` (`3*4=12`), high `10` through ace (`5*4=20`).
 
 ## Why the same split doesn't carry over cleanly
 
@@ -440,3 +447,5 @@ holds out the longest (`k=11`) -- still nowhere close to the
 fraction of 52 singleton classes. More classes pushes the flip later;
 the distinct-item deck, with 52 classes of capacity 1 each, is just
 the extreme end of that same trend.
+
+![Flip point plotted against number of classes (log scale) for the five curated shapes plus the 52-singleton distinct case: color and face both land on (2 classes, k=6), hilo and suit sit around (3-4 classes, k=7), rank at (13 classes, k=11), and the distinct deck at (52 classes, k=16), rising roughly log-linearly throughout.](assets/arrangementinfo/multiset_class_trend.png)
