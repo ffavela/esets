@@ -163,28 +163,37 @@ a clean closed-form answer.
 For `k` small relative to `n`, `C(n,k) = n!/(k!(n-k)!)` is well
 approximated by `n**k / factorial(k)` (the top of the fraction is
 `k` shrinking terms starting at `n`, each close to `n` itself when
-`k << n`). Substituting that into the flip condition
-`log2(factorial(k)) = log2(C(n,k))`:
+`k << n`). Substituting that into the flip condition -- switching
+from `log2` to natural log here, since the crossover condition
+`log2(k!) = log2(C(n,k))` and `ln(k!) = ln(C(n,k))` are the exact
+same equality (one is just the other scaled by the constant `ln 2`),
+so nothing about *where* the flip lands depends on which log is used,
+only how clean the algebra reads:
 
 ```
-log2(k!) ~= log2(n**k / k!)
-log2(k!) ~= k*log2(n) - log2(k!)
-2*log2(k!) ~= k*log2(n)
-log2(k!) ~= (k/2)*log2(n)
+ln(k!) ~= ln(n**k / k!)
+ln(k!) ~= k*ln(n) - ln(k!)
+2*ln(k!) ~= k*ln(n)
+ln(k!) ~= (k/2)*ln(n)
 ```
 
-and Stirling's approximation (`log2(k!) ~= k*log2(k) - k*log2(e)`)
-turns the left side into something solvable for `k`:
+and Stirling's approximation (`ln(k!) ~= k*ln(k) - k`) turns the left
+side into something solvable for `k`:
 
 ```
-k*log2(k) - k*log2(e) ~= (k/2)*log2(n)
-log2(k) - log2(e) ~= (1/2)*log2(n)
-log2(k) ~= (1/2)*log2(n) + log2(e)
-k ~= e * sqrt(n)
+k*ln(k) - k ~= (k/2)*ln(n)
+ln(k) - 1 ~= (1/2)*ln(n)
+ln(k) ~= (1/2)*ln(n) + 1
+k ~= e**1 * sqrt(n) = e * sqrt(n)
 ```
 
-`e` falls straight out of the algebra as `2**log2(e)`, not something
-fitted after the fact. That predicts a flip point that grows with the
+`e` falls straight out as `e**1` -- Stirling's own natural-log form
+has no base-conversion factor to hide it behind. (The same derivation
+in `log2` gets to the same place, but by way of `2**log2(e) = e`,
+technically correct but reading like the constant was pulled out of a
+hat rather than the natural unit Stirling's approximation is stated
+in to begin with -- worth fixing since it was the original version of
+this section.) That predicts a flip point that grows with the
 *square root* of the deck size -- doubling `n` should move `k_flip` by
 a factor of `sqrt(2) ~= 1.41`, not 2:
 
