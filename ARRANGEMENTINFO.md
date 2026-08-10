@@ -188,12 +188,10 @@ k ~= e**1 * sqrt(n) = e * sqrt(n)
 ```
 
 `e` falls straight out as `e**1` -- Stirling's own natural-log form
-has no base-conversion factor to hide it behind. (The same derivation
-in `log2` gets to the same place, but by way of `2**log2(e) = e`,
-technically correct but reading like the constant was pulled out of a
-hat rather than the natural unit Stirling's approximation is stated
-in to begin with -- worth fixing since it was the original version of
-this section.) That predicts a flip point that grows with the
+has no base-conversion factor to hide it behind, unlike a `log2`
+version of the same steps, which reaches the same place but only by
+way of the less illuminating `2**log2(e) = e`. That predicts a flip
+point that grows with the
 *square root* of the deck size -- doubling `n` should move `k_flip` by
 a factor of `sqrt(2) ~= 1.41`, not 2:
 
