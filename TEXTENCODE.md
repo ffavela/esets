@@ -391,6 +391,134 @@ True
 
 ```
 
+### The index is a fact about the alphabet, not just the text
+
+"An alphabet's order is a choice, not a fact" made this point with a
+three-element toy (`weird_alphabet`) before any real text existed to
+test it on. Worth confirming directly on `word_idx` itself, now that
+it does: reorder `word_alphabet` -- reversing it is enough, nothing
+fancier -- rebuild `Arranger` on the *same* `word_tokens` against that
+*different* order, and index the same 34-token sequence again:
+
+```python
+>>> reordered_alphabet = list(reversed(word_alphabet))
+>>> A_word_reordered = Arranger(word_tokens, len(word_tokens), reordered_alphabet)
+>>> reordered_idx = A_word_reordered.index(word_tokens)
+>>> reordered_idx
+6527908577002266923841935
+>>> reordered_idx == word_idx
+False
+>>> A_word_reordered[reordered_idx] == word_tokens
+True
+>>> A_word_reordered[word_idx] == word_tokens
+False
+
+```
+
+Same text, same tokens, same number of tokens, even the same space
+size (`A_word_reordered.len() == A_word.len()`, unaffected by
+reordering which class is which) -- and a completely different index,
+`6527908577002266923841935` instead of `86428004812115296958064`.
+Both are correct, and both are useless without knowing which alphabet
+they belong to: decoding `word_idx` back through
+`A_word_reordered` -- the *wrong* alphabet for that number -- silently
+returns something else entirely rather than failing loudly. An index
+was never a property of the text alone; it's a coordinate that only
+means something relative to the specific, ordered alphabet it was
+produced against, and reporting one without the other is reporting
+half a fact.
+
+### The alphabet can carry arbitrarily much of the information, too
+
+Order is one degree of freedom in what an alphabet contributes; which
+*classes* it has at all is a much bigger one, and the `3.88x` gap just
+above is already a real instance of it -- the word alphabet needs
+fewer index bits than the character alphabet not because words are
+somehow more efficient than characters in general, but because a
+12-class alphabet built from this exact text already "knows" which
+words recur in it, and that prior knowledge is doing real work before
+the index is ever computed. Worth taking that to its actual limit
+rather than leaving it as an intuition: what happens to the index if
+the alphabet is allowed to know *everything* about this text, up to
+and including being built from nothing else?
+
+```python
+>>> whole_text_alphabet = [text]
+>>> A_whole = Arranger((text,), 1, whole_text_alphabet)
+>>> A_whole.len()
+1
+>>> whole_idx = A_whole.index((text,))
+>>> whole_idx
+0
+>>> whole_idx.bit_length()
+0
+>>> A_whole[whole_idx] == (text,)
+True
+
+```
+
+A single-class alphabet whose one entry *is* the entire text turns
+"encode this text" into a one-element, one-arrangement space: the
+index is always `0`, needing literally zero bits, and it still
+round-trips exactly. This is not a loophole or a trick played on the
+counting -- it's the same mechanism as `3.88x`, pushed all the way to
+its edge. Every bit saved by choosing a better-fitted alphabet earlier
+in this file was already a transfer of information *into* the
+alphabet and *out of* the index; a one-class, whole-text alphabet is
+just what that transfer looks like when carried to completion, with
+nothing at all left for the index to say.
+
+Worth being exact about what that zero actually claims, rather than
+letting it sound like a trick of the counting. It's the standard
+measure of self-information: an outcome's information content is
+`-log2(P(outcome))`, and here there's only one outcome to have, so
+`P(outcome) == 1`:
+
+```python
+>>> import math
+>>> -math.log2(1 / A_whole.len())
+-0.0
+
+```
+
+Zero, not something close to zero rounded down -- a source with
+exactly one possible outcome carries no information, because there is
+nothing left for a receiver to be uncertain about, *given that they
+already have the alphabet*. That qualifier is doing real work, and
+it's a cost this file has quietly assumed away everywhere, not just
+here. `word_idx`'s 77 bits only mean anything to a decoder that
+already knows to reach for `word_alphabet` specifically -- the
+reordered-alphabet section just above already showed what happens
+without that shared context: `A_word_reordered[word_idx]` doesn't
+raise an error or refuse to answer, it silently returns a different,
+wrong, equally well-formed-looking sequence instead. The one-class
+alphabet doesn't introduce the cost of "knowing which alphabet
+applies"; it only makes that cost impossible to miss, since here the
+alphabet has grown large enough to hold the entire text while the
+index shrank to nothing, leaving nothing else in the picture left to
+distract from it. Whatever it takes to agree on "use this alphabet,
+not some other one" is real, but it's a header cost every scheme in
+this file already carries silently -- not a special tax owed only by
+the degenerate case.
+
+It's also, obviously, useless the moment the text changes: an
+alphabet with `text` as its only class can encode `text` and nothing
+else, in exactly the way `char_alphabet` and `word_alphabet` can
+encode any sequence built from their own (reusable, far smaller) sets
+of tokens. That's overfitting in its purest form -- zero bits of index,
+paid for with an alphabet that has memorized the answer instead of
+describing a space worth calling general. But the lesson isn't "don't
+bother, since a fitted-enough alphabet threatens to make the whole
+question of an index size meaningless" -- it's that *how much
+information an index needs is never a fact about the text on its
+own*, only about the text relative to whatever alphabet is doing the
+describing. A method that generalizes has to get its savings from an
+alphabet that reflects real, reusable structure -- how a whole
+language actually distributes its words or characters, say -- rather
+than one built by simply memorizing the one sample in front of it.
+That's a real, harder design problem, not a reason to give up on
+looking for one.
+
 ## Combinator, then Permutator: what Arranger is doing conceptually
 
 `Arranger`'s own docstring describes it as "the object you'd get by
